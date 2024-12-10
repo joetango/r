@@ -6,8 +6,18 @@ tw <- trashwheel %>%
   mutate(Date = as_date(Date, format=c("%m/%d/%Y", "%m/%d/%y"))) %>% 
   group_by(Name, Date) %>% 
   summarize(Weight = sum(Weight),
-            Volume = sum(Volume), PlasticBottles = sum(PlasticBottles)) %>% 
+            Volume = sum(Volume),
+            PlasticBottles = sum(PlasticBottles)
+            ) %>%
+  filter(Weight < 15) %>% ## mostly outliers due to date aggregation 
   arrange(Date)
 
 
-tw
+tw %>% 
+  ggplot(aes(x = Date, y = Weight)) +
+  geom_point(size = 1.5) +
+  geom_smooth() +
+  labs(x = "Time", y = "Weight of trash in tons", 
+       title = "Trash Recovered by Trashwheels Across Baltimore")
+
+
