@@ -1,0 +1,208 @@
+---
+title: "Homework 4"
+author: "Joe Dickerson"
+date: "2024-09-16"
+output: pdf_document
+---
+
+
+## 1. 
+
+a. Based on the plot of the fitted values and residuals, it would appear the errors have constant variance as there is no detection of heteroscedasticity or a nonlinear pattern. We find the same when plotting the fitted values to the square root of epsilon hat. 
+
+```{r}
+
+require(faraway)
+data(swiss)
+
+lmod <- lm(Fertility ~ Agriculture + Examination + Education + Catholic + Infant.Mortality, swiss)
+
+plot(fitted(lmod), residuals(lmod), xlab="Fitted", ylab="Residuals")
+abline(h=0)
+
+plot(fitted(lmod), sqrt(abs(residuals(lmod))), xlab="Fitted", ylab=expression(sqrt(hat(epsilon))))
+
+
+```
+
+b. We find a nice distribution of the residuals on a Q-Q plot, indicating satisfactory normality. We also find an appropriate p-value when conducting a Shapiro-Wilk test. 
+
+```{r}
+
+qqnorm(residuals(lmod), ylab="Residuals", main="")
+qqline(residuals(lmod))
+shapiro.test(residuals(lmod))
+
+```
+
+c. We construct a half-normal plot and find two leverages of interest: La Vallee and V. De Geneve. This is confirmed by comparing their hat values to 2p/n.  
+
+```{r}
+
+hatv <- hatvalues(lmod)
+sum(hatv)
+rows <- row.names(swiss)
+halfnorm(hatv, labs = rows, ylab = "Leverages")
+
+val <- (2 * 6)/47 ## 2p/n
+
+which(hatv > val)
+
+```
+
+d. We computer the Bonferroni critical value and are find -3.529. Our largest studentized residual is Sierre with a value of 2.445, which is smaller than the absolute value of the Bonferroni value. This indicates Sierre is not an outlier.
+
+```{r}
+
+studentized <- rstudent(lmod)
+studentized[which.max(abs(studentized))]
+
+bonf <- qt(.05/(47 * 2),40)
+
+bonf
+
+which(abs(studentized) > abs(bonf))
+
+```
+
+e. We observe on the half-norm plot that Porrentruy has a noticeably larger value than the other points. We make a linear model excluding Porrentruy and compare the coefficients between the two. The coefficient for infant mortality changes from 1.08 to 1.32, a roughly 20% increase. 
+
+```{r}
+
+cook <- cooks.distance(lmod)
+
+halfnorm(cook, 1, labs=rows, ylab="Cook's distances")
+
+lmodi <- lm(Fertility ~ Agriculture + Examination + Education + Catholic + Infant.Mortality, swiss, subset=(cook < max(cook)))
+
+summary(lmod)
+summary(lmodi)
+
+```
+
+f. Below is a partial regression plot and a partial residual plot. We see relatively similar grouping between the two, which is a promising sign for the structure of the relationship between the predictors and the response. 
+
+```{r}
+
+a <- lm(Fertility ~ Agriculture + Examination + Education + Catholic, swiss)
+
+b <- lm(Infant.Mortality ~ Agriculture + Examination + Education + Catholic, swiss)
+
+plot(residuals(b),residuals(a), main="Partial regression plot", xlab="Infant Mortality Residuals",ylab="Fertility Residuals")
+abline(0,coef(lmod)['Infant.Mortality'])
+
+termplot(lmod,partial.resid = T, main="Partial residual plot", terms=5)
+
+```
+
+
+## 2.
+
+a. We plot the fitted values against the residuals and detect perhaps non-linearity in the plot. The plot seems to have a different grouping then our fitted values and square root of epsilon hat.
+
+```{r}
+
+data(aatemp)
+
+lmod2 <- lm(temp ~ year, aatemp)
+
+plot(lmod2$fitted.values, lmod2$residuals, xlab="Fitted", ylab="Residuals")
+abline(h=0)
+
+n <- length(residuals(lmod2))
+
+## plot(tail(residuals(lmod2),n-1) ~ head(residuals(lmod2),n-1), xlab=
+## expression(hat(epsilon)[i]),ylab=expression(hat(epsilon)[i+1]))
+
+plot(fitted(lmod2), sqrt(abs(residuals(lmod2))), xlab="Fitted", ylab=expression(sqrt(hat(epsilon))))
+
+
+```
+
+b. The Q-Q shows a good distribution, and the result of a Shapiro-Wilk test shows a large p-value, which is agreeable. 
+
+```{r}
+
+qqnorm(residuals(lmod2), ylab="Residuals", main="")
+qqline(residuals(lmod2))
+shapiro.test(residuals(lmod2))
+
+```
+
+c. We find that the years 1855 and 1854 are leverage points of interest by creating a half-norm plot using our model's hat values.
+
+```{r}
+
+hatv2 <- hatvalues(lmod2)
+rows2 <- row.names(aatemp)
+years <- as.vector(aatemp$year)
+
+halfnorm(hatv2, nlab=2, labs=years, ylab="Leverages")
+
+
+```
+
+d. We find the Bonferroni correction to be -3.626, while the maximum studentized residual is -2.817. This belongs to the year 1917. This studentized residual is satisfactory because its absolute value is smaller than the absolute value of our Bonferroni value. 
+
+```{r}
+
+studentized2 <- rstudent(lmod2)
+studentized2[which.max(abs(studentized2))]
+
+## In 2c, I created a vector called years containing the years of the data. Here I print the 36th item in the list to find the year in question.
+years[36]
+
+bonf2 <- qt(.05/(115 * 2),112)
+bonf2
+
+which(abs(studentized2) > abs(bonf2))
+
+```
+
+e. We find 3 influential points on a half normal plot, the years 1854, 1855, and 1998. We subset these years from the model and compare it to the original and find similar coefficients between the two models. 
+
+```{r}
+
+cook2 <- cooks.distance(lmod2)
+
+halfnorm(cook2, 3, labs=years, ylab="Cook's distances")
+
+lmodi2 <- lm(temp ~ year, aatemp, subset=(year != "1854" & year != "1855" & year != "1998"))
+
+summary(lmod2)
+summary(lmodi2)
+
+
+```
+
+f. Though we cannot make a partial regression plot with only one predictor, we can plot x vs y in a similar fashion and compare it to a partial residual plot. The similarity between the two is expected and a positive indicator structure of the relationship between the predictor and response. 
+
+```{r}
+
+termplot(lmod2,partial.resid = T, main="Partial residual plot", terms=1)
+
+plot(lmod2$fitted.values, lmod2$residuals,main="Fitted vs Residuals", xlab="Fitted", ylab="Residuals")
+abline(h=0)
+
+
+
+```
+
+g. We check for serial correlation by plotting the residuals against the index, as seen in the first plot. We observe a pattern that may indicate not a completely random scatter of sequences, which would indicate positive serial correlation. We can also plot the successive pairs of residuals to check for positive serial correlation, as seen in the second plot. We again detect possible correlation. We test this with a Durbin-Watson test, and find a statistically significant p-value of 0.01524 and DW value of 1.6177. A DW value less than 2 indicates positive serial correlation, though our value is rather close to 2, so more testing could be done.
+
+```{r}
+
+plot(residuals(lmod2) ~ years, na.omit(aatemp), ylab="Residuals")
+abline(h=0)
+
+len <- length(residuals(lmod2))
+
+plot(tail(residuals(lmod2),n-1) ~ head(residuals(lmod2),n-1), xlab=
+expression(hat(epsilon)[i]),ylab=expression(hat(epsilon)[i+1]))
+
+abline(h=0,v=0,col=grey(0.75))
+
+require(lmtest)
+dwtest(temp ~ year, data=aatemp)
+
+```

@@ -1,0 +1,109 @@
+---
+title: "Homework 09"
+output: pdf_document
+date: "Due: 2024-11-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. 
+
+We see a strong relationship between income and amount spent on gambling among males in the study, though not so much for the females. Looking at our model, we see that for each unit change of income we expect to see an increase of 6.5181 in males, while we would only expect to see an increase of 0.1749 in gambling amount for females. This is illustrated by the regression line on our plot.
+
+Looking at similar graphs that measure against amount spent gambling yields similar results. In all comparisons, females have very little amount spent gambling. An interesting note is that males with higher verbal scores and families from a higher socioeconomic status will gamble less than males with lower scores in both variables. 
+
+```{r}
+
+require(tidyverse)
+
+data(teengamb, package = "faraway")
+
+teengamb$sex <- as.factor(teengamb$sex)
+
+by(teengamb, teengamb$sex, summary)
+
+lmod <- lm(gamble ~ income + sex + sex*income, data = teengamb)
+#full model with everything sex*(status+income+verbal)
+
+summary(lmod)
+
+teengamb %>% 
+  ggplot(aes(x = income, y = gamble, color = sex)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Income vs Gambling Amount in Males and Females")
+
+teengamb %>% 
+  ggplot(aes(x = verbal, y = gamble, color = sex)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Verbal Score vs Gambling Amount in Males and Females")
+
+teengamb %>% 
+  ggplot(aes(x = status, y = gamble, color = sex)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Familial Economic Status vs Gambling Amount in Males and Females")
+
+```
+
+## 2.
+
+a. The most notable feature is that group B has a lower quartile nearly the same as its minimum. Also, the "A" tgrp group has a much larger range in values, going nearly as high as 20. Group B and D have a median close to the lower quartile. 
+
+```{r}
+
+data(anaesthetic, package="faraway")
+plot(breath ~ tgrp, data=anaesthetic,ylab="Time in minutes")
+
+```
+
+b. We do not see a very large difference in the levels of the treatments.
+
+```{r}
+
+require(faraway)
+
+lmod2 <- lm(breath ~ tgrp, data=anaesthetic)
+summary(lmod2)
+
+round(coef(lmod2),1)
+
+model.matrix(lmod2)
+
+anova(lmod2)
+
+## Fitting the model without intercept term
+## lmodi <- lm(breath ~ tgrp -1, anaesthetic)
+
+## summary(lmodi)
+
+```
+
+c. A box-cox transformation is not possible because the response variable must be positive for a box-cox transformation. I have allowed the error to push through to illustrate this.
+
+```{r, error=TRUE}
+
+require(MASS)
+
+boxcox(lmod2, plotit=T)
+
+```
+
+d. The diagnostics appear satisfactory, and there does not appear to be a significant difference among the treatment groups after performing a square root transformation. 
+
+```{r}
+
+lmod3 <- lm(sqrt(abs(residuals(lmod2))) ~ fitted(lmod2))
+
+summary(lmod3)
+
+plot(fitted(lmod2), residuals(lmod2), xlab="Fitted Values", ylab="Residuals")
+abline(h=0)
+
+plot(fitted(lmod2), sqrt(abs(residuals(lmod2))), xlab="Fitted Values", ylab=expression(sqrt(hat(epsilon))))
+abline(h=0)
+
+```

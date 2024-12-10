@@ -1,0 +1,221 @@
+---
+title: "Homework 2"
+author: "Joe Dickerson"
+date: "2024-09-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# PROBLEM SET:
+
+The dataset prostate in the package faraway comes from a study on 97 men with prostate cancer who were due to receive a radical prostatectomy. Fit a regression model with lpsa as the response and all other variables (lcavol, lweight, svi, lbph, age, lcp, pgg45, and gleason) as predictors. Present the output.
+
+What percentage of variation in the response is explained by these predictors?
+  
+Compute the correlation between the fitted values and the response. Square it. Identify where this value appears in the regression output.
+  
+Which observation has the largest (positive) residual? Give the case number.
+  
+Compute the mean and median of the residuals.
+  
+Compute the correlation of the residuals with the fitted values.
+  
+For all other predictors held constant, what would be the difference in predicted (log) prostate specific antigen for a patient with seminal vesicle invasion (svi=1) compared to a patient without seminal vesicle invasion (svi=0)?
+  
+The dataset fat in the package faraway concerns a study of body fat percentages among men. Fit a model with brozek as the response and age as the predictor. Record the residual standard error and the R2. Now add weight, height, neck, chest, abdom, hip, thigh, knee, ankle, biceps, forearm, and wrist to the model one at a time. For each model record the residual standard error and the R2.
+
+Plot the trends in these two statistics (i.e. create one plot of RSE vs R2 , 13 points, one for each model)
+
+For the full model, give a simple interpretation for the regression coefficient for extended biceps circumference.
+
+Fit the same model but with logged brozek as the response. Give an interpretation to the coefficient for extended biceps circumference. Which interpretation is more natural?
+
+(optional) For exercise 2, write an R function using a "for" loop (see pg 47 for an example) to compute the residual standard errors σ and R2 values of the various models with different numbers of predictors. Plot the trends in these two statistics and comment on the results.
+
+
+
+
+
+## Question 1
+
+a. We find the percentage of variation to be 65.48%
+
+``` {r}
+
+data(prostate, package="faraway")
+
+##finding the percentage of variation in the response
+
+##fit the regression model
+lmpros <- lm(lpsa ~ lcavol + lweight + svi + lbph + age + lcp + pgg45 + gleason, data=prostate)
+
+lm_sum <- summary(lmpros)
+
+r_sqr <- lm_sum$r.squared
+
+r_sqr * 100
+
+```
+
+b. Squaring the correlation between the fitted values and the response values gives .6548, which is the value of R-squared of our linear model.
+
+```{r}
+
+##computing the correlation between fitted values and response
+lmfitted <- fitted(lmpros)
+
+response_value <- prostate$lpsa
+
+correlation <- cor(lmfitted, response_value)
+
+(correlation)^2
+
+summary(lmpros)$r.squared
+
+```
+
+c. We can use the which.max() function to find the case number of the maximum residual, which is case 69.
+
+```{r}
+
+pros_residuals <- residuals(lmpros)
+
+which.max(pros_residuals)
+
+```
+
+d. We can use the mean() and median() functions to find the mean and median of the residuals.
+
+```{r}
+
+mean(pros_residuals)
+
+median(pros_residuals)
+
+```
+
+e. We can again use the cor() function to find the correlation between the fitted values and the residual values, which returns 3.292635*10^-16
+
+```{r}
+
+cor(lmfitted,pros_residuals)
+
+```
+
+f. The predicted change in lpsa if all variables but svi are held constant would be 0.766157, which is our estimate for the svi variable. If all variables would be held constant between the two cases, they would zero out when subtracted from one another, and 1(0.766157) * 0(0.766157) would return our estimate.  
+
+```{r}
+
+summary(lmpros)
+
+```
+
+##Question 2
+
+a. Below is a plot of the various residual standard errors and R^2 values of the various linear models. We can see the residual standard error decrease as our R^2 increases. 
+
+```{r}
+
+data(fat, package="faraway")
+
+lmfat01 <- lm(brozek ~ age, data=fat)
+rse_01 <- sqrt(deviance(lmfat01)/df.residual(lmfat01))
+rsqr_01 <- summary(lmfat01)$r.squared
+
+lmfat02 <- lm(brozek ~ age + weight, data=fat)
+rse_02 <- sqrt(deviance(lmfat02)/df.residual(lmfat02))
+rsqr_02 <- summary(lmfat02)$r.squared
+
+lmfat03 <- lm(brozek ~ age + weight + height, data=fat)
+rse_03 <- sqrt(deviance(lmfat03)/df.residual(lmfat03))
+rsqr_03 <- summary(lmfat03)$r.squared
+
+lmfat04 <- lm(brozek ~ age + weight + height + neck, data=fat)
+rse_04 <- sqrt(deviance(lmfat04)/df.residual(lmfat04))
+rsqr_04 <- summary(lmfat04)$r.squared
+
+lmfat05 <- lm(brozek ~ age + weight + height + neck + chest, data=fat)
+rse_05 <- sqrt(deviance(lmfat05)/df.residual(lmfat05))
+rsqr_05 <- summary(lmfat05)$r.squared
+
+lmfat06 <- lm(brozek ~ age + weight + height + neck + chest + abdom, data=fat)
+rse_06 <- sqrt(deviance(lmfat06)/df.residual(lmfat06))
+rsqr_06 <- summary(lmfat06)$r.squared
+
+lmfat07 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip, data=fat)
+rse_07 <- sqrt(deviance(lmfat07)/df.residual(lmfat07))
+rsqr_07 <- summary(lmfat07)$r.squared
+
+lmfat08 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh, data=fat)
+rse_08 <- sqrt(deviance(lmfat08)/df.residual(lmfat08))
+rsqr_08 <- summary(lmfat08)$r.squared
+
+lmfat09 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee, data=fat)
+rse_09 <- sqrt(deviance(lmfat09)/df.residual(lmfat09))
+rsqr_09 <- summary(lmfat09)$r.squared
+
+lmfat10 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle, data=fat)
+rse_10 <- sqrt(deviance(lmfat10)/df.residual(lmfat10))
+rsqr_10 <- summary(lmfat10)$r.squared
+
+lmfat11 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps, data=fat)
+rse_11 <- sqrt(deviance(lmfat11)/df.residual(lmfat11))
+rsqr_11 <- summary(lmfat11)$r.squared
+
+lmfat12 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm, data=fat)
+rse_12 <- sqrt(deviance(lmfat12)/df.residual(lmfat12))
+rsqr_12 <- summary(lmfat12)$r.squared
+
+lmfat13 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data=fat)
+rse_13 <- sqrt(deviance(lmfat13)/df.residual(lmfat13))
+rsqr_13 <- summary(lmfat13)$r.squared
+
+
+##plotting
+require(ggplot2)
+
+rsedata <- c(rse_01,rse_02,rse_03,rse_04,rse_05,rse_06,rse_07,rse_08,rse_09,rse_10,rse_11,rse_12,rse_13)
+
+rsqrdata <- c(rsqr_01,rsqr_02,rsqr_03,rsqr_04,rsqr_05,rsqr_06,rsqr_07,rsqr_08,rsqr_09,rsqr_10,rsqr_11,rsqr_12,rsqr_13)
+
+rse_rsqr_data <- data.frame(rsedata,rsqrdata)
+
+ggplot(rse_rsqr_data, aes(x=rsedata, y=rsqrdata)) +geom_point()
+
+```
+As expected, the residual standard error decreases as Rˆ2 increases.
+
+b. We can use the coefficients() function to find the regression coefficient for extended biceps circumference, which is 0.1528. 
+
+This shows that for each unit change of bicep circumference, we can expect the percentage of body fat to change 0.1528 units.
+
+```{r}
+
+coefficients(lmfat13)
+
+```
+
+c. When we try to take the log of the brozek variable, we get an error because one of the observations has a value of 0. Before taking the log, we locate the observation that has a value of 0, then remove it from the data set before taking the log of brozek.
+
+Then, once again, we use the coefficients() function to find the regression coefficient for biceps circumference, which gives the value 0.0168. This shows that for each percentage change of body fat, we expect the bicep circumference to change 0.0168 units. 
+
+It appears the unmodified brozek is more natural. When we look at side-by-side histograms, the logged brozek loses the original shape of the data and drops very suddenly. Additionally, the change in coefficients seems dramatically different, indicating very small changes in the body measurement estimations as the brozek measurement increases. 
+
+```{r}
+
+min(fat$brozek)
+
+which.min(fat$brozek)
+
+lmfat13log_adjusted <- lm(log(brozek[-182]) ~ age[-182] + weight[-182] + height[-182] + neck[-182] + chest[-182] + abdom[-182] + hip[-182] + thigh[-182] + knee[-182] + ankle[-182] + biceps[-182] + forearm[-182] + wrist[-182], data=fat)
+
+coefficients(lmfat13log_adjusted)
+
+hist(fat$brozek, 40)
+
+hist(log(fat$brozek), 40)
+
+```

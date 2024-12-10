@@ -1,0 +1,195 @@
+---
+title: "Homework 3"
+author: "Joe Dickerson"
+date: "2024-09-13"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problem Set:
+
+
+For the teengamb data, fit a model with gamble as the response and the other variables as predictors:
+
+Compute 95 and 99% CIs for the parameter associated with income. Using just these intervals, what could we have deduced about the p-value for income in the regression summary?
+
+Compute and display a 90% joint confidence region for the parameters associated with status and verbal. Plot the origin on this display. The location of the origin on the display tells us the outcome of a certain hypothesis test. State that test and its outcome.
+
+In the text, we made a permutation test corresponding to the F-test for the significance of all the predictors. Execute the permutation test corresponding to the t-test for sex in this model. (Hint: {summary(g)$coef[2,3] gets you the t-statistic you need if the model is called g.)
+
+Remove all the predictors that are not significant at the 1% level. Test this model against the original model. Which model is preferred?
+
+Use the prostate data to answer the following:
+
+Fit a regression model with lpsa as the response and the other variables as predictors. Identify the predictors that are statistically significant at the 1% level.
+
+lcavol, lbph, lweight, and lcp are measured on a log scale. Fit the same model as in (a), but with all four predictors are measured on their original scale. Identify the predictors that are statistically significant at the 5% level for this model.
+
+Can we use an F-test to compare these two models? Explain. Which model provides a better fit to the data? Explain your reasoning.
+
+If lcavol is increased by 0.01 for the model used in (a), what change in lpsa would be expected?
+
+What is the percentage change in lcavol on the original scale corresponding to an additive increase of 0.01 on the (natural) log scale?
+
+Derive a formula relating R2 and the F-test for testing all of the predictors in a linear regression (In simplest form, this should be a relatively simple function of R2). What does this relationship mean in practice?
+
+
+
+
+
+
+## 1.
+
+a. We could have deduced that the income variable would have a p-value smaller than 0.01 because its 95% and 99% confidence intervals do not include 0 and are similar in their readings.
+
+```{r}
+
+data(teengamb, package="faraway")
+require(faraway)
+
+lmgamb <- lm(gamble ~ sex + status + income + verbal, data=teengamb)
+
+## faraway summary function provides n and p nicely 
+sumary(lmgamb)
+
+## Quantile 
+qt(.975, 47-5)
+
+4.961979 + c(-1,1) * 2.018082 * 1.025392
+
+confint(lmgamb)
+
+confint(lmgamb, level=.99)
+
+```
+
+b. The point represents the least square estimates for status and verbal in our model and tells us the outcome of a two-sided hypothesis test.
+
+```{r}
+
+require(ellipse)
+
+plot(ellipse(lmgamb, c(3,5), level = .90), type="l", ylim=c(-9,5))
+
+points(coef(lmgamb)[3], coef(lmgamb)[5], pch=20)
+
+abline(v=confint(lmgamb, level = .90)[3,], lty=2)
+abline(h=confint(lmgamb, level = .90)[5,], lty=2)
+
+```
+
+c.
+
+```{r}
+
+lmsum <- summary(lmgamb)
+
+tval <- lmsum$coef[2,3]
+
+nreps <- 10000
+
+tstats <- numeric(nreps)
+
+for(i in 1:nreps) {
+  temp1 <- lm(gamble ~ sample(sex) + status + income + verbal, data = teengamb)
+  tstats[i] <- summary(temp1)$coef[2,3]
+}
+
+mean(abs(tstats) > abs(tval))
+
+```
+
+
+d. We find the original model more preferable as it has a lower RSS.
+
+```{r}
+
+gamb_pvals <- lmsum$coefficients[, "Pr(>|t|)"]
+
+names(gamb_pvals[gamb_pvals < 0.01])
+
+lmgamb2 <- lm(gamble ~ income, data = teengamb)
+
+summary(lmgamb)$r.squared
+summary(lmgamb2)$r.squared
+
+anova(lmgamb, lmgamb2)
+
+```
+
+## 2.
+
+a. lcavol, lweight, and svi are significant at the 1% level.
+
+```{r}
+
+data(prostate, package="faraway")
+
+lmpros <- lm(lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45, data = prostate)
+
+pros_sum <- summary(lmpros)
+
+pros_pvals <- pros_sum$coefficients[, "Pr(>|t|)"]
+
+names(pros_pvals[pros_pvals < 0.01])
+
+```
+
+b. The exponented lcavol and lweight are significant at the 0.05 level, while svi remains significant at the 0.05 level. 
+
+```{r}
+
+lmpros2 <- lm(lpsa ~ exp(lcavol) + exp(lweight) + age + exp(lbph) + svi + exp(lcp) + gleason + pgg45, data = prostate)
+
+pros2_sum <- summary(lmpros2)
+
+pros2_pvals <- pros2_sum$coefficients[, "Pr(>|t|)"]
+
+names(pros2_pvals)[pros_pvals < 0.05]
+
+```
+
+c. We can do an ANOVA test to compare the two models against the null hypothesis and determine which has more convincing evidence. We find a much smaller P-value when from the model with the three logged values, which indicates a more convincing model.
+
+```{r}
+
+lmnull <- lm(lpsa ~ 1, data = prostate)
+
+anova1 <- anova(lmnull, lmpros)
+anova2 <- anova(lmnull, lmpros2)
+
+anova1$`Pr(>F)`
+anova2$`Pr(>F)`
+
+anova1
+
+```
+
+d. We would expect a proportional change of 0.01 * the coefficient (beta) of lcavol in lpsa. In this case, we will expect lpsa to increase 0.005870218. 
+
+```{r}
+
+coef <- lmpros$coefficients
+lcavolcoef <- coef["lcavol"]
+lcavolcoef * 0.01
+
+```
+
+e. This change illustrates the difference between the arithmetic scale and the logarithmic scale. 
+
+```{r}
+
+scalechange <- exp(0.01)
+
+scalechange * 100
+
+```
+
+## 3.
+
+Given that F = ((TSS - RSS)/(p-1))/(RSS/(n-p)), and R^2 = (TSS-RSS)/(TSS). This can be reworked algebraically into R^2 = 1 - (1 + F((p-1)/(n-p))^-1)
+
+In practice, R^2 and F will change proportionally to each other, which can help to indicate if the model fits the data well with one or both of the values.

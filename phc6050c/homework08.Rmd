@@ -1,0 +1,251 @@
+---
+title: "Homework 8"
+author: "Joseph Dickerson"
+output: pdf_document
+date: "2024-10-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. 
+
+a. We do not see significance in the leg predictor on the response.
+
+```{r}
+
+data(seatpos, package = "faraway")
+
+lmod <- lm(hipcenter ~ ., seatpos)
+
+summary(lmod)
+
+```
+
+b.
+
+```{r}
+
+x <- model.matrix(lmod)
+
+x0 <- apply(x, 2, mean)
+
+predict(lmod, new = data.frame(t(x0)), interval = "prediction", level=0.99)
+
+```
+
+c.
+
+Part 1. Backwards elimination
+
+```{r}
+
+lmod <- lm(hipcenter ~ ., seatpos)
+
+lmod2 <- update(lmod, . ~ . -Ht)
+
+lmod3 <- update(lmod2, . ~ . -Weight)
+
+lmod4 <- update(lmod3, . ~ . -Seated)
+
+lmod5 <- update(lmod4, . ~ . -Arm)
+
+lmod6 <- update(lmod5, . ~ . -Thigh)
+
+lmod7 <- update(lmod6, . ~ . -Age)
+
+lmod8 <- update(lmod7, . ~ . -Leg)
+
+
+# Used in the process of finding the best model:
+# summary(lmod)
+# summary(lmod2)
+# summary(lmod3)
+# summary(lmod4)
+# summary(lmod5)
+# summary(lmod6)
+# summary(lmod7)
+
+summary(lmod8)
+
+```
+
+Part 2. AIC: We find the optimal model seemingly to be Age + Ht + Leg
+
+```{r}
+
+require(leaps)
+
+b <- regsubsets(hipcenter ~ ., seatpos)
+
+rs <- summary(b)
+
+rs$which
+
+AIC <- 38 * log(rs$rss/38) + (2:9) * 2
+
+plot(AIC ~ I(1:8), ylab = "AIC", xlab = "Number of Predictors")
+
+```
+
+Part 3. Adjusted R^2: again, we find the best model to be Age + Ht + Leg
+
+```{r}
+
+plot(2:9, rs$adjr2, xlab = "Number of parameters", ylab = "Adjusted R-Squared")
+which.max(rs$adjr2)
+
+```
+
+Part 4. Stepwise selection: we find Age + HtShoes + Leg appears to be the best model.
+
+```{r}
+
+lmod <- lm(hipcenter ~ ., data=seatpos)
+step(lmod)
+
+```
+
+d. Using the model chosen by AIC, it appears that for every increase of a unit of leg length, we can expect to see hipcenter decrease by -6.739. The model has a very similar multiple r-squared value to the original, though it has a much higher adjusted r-squared, 0.6533 to the original model's 0.6001. 
+
+```{r}
+
+lmodAIC <- lm(hipcenter ~ Age + Ht + Leg, seatpos)
+summary(lmodAIC)
+
+z <- model.matrix(lmodAIC)
+
+z0 <- apply(z, 2, mean)
+
+predict(lmodAIC, new = data.frame(t(z0)), interval = "prediction", level=0.99)
+
+```
+
+## 2.
+
+a. Linear Regression with all predictors:
+
+```{r}
+
+data(fat, package="faraway")
+
+##Values to remove every 10th observation starting at 1
+
+fatseq <- seq(1, 252, by = 10)
+
+fatTrain <- fat[-fatseq,]
+fat10 <- fat[fatseq,]
+
+rmse <- function(x,y){
+  sqrt(mean((x-y)^2))
+}
+
+lmodF1 <- lm(siri ~ . -brozek -density, fatTrain)
+
+rmse(lmodF1$fit, fatTrain$siri)
+
+pred <- predict(lmodF1, fat10)
+y1 <- fat10$siri
+
+rmse(pred, y1)
+
+```
+
+b. Linear regression with stepwise variable selection:
+
+```{r}
+
+lmStep <- step(lmodF1)
+
+rmse(lmStep$fitted.values, fatTrain$siri)
+
+predStep <- predict(lmStep, fat10)
+rmse(predStep, y1)
+
+```
+
+c. Principal component regression:
+
+```{r}
+
+require(pls)
+
+pcrmod <- pcr(siri ~ . -brozek -density, data = fatTrain)
+
+pcrsme <- RMSEP(pcrmod, newdata = fat10)
+
+## plot(pcrsme)
+
+## Apropriate no. of components
+which.min(pcrsme$val)
+
+pcrmod11 <- pcr(siri ~ . -brozek -density, data = fatTrain, ncomp = 11)
+
+rmse(pcrmod11$fitted.values, fatTrain$siri)
+
+rmse(predict(pcrmod11, fat10), fat10$siri)
+
+```
+
+d. Partial least squares:
+
+```{r}
+
+set.seed(123)
+plsmod <- plsr(siri ~ . -brozek -density, data = fatTrain, ncomp = 11, validation = "CV")
+
+coefplot(plsmod, ncomp = 11, xlab = "frequency")
+
+plsCV <- RMSEP(plsmod, estimate = "CV")
+
+plot(plsCV, main = "")
+
+which.min(plsCV$val) ## it appears that 5 is an appropriate ncomp value
+
+ypred <- predict(plsmod, ncomp = 5)
+
+rmse(ypred, fatTrain$siri)
+
+ytpred <- predict(plsmod, fat10, ncomp=5)
+
+rmse(ytpred, fat10$siri)
+
+```
+
+e. Ridge regression:
+
+```{r}
+require(MASS)
+
+means <- apply(fatTrain[,4:18],2,mean)
+
+fatMatrix <- as.matrix(sweep(fatTrain[,4:18],2,means))
+
+test10 <- as.matrix(sweep(fat10[,4:18],2,means))
+
+par(mfrow= c(1,1))
+
+ysiri <- fatTrain$siri - mean(fatTrain$siri)
+
+rgmod <- lm.ridge(ysiri ~ fatMatrix, lambda = seq(0, 10, 1e-4))
+
+matplot(rgmod$lambda, t(rgmod$coef), type = "l", lty = 1, xlab = expression(lambda), ylab = expression(hat(beta)), main = "Ridge trace")
+
+select(rgmod)
+
+abline(v=0.0339)
+
+
+
+rgyfit <- scale(fatMatrix, center=F, scale=rgmod$scales) %*% rgmod$coef[,468] + mean(fatTrain$siri)
+
+rmse(rgyfit, fatTrain$siri)
+
+rgypred <-  scale(test10, center=F, scale=rgmod$scales) %*% rgmod$coef[,468] + mean(fatTrain$siri)
+
+rmse(rgypred,fat10$siri)
+
+```
+
+Conclusion: We get solid results with both methods of linear regression, all predictors and stepwise variable selection. However, we do not get favorable results with the principal component regression. However, this could be further explored. We also have promising results from the partial least squares and ridge regression methods. It is unclear why the principal component regression performed returned poor results, but perhaps a different testing sample size would change the outcome.

@@ -1,0 +1,272 @@
+<<<<<<< HEAD
+---
+title: "homework6_phc6050c"
+author: "Joe Dickerson"
+date: "2024-10-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+## packages 
+## list
+require(faraway)
+require(dplyr)
+require(ggplot2)
+require(nlme)
+require(lmtest)
+require(MASS)
+require(quantreg)
+data(divusa, package = "faraway")
+data(fat, package = "faraway")
+
+```
+
+## 1. 
+
+a. The graphs indicate there is a positive serial correlation. When we plot the residuals against the year, we find a trend of points which follow above and below our line at y=0. We also see a trend indicating correlation when we plot epsilon-hat i against epsilon-hat i+1.
+
+```{r}
+
+lmod <- lm(divorce ~ unemployed + femlab + marriage + birth + military, divusa)
+
+ggplot() +
+  aes(x = divusa$year, y = residuals(lmod), color = divusa$year) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  labs(x = "Year", y = "Residuals")
+
+n <- length(residuals(lmod))
+
+plot(tail(residuals(lmod), n-1) ~ head(residuals(lmod), n-1), xlab = 
+expression(hat(epsilon)[i]),ylab = expression(hat(epsilon)[i+1]))
+abline(h=0, v=0, col=grey(0.75), )
+
+cor(residuals(lmod)[-1], residuals(lmod)[-length(residuals(lmod))])
+
+```
+
+b. We have an estimated correlation of 0.9715486, a very high value for phi. The confidence interval is (0.6527537, 0.9980196). Because this is different from zero, there is significant positive correlation. Comparing the summary outputs of each model, we find the p-value of unemployed has decreased a noticeable amount making it more significant than before.
+
+```{r}
+
+glmod <- gls(divorce ~ unemployed + femlab + marriage + birth + military, data = divusa, correlation = corAR1(form = ~year), method = "ML")
+
+summary(glmod)
+summary(lmod)
+
+intervals(glmod, which="var-cov")
+
+```
+
+c. There might be correlation in the errors because sociologically speaking, there probably is not much difference in what causes divorces in the U.S. from year to year, so the rates will appear correlated when looking from year to year. We can conduct a Durbin-Watson test to verify this.
+
+```{r}
+
+dwtest(divorce ~ unemployed + femlab + marriage + birth + military, data = divusa)
+
+```
+
+## 2.
+
+```{r}
+
+lm_fat <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+rq_fat <- rq(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+rlm_fat <- rlm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+```
+
+a. The most noteworthy difference between the least squares model and the least absolute deviations is the change in the intercept and some of our predictor coefficients, notably weight, ankle, and biceps. 
+
+Between the least squares model and the Huber model, the most notable change is in the t-value for age, the Huber model indicating slight more significance in the age predictor than the least squares model. We also see a significantly lower intercept in the Huber model.
+
+```{r}
+
+summary(lm_fat)
+
+summary(rq_fat)
+
+summary(rlm_fat)
+
+```
+
+b. Case 224 and 207 have the lowest weights, and the surprising detail about them is how different their brozek and siri measurements are, despite having seemingly similar measurements elsewhere. 224 is very small, while 207 is very high.
+
+```{r}
+
+wts <- rlm_fat$w
+names(wts) <- row.names(fat)
+head(sort(wts), 10)
+
+fat[224,]
+
+fat[207,]
+
+```
+
+c. The two outliers are cases 42 and 39, 42 with the smallest value for height and 39 with the highest value for weight. These are not the same cases from question 2b. 
+
+```{r}
+
+fat %>% 
+  ggplot() +
+  aes(x = weight, y = height) +
+  geom_point() +
+  geom_label(aes(label = row.names(fat)))
+
+```
+
+d. When we remove the outliers and influential points, we find a few noteworthy changes. We find the p-value for age to become statistically significant, while forearm's p-value increased. We also see the intecept coefficient has changed considerably, from -15.29 to 3.98. The standard error in the new model has larger standard error though, up to 21.17 from 16.07.
+
+```{r}
+
+fat2 <- fat[-c(39,42,207,224),]
+
+lmod2 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat2)
+
+summary(lmod2)
+
+```
+=======
+---
+title: "homework6_phc6050c"
+author: "Joe Dickerson"
+date: "2024-10-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+## packages
+require(faraway)
+require(dplyr)
+require(ggplot2)
+require(nlme)
+require(lmtest)
+require(MASS)
+require(quantreg)
+data(divusa, package = "faraway")
+data(fat, package = "faraway")
+
+```
+
+## 1. 
+
+a. The graphs indicate there is a positive serial correlation. When we plot the residuals against the year, we find a trend of points which follow above and below our line at y=0. We also see a trend indicating correlation when we plot epsilon-hat i against epsilon-hat i+1.
+
+```{r}
+
+lmod <- lm(divorce ~ unemployed + femlab + marriage + birth + military, divusa)
+
+ggplot() +
+  aes(x = divusa$year, y = residuals(lmod), color = divusa$year) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  labs(x = "Year", y = "Residuals")
+
+n <- length(residuals(lmod))
+
+plot(tail(residuals(lmod), n-1) ~ head(residuals(lmod), n-1), xlab = 
+expression(hat(epsilon)[i]),ylab = expression(hat(epsilon)[i+1]))
+abline(h=0, v=0, col=grey(0.75), )
+
+cor(residuals(lmod)[-1], residuals(lmod)[-length(residuals(lmod))])
+
+```
+
+b. We have an estimated correlation of 0.9715486, a very high value for phi. The confidence interval is (0.6527537, 0.9980196). Because this is different from zero, there is significant positive correlation. Comparing the summary outputs of each model, we find the p-value of unemployed has decreased a noticeable amount making it more significant than before.
+
+```{r}
+
+glmod <- gls(divorce ~ unemployed + femlab + marriage + birth + military, data = divusa, correlation = corAR1(form = ~year), method = "ML")
+
+summary(glmod)
+summary(lmod)
+
+intervals(glmod, which="var-cov")
+
+```
+
+c. There might be correlation in the errors because sociologically speaking, there probably is not much difference in what causes divorces in the U.S. from year to year, so the rates will appear correlated when looking from year to year. We can conduct a Durbin-Watson test to verify this.
+
+```{r}
+
+dwtest(divorce ~ unemployed + femlab + marriage + birth + military, data = divusa)
+
+```
+
+## 2.
+
+```{r}
+
+lm_fat <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+rq_fat <- rq(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+rlm_fat <- rlm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat)
+
+```
+
+a. The most noteworthy difference between the least squares model and the least absolute deviations is the change in the intercept and some of our predictor coefficients, notably weight, ankle, and biceps. 
+
+Between the least squares model and the Huber model, the most notable change is in the t-value for age, the Huber model indicating slight more significance in the age predictor than the least squares model. We also see a significantly lower intercept in the Huber model.
+
+```{r}
+
+summary(lm_fat)
+
+summary(rq_fat)
+
+summary(rlm_fat)
+
+```
+
+b. Case 224 and 207 have the lowest weights, and the surprising detail about them is how different their brozek and siri measurements are, despite having seemingly similar measurements elsewhere. 224 is very small, while 207 is very high.
+
+```{r}
+
+wts <- rlm_fat$w
+names(wts) <- row.names(fat)
+head(sort(wts), 10)
+
+fat[224,]
+
+fat[207,]
+
+```
+
+c. The two outliers are cases 42 and 39, 42 with the smallest value for height and 39 with the highest value for weight. These are not the same cases from question 2b. 
+
+```{r}
+
+fat %>% 
+  ggplot() +
+  aes(x = weight, y = height) +
+  geom_point() +
+  geom_label(aes(label = row.names(fat)))
+
+```
+
+d. When we remove the outliers and influential points, we find a few noteworthy changes. We find the p-value for age to become statistically significant, while forearm's p-value increased. We also see the intecept coefficient has changed considerably, from -15.29 to 3.98. The standard error in the new model has larger standard error though, up to 21.17 from 16.07.
+
+```{r}
+
+fat2 <- fat[-c(39,42,207,224),]
+
+lmod2 <- lm(brozek ~ age + weight + height + neck + chest + abdom + hip + thigh + knee + ankle + biceps + forearm + wrist, data = fat2)
+
+summary(lmod2)
+
+```
+>>>>>>> 770b74407151f9e7c3cbb145ec8328ee3ad68e86

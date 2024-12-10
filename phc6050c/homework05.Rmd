@@ -1,0 +1,143 @@
+---
+title: "Homework 5"
+author: "Joe Dickerson"
+date: "2024-09-2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1.
+
+a. We find lactic acid to have a p-value of 0.03108, which is smaller than 0.05. This indicates it is statistically significant.
+
+```{r}
+
+require(faraway)
+data(cheddar)
+
+lmod <- lm(taste ~ Acetic + H2S + Lactic, cheddar)
+
+summary(lmod)
+
+```
+
+b.
+
+```{r}
+
+summary(lmod)$coefficients[4,4]
+
+```
+
+c. We extract the p-value from the model with normally distributed errors using the R command from question 1b.
+
+```{r}
+
+lmod2 <- lm(taste ~ Acetic + H2S + I(Lactic+rnorm(30, mean=0, sd=.01)), cheddar)
+
+summary(lmod2)
+summary(lmod2)$coefficients[4,4]
+
+
+```
+
+d. No, there is not a qualitative difference to the conclusions because we return a similar p-value to the model without distributed errors when taking the mean. We also see agreeable distribution when taking the median. 
+
+```{r}
+
+pvals <- numeric(1000)
+
+for(i in 1:1000){
+  lmodi <- lm(taste ~ Acetic + H2S + I(Lactic+rnorm(30, mean=0, sd=.01)), cheddar)
+  pvals[i] <- summary(lmodi)$coefficients[4,4]
+  
+}
+
+
+mean(pvals)
+median(pvals)
+
+```
+
+e. Yes, changing the standard deviation to 0.1 makes a sizable difference. The mean of our p-values is no longer less than 0.05, and our distribution is much different. We see a noticeable difference in the mean and median of the p-values. 
+
+```{r}
+
+pvals2 <- numeric(1000)
+
+for(i in 1:1000){
+  lmodi2 <- lm(taste ~ Acetic + H2S + I(Lactic+rnorm(30, mean=0, sd=.1)), cheddar)
+  pvals2[i] <- summary(lmodi2)$coefficients[4,4]
+  
+}
+
+
+mean(pvals2)
+median(pvals2)
+
+```
+
+## 2. 
+
+We find 0.210 as a better estimate for slope when using the SIMEX method, compared to the original model's slope of 0.074.
+
+```{r}
+
+require(simex)
+data(faithful)
+
+lmodf <- lm(eruptions ~ waiting, faithful, x=TRUE)
+
+summary(lmodf)$coefficients[2,1]
+
+simex(lmodf, SIMEXvariable = "waiting", measurement.error = 45, B=1000)
+
+```
+
+## 3.
+
+a. We find a broad variety of eigenvalues after computation, and similarly there are many condition numbers which are larger than 30. This may be an indication of collinearity. 
+
+```{r}
+
+data(prostate)
+lmodp <- lm(lpsa ~ ., prostate)
+
+x <- model.matrix(lmodp)[,-1]
+e <- eigen(t(x) %*% x)
+e$val
+sqrt(e$val[1]/e$val)
+
+```
+
+b. We find a few of pairwise correlations of interest, notably between lcavol and svi, lcp, gleason, and pgg45.
+
+```{r}
+
+round(cor(prostate[,-9]),3)
+
+```
+
+c. Based on the correlation matrix and the variance inflation factors, it seems lcp may not be significant. On the correlation matrix, its pairwise correlation values of 0.675, 0.673, and 0.632 with lcavol, svi, and pgg45 respectively are noteworthy. Lcp also has the largest variance inflation factor. 
+
+```{r}
+
+require(faraway)
+vif(x)
+
+```
+
+d. We remove the 3 predictors that showed a high pairwise correlation with lcp, which are lcavol, svi, and pgg45. We no the variance inflation factors are all lower than before, most notably lcp has decreased from 3.098 to 1.401. It would appear the removal of these predictors reduced collinearity. 
+
+```{r}
+
+lmodp2 <- lm(lpsa ~ lweight + age + lbph + lcp + gleason , prostate)
+
+x2 <- model.matrix(lmodp2)[,-1]
+
+vif(x2)
+
+```

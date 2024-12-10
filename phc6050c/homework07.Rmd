@@ -1,0 +1,175 @@
+---
+title: "Homework 7"
+author: "Joe Dickerson"
+date: "2024-10-09"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+a. We see some linearity up to around the year 1950 that then changes, so taking the entire model into account there is not a linear trend.
+
+```{r}
+
+require(MASS)
+require(ggplot2)
+require(dplyr)
+data(aatemp, package = "faraway")
+
+
+plot(aatemp$year, aatemp$temp)
+
+aatemp %>% 
+ggplot() +
+  aes(x = year, y = temp) +
+  geom_point() 
+
+```
+
+b. When we plot the residuals against the fitted values, it appears the constant variance assumption is not met and we might detect possible auto-correlation. 
+
+```{r}
+
+lmod <- lm(temp ~ year, aatemp)
+
+aatemp %>% 
+  ggplot() +
+  aes(x = lmod$fitted.values, y = lmod$residuals) +
+  geom_point() 
+
+n <- length(residuals(lmod))
+
+plot(tail(residuals(lmod), n-1) ~ head(residuals(lmod), n-1), xlab = 
+expression(hat(epsilon)[i]),ylab = expression(hat(epsilon)[i+1]))
+abline(h=0, v=0, col=grey(0.75), )
+
+```
+
+c. The estimated correlation is 0.2303887 and it is significant given our confidence interval does not include 0. This does not change my opinion of the trend because it confirms some correlation. This correlation might exist because we can expect some similarity year-to-year with weather patterns (El Nino cycles, for example, last several years).
+
+```{r}
+
+require(nlme)
+
+glmod <- gls(temp ~ year, data = aatemp, correlation = corAR1(form = ~year))
+
+intervals(glmod,which="var-cov")
+
+glmod
+
+```
+
+d. Using the poly() function, we find that the polynomial model with degree 5 is the largest amount of polynomials before we lose statistical significance.
+
+We plot this model over the data in blue and predict the temp in the year 2023 with the predict() function, adding a point in red corresponding to this prediction. It predicts a temperature of 63.33 in the year 2023.
+
+```{r}
+
+# I have left this code in but commented out as part of my process completing this question.  
+
+# lmod8 <- lm(temp ~ year + I(year^2) + I(year^3) + I(year^4) + I(year^5) + I(year^6) + I(year^7) + I(year^8), aatemp)
+#  
+# lmod7 <- lm(temp ~ year + I(year^2) + I(year^3) + I(year^4) + I(year^5) + I(year^6) + I(year^7), aatemp)
+#  
+# lmod6 <- lm(temp ~ year + I(year^2) + I(year^3) + I(year^4) + I(year^5) + I(year^6), aatemp)
+#  
+# lmod5 <- lm(temp ~ year + I(year^2) + I(year^3) + I(year^4) + I(year^5), aatemp)
+#  
+# lmod4 <- lm(temp ~ year + I(year^2) + I(year^3) + I(year^4), aatemp)
+#  
+# lmod3 <- lm(temp ~ year + I(year^2) + I(year^3), aatemp)
+#  
+# lmod2 <- lm(temp ~ year + I(year^2), aatemp)
+
+lmodPoly8 <- lm(temp ~ poly(year, 8), aatemp)
+
+lmodPoly <- lm(temp ~ poly(year, 5), aatemp)
+
+summary(lmodPoly)
+
+predict(lmodPoly, data.frame(year = 2023))
+
+aatemp %>% 
+  ggplot() +
+  geom_point(aes(x = year, y = temp)) +
+  geom_line(aes(x = year, y = lmodPoly$fitted.values), color = "blue") +
+  geom_point(aes(x = 2023, y = 63.33), color = "red")
+
+
+
+```
+
+e. The model seems to disagree with this claim as we do not see the points in any less of a linear pattern after 1930 than we do before 1930.
+
+```{r}
+
+lmod1 <- lm(temp ~ year, aatemp, subset = (year < 1930))
+lmod2 <- lm(temp ~ year, aatemp, subset = (year >= 1930))
+
+lhs <- function(x) ifelse(x < 1930, 1930 - x, 0)
+rhs <- function(x) ifelse(x < 1930, 0, x - 1930)
+
+lm3 <- lm(temp ~ lhs(year) + rhs(year), aatemp)
+
+x <- seq(1854, 2000, by = 1)
+
+py <- lm3$coef[1] + lm3$coef[2] * lhs(x) + lm3$coef[3] * rhs(x)
+
+plot(temp ~ year, aatemp, xlab = "Year", ylab = "Temp")
+abline(v = 1930, lty = 2)
+segments(52,lmod1$coef[1]+lmod1$coef[2]*52,1930, lmod1$coef[1]+lmod1$
+coef[2]*1930)
+segments(2000,lmod2$coef[1]+lmod2$coef[2]*2000,1930, lmod2$coef[1]+lmod2$
+coef[2]*1930)
+lines(x, py, lty = 2)
+
+
+
+```
+
+f. The cubic spline model does not appear to fit significantly better than the straight-line model.
+
+```{r}
+
+require(splines)
+
+knots <- c(1854, 1854, 1854, 1854, 1871, 1906, 1943, 1982, 2000, 2000, 2000, 2000)
+year1 <- splineDesign(knots, aatemp$year)
+
+lmodSpline <- lm(temp ~ year1, aatemp)
+
+matplot(aatemp$year, year1, type = "l", col = 1)
+
+matplot(aatemp$year, cbind(aatemp$temp, lmodSpline$fit), type = "pl", pch = 1, lty = 1, col = 1, xlab = "Year", ylab = "Temp")
+
+aatemp %>% 
+  ggplot() +
+  aes(x=year, y=temp) +
+  geom_point() +
+  geom_smooth(method = "lm", fill = NA)
+
+```
+
+2. Using the boxcox method, we determine a lambda value of 0.12 has the highest log-likelihood and thus is the best value for a transformation on pressure. We confirm this by plotting the transformed response against the predictor and find a strong trend. Looking at a summary for each model confirms this, as the R^2 of the transformed model returns 0.9997, while the original model returns 0.5742.  
+
+```{r}
+
+data(pressure)
+
+lmodP <- lm(pressure ~ temperature, data = pressure)
+
+bc <- boxcox(lmodP, plotit = TRUE, lambda=seq(0.05, 0.2, by=.001))
+
+bc$x[which.max(bc$y)]
+
+lmodB <- lm(I((pressure^0.12-1)/0.12) ~ temperature, data = pressure)
+
+summary(lmodB)
+
+summary(lmodP)
+
+plot((pressure$pressure^0.12 - 1) / 0.12, pressure$temperature)
+
+```

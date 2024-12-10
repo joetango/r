@@ -1,0 +1,131 @@
+---
+title: "Homework 10"
+output: pdf_document
+date: "2024-12-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1.
+
+a.
+
+```{r}
+require(faraway)
+require(ggplot2)
+require(dplyr)
+
+data(rats)
+
+rats %>% 
+  ggplot(aes(x = poison, y = time)) +
+  geom_point() +
+  stat_summary(fun.y = "mean", geom = "line", aes(group = treat, color = treat)) +
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+rats %>% 
+  ggplot(aes(x = treat, y = time, shape = poison)) +
+  geom_point() +
+  stat_summary(fun.y = "mean", geom = "line",
+               aes(group = poison, color = poison)) +
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+
+```
+
+b. The interaction effect is not significant. 
+
+```{r}
+
+lmod <- lm(time ~ poison*treat, rats)
+anova(lmod)
+
+```
+
+c. There does appear to be statistical significance between poisons and between treatments. 
+
+```{r}
+
+anova(lm(time ~ treat + poison, rats))
+
+```
+
+d. Diagnostics have not been met and give troublesome results. The Q-Q plot has long-tailed errors, and the plot of fitted values against residuals shows some concerning symmetry. 
+
+```{r}
+
+qqnorm(residuals(lmod), main="")
+qqline(residuals(lmod)) ## long-tailed errors
+
+plot(fitted(lmod), residuals(lmod), xlab = "Fitted",
+     ylab = "Residuals") ## symmetry
+abline(h=0)
+
+plot(residuals(lmod) ~ poison, rats, ylab = "Residuals")
+
+
+## Test for difference in variance
+ratse <- rats[(1:48),]
+ratse$res <- sqrt(abs(residuals(lmod))[(1:48)])
+vmod <- lm(res ~ poison + treat, ratse)
+anova(vmod)
+
+```
+
+e. Looking at the plot from question 1 and the model without interaction, it is hard to say that one treatment is *clearly* superior to the others. Treatment B appears to be the most effective, but treatment D is close. And for poison III, they are about the same. I would say that treatment B appears to be the best treatment but that it is not clearly superior to D. 
+
+```{r}
+
+rats %>% 
+  ggplot(aes(x = poison, y = time)) +
+  geom_point() +
+  stat_summary(fun.y = "mean", geom = "line", aes(group = treat, color = treat)) +
+  theme(legend.position = "top", legend.direction = "horizontal")
+
+summary(lm(time ~ treat + poison, rats))
+
+```
+
+f. We find lambda to be -0.82828 and after transforming the data see better results. We see higher significance in poison II and treatments C and D. We also notice that treatment B and D had large changes to their coefficients, as did poison III. 
+
+```{r}
+
+require(MASS)
+bc <- boxcox(lmod)
+lambda <- bc$x[which.max(bc$y)]
+
+time_new <- (rats$time^lambda - 1) / lambda
+
+lmod_main <- lm(time ~ poison + treat, rats)
+lmod_transformed <- lm(time_new ~ poison + treat, rats)
+
+summary(lmod_main)
+summary(lmod_transformed)
+
+qqnorm(residuals(lmod_transformed))
+qqline(residuals(lmod_transformed))
+
+```
+
+## 2. 
+
+We find the width of the band to be 31.10935 using the qtukey() function. Looking at a table of differences, it would appear that the differences between B and E, B and F, B and G, and B and H are significantly different at the 5% level. We also see that C and E, C and F, C and G, C and H, D and F, D and G, and D and H are significantly different. 
+
+```{r}
+
+data(OrchardSprays)
+
+xtabs(decrease ~ rowpos + colpos, OrchardSprays)
+matrix(OrchardSprays$treatment,8,8,byrow = TRUE)
+
+lmodLatin <- lm(decrease ~ treatment + as.factor(rowpos) + as.factor(colpos), OrchardSprays)
+drop1(lmodLatin, test="F")
+summary(lmodLatin)
+qtukey(0.95, 8, 42)*9.757/sqrt(2) ## 8 is no. of treatments, 42 deg of freedom
+
+scoefs <- c(0, coef(lmodLatin)[2:8])
+outer(scoefs, scoefs, "-")
+
+```
