@@ -9,3 +9,4 @@ trashwheel %>%
   arrange(Date)
 
 
+head(trashwheel)
