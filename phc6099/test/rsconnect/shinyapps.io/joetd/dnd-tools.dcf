@@ -1,0 +1,12 @@
+name: dnd-tools
+title: dnd-tools
+username: joetd
+account: joetd
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13526871
+bundleId: 9469939
+url: https://joetd.shinyapps.io/dnd-tools/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

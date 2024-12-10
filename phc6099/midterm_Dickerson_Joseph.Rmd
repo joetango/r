@@ -1,0 +1,335 @@
+---
+title: 
+author: 
+subtitle: 
+date: 
+output: html_document
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+
+## you may put all R packages here.
+suppressWarnings(suppressMessages(library(tidyverse)))
+require(ggplot2)
+
+```
+
+
+#### Dataset
+
+The prepared data file is available at
+https://Caleb-Huo.github.io/teaching/data/pressData/benchPress.csv.
+**Your analysis should base on this data**.
+
+#### Dataset characteristics
+
+- ID: participant id
+- time: in terms of days (since entry into the study) for bench press record
+- press: the amount of bench press (in lbs)
+- weight: the body weight of the participant at the beginning of study
+- age: the age of the participant at the beginning of the study
+- prev: indicator for whether the participant has the previous weight lifting experience (0: no; 1: yes)
+- diet: indicator for whether the participant is not in the diet program (0) or in the diet program (1)
+
+
+
+## Analysis
+
+```{r}
+
+data <- read_csv("https://Caleb-Huo.github.io/teaching/data/pressData/benchPress.csv")
+
+```
+
+
+### Question 1. (10 pts)
+How many participants are with age <= 20 and in the diet program (i.e., diet == 1)?
+Among them, what is the percentage of prior exercise experience (i.e., pre == 1)?
+
+```{r}
+
+x <- data %>% 
+  filter(diet == 1 & age <= 20) %>% 
+  group_by(ID) %>% 
+  count(ID) %>% 
+  pull(ID) %>% 
+  length()
+
+paste(x,"participants")
+
+y <- data %>% 
+  filter(diet == 1 & age <= 20 & pre ==1) %>% 
+  group_by(ID) %>% 
+  count(ID) %>% 
+  pull(ID) %>% 
+  length()
+
+paste0(round((y/x) * 100,2),"% with prior experience")
+
+```
+
+
+### Question 2. (10 pts)
+Prepare a demographic tables by dietary program. 
+The result should look like the table below, but please use R and kable function of the knitr packages to prepare this table.
+For age (continuous variable), calculate its mean and standard deviation for each group;
+for previous experience (prev==1; binary variable), calculate its counts and percentage for each group.
+
+
+| Type            |   diet==0  | diet==1 | 
+|-----------------|-----------|---------------|---------------------------|
+| `N`             |    count       | count                     |
+| `Age (years)`   |   mean (SD)   | mean (SD)                 |
+| `Previous experience == 1, n (%)`   | count (%) |   count (%)   |
+
+
+
+```{r}
+
+require(knitr)
+require(kableExtra)
+
+dataDemographics <- data %>% 
+  group_by(ID) %>% 
+  summarise(ID = ID[1],
+         age = age[1],
+         diet = diet[1],
+         pre = pre[1]) %>% 
+  group_by(diet) %>%
+  summarise(count = n(),
+            mean_age = mean(age),
+            sd_age = sd(age),
+            pre_count = sum(pre),
+            pre_percent = mean(pre) * 100
+            )
+
+## Used to acquire data for the table:
+
+# round(dataDemographics,2)
+
+
+newtable <- data.frame(
+  "Type" = c("`N`", "`Age (years)`", "`Previous experience == 1, n(%)`"),
+  "diet==0" = c("50", "22.08 (2.51)", "13 (26%)"),
+  "diet==1" = c("50", "21.88 (2.93)", "14 (28%)")
+)
+
+kable(newtable,
+      col.names = c("Type", "diet==0", "diet==1"), 
+      ) %>% 
+  kable_styling() %>%
+  column_spec(1) %>%
+  row_spec(0, align = "c")
+  
+
+```
+
+
+
+
+
+### Question 3. (10 pts)
+Write a function, the input is a vector. 
+The output is a list of max, min,interquartile range (IQR) of the vector.
+If the input vector contains any negative values, provide a warning message.
+Then apply this function to a vector which represents the baseline weight of all participants.
+
+```{r}
+
+fncVEC <- function(x){
+  if(any(x < 0)) {
+    warning("The input contains a negative value.")
+  }
+  
+  max1 <- max(x)
+  min1 <- min(x)
+  iqr1 <- IQR(x)
+  
+  output <- list(
+    Maximum = max1,
+    Minimum = min1,
+    IQR = iqr1
+  )
+  
+  return(output)
+}
+
+weightvec <- as.vector(data$weight)
+
+fncVEC(weightvec)
+
+```
+
+### Question 4. (10 pts)
+Sort the data by age (ascending), ID (descending) and time (descending). 
+Then print out the first five instances of the amount of bench press (i.e., press)
+
+```{r}
+
+sortedData <- data %>% 
+  arrange(age, desc(ID), desc(time)) %>% 
+  slice(1:5)
+
+sortedData$press
+
+```
+
+
+
+
+### Question 5. (10 pts)
+
+Draw histograms for weight at baseline of all participants, 
+stratified by each combination of pre and diet (there should be 4 panels in the figure).
+The height of the histogram should represent the density instead of the frequency.
+Also draw the density function (in red color) on top of the histogram.
+
+```{r}
+
+diet.labs <- c("Not in Diet Program", "In Diet Program")
+names(diet.labs) <- c("0", "1")
+
+pre.labs <- c("No Prior Lifting Experience", "Prior Lifting Experience")
+names(pre.labs) <- c("0", "1")
+
+data %>% 
+  ggplot(aes(x=weight, y=..density..)) +
+  geom_histogram(bins = 20) +
+  geom_density(color = "red") +
+  facet_grid(pre ~ diet, labeller = labeller(diet = diet.labs, pre = pre.labs))
+  
+  #facet_grid(cols = vars(diet), rows = vars(pre))
+
+```
+
+
+### Question 6. (10 pts)
+We want to do some string manipulations for the attribute **time**.
+For each of the 839 instances, 
+Change 1,3,5,7,9 to O (Odd); change 2,4,6,8,0 to E (Even).
+For example, 154 should become "OOE"; 166 should become "OEE"; 24 should become "EE"; 0 should become "E";
+How many instances have more letter E than letter O? (i.e., #E > #O)
+
+```{r}
+
+dataSTR <- data 
+
+## Function for replacing the digits with the letters
+fncSTR <- function(num){
+  digits <- strsplit(as.character(num), "")[[1]]
+  replaced <- ifelse(as.integer(digits) %% 2==0, "E", "O")
+  paste(replaced, collapse = "")
+}
+
+## Applying the function to the "time" column
+dataSTR0 <- dataSTR %>% 
+  mutate(time = sapply(time, fncSTR))
+
+
+## Function to count the instances 
+fncLOG <- dataSTR0 %>% 
+  filter(sapply(time, function(x){
+    sum(strsplit(x,"")[[1]] == "E") > sum(strsplit(x,"")[[1]] == "O")
+  })) %>% 
+  nrow()
+
+fncLOG
+
+```
+
+
+
+### Question 7. (10 pts)
+Plot the individual trajectory of the bench pressed weights (lbs) over time for (a) men in the no diet group and (b) men in the diet group. 
+So there will be two sub-figure, each contains 50 trajectories from each group. 
+Do not include a figure legend, which may make the figure messy.
+
+```{r}
+
+data %>% 
+  ggplot(
+  aes(x = time, y = press, group = ID, color = factor(diet))
+) + 
+  geom_line(alpha = .5) +
+  facet_wrap(. ~ diet) +
+  theme(legend.position="none") +
+  labs(title = "Trajectory of Weight vs Time")
+
+```
+
+
+
+
+### Question 8. (10 pts)
+
+For each subject, define the improvement of bench press as the difference of the bench press weight at the final visit and the initial bench press weight (e.g., $press_{final} - press_{initial}$).
+We want to visualize the the improvement of bench press using box plot and jitter plot, stratified by different dietary programs (diet).
+
+```{r}
+
+dataImprove <- data %>% 
+  group_by(ID) %>% 
+  summarise(Improvement = last(press)-first(press),
+            Diet_Program = max(diet)
+            ) %>% 
+  mutate(
+    "Dietary Program" = ifelse(Diet_Program == 1, "In the Diet Program", "Not in the Diet Program" )
+  )
+
+ggplot(dataImprove) +
+  aes(x=`Dietary Program`, y=Improvement, color = `Dietary Program`) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5) +
+  labs(title = "Bench Press Improvement", color = "Dietary Programs", x="") +
+  theme(legend.position="none")
+
+```
+
+
+
+
+
+
+### Question 9. (10 pts)
+We want to visualize the mean trajectories over time for both diet group and no diet group.
+Since the times at which bench press was recorded for each man varied across men,
+we will only plot three time points: day 0, day 150, and day 300.
+If there are no days that match exactly day 150,
+**we can use the time closest to day 150 to replace**.
+We will use the bench press weight of the last observation as the bench press weight for day 300.
+Use different colors to indicate diet/no diet groups.
+Mark standard error bars at the mean estimates of all these three time points.
+Everything should be within one figure and one panel.
+
+```{r, message=FALSE}
+
+dataMean <- data %>% 
+  mutate(time150 = abs(time - 150)) %>% 
+  group_by(ID, diet) %>% 
+  summarise(
+    Press0 = press[1],
+    Press150 = press[which.min(time150)],
+    Press300 = press[which.max(time)]
+  ) %>% 
+  group_by(diet) %>% 
+  summarise(
+    Mean0 = mean(Press0),
+    Mean150 = mean(Press150),
+    Mean300 = mean(Press300)
+  )
+
+dataPlot <- dataMean %>% 
+  pivot_longer(cols = -diet) %>% 
+  mutate(time = ifelse(name=="Mean0", 0,
+                       ifelse(name=="Mean150", 150, 300
+                              )))
+
+dataPlot %>% 
+  ggplot(aes(x=time, y=value, group=diet, color=factor(diet))) +
+  geom_line()
+#geom_errorbar()
+
+```
+
+

@@ -1,0 +1,192 @@
+---
+title: "test"
+output: html_document
+date: "2024-11-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+tavern_adj <- c("Stout", "Bloody", "Slow", "Dull", "Soaked", "Drunken",
+            "Crooked", "Dark", "Fabulous", "Noble", "Soft", "Red",
+            "Green", "Whtie", "Black", "Yellow", "Blue", "Burning",
+            "Broken", "Shattered", "Mighty", "Strong", "Lonely",
+            "Poor", "Old", "Generous", "Lanky", "Hapless", "Tall",
+            "Remarkable", "Frugal", "Prudent", "Foul", "Evil", "Good",
+            "Rotten", "Shining", "Fragile", "Hungry", "Tired",
+            "Patient", "Merciful", "Immortal", "Faithful", "Friendly",
+            "Forlorn", "Adoring", "Brittle", "Floating", "Sharp",
+            "Worn", "Cursed", "Beautiful", "Beleoved", "Quiet",
+            "Happy", "Courageous", "Wounded", "Blind", "Clairvoyant",
+            "Blushing", "Calm", "Wary", "Cheerful", "Wise", "Clumsy",
+            "Boorish", "Boastful", "Sly", "Daring", "Rebellious",
+            "Diligent", "Disguised", "Ominous", "Determined", "Reliable",
+            "Loyal", "Raging", "Excited", "Shy", "Magical", "Trecherous",
+            "False", "Foolhardy", "Golden", "Frozen", "Gracious", "Hairy",
+            "Hidden", "Hoarse", "Honest", "Humble", "Limping",
+            "Lively", "Lucky", "Lean", "Nefarious", "Ogling",
+            "Subtle", "Crazy")
+
+tavern_noun <- c("Rooster", "Raven", "Crow", "Toad", "Hound", "Fox",
+                 "Bull", "Boar", "Clam", "Hawk", "Eagle", "Mouse",
+                 "Rat", "Frog", "Elk", "Cat", "Guardian", "Hunter",
+                 "Barbarian", "Witch", "Troll", "Sword", "Shield",
+                 "Bow", "Dagger", "Hammer", "Helm", "Acrobat", "Lion",
+                 "Ghoul", "Druid", "Master", "King", "Queen", "Prince",
+                 "Princess", "Shrub", "Tree", "Bear", "Smile", "Eye",
+                 "Tounge", "Flounder", "Whale", "Steer", "Stallion",
+                 "Mare", "Wish", "Hoof", "Goat", "Tower", "Fist",
+                 "Monk", "Sleep", "Fool", "Knight", "Poet", "Thrush",
+                 "Diamond", "Ruby", "Emerald", "Lute", "Drum", "Flute",
+                 "Farmer", "Songbird", "Mother", "Father", "Solider",
+                 "Sailor", "Brewer", "Hornet", "Donkey", "Hare",
+                 "Twig", "Barrel", "Boot", "Fang", "Skull", "Snail",
+                 "Beetle")
+
+tavern <- paste("The", sample(tavern_adj, 1), sample(tavern_noun, 1))
+
+print(tavern)
+
+```
+
+```{r}
+
+#d20
+sample(1:20, 1)
+
+#d12
+sample(1:12, 1)
+
+#d10
+sample(1:10, 1)
+
+#d8
+sample(1:8, 1)
+
+#d6
+sample(1:6, 1)
+
+#d4
+sample(1:4, 1)
+
+#d100
+sample(1:100, 1)
+
+mult_dice <- function(dice_type, dice_quant){
+  rolls <- c(sample(1:dice_type, dice_quant, replace = TRUE))
+  sum_rolls <- sum(rolls)
+  return(list(rolls = rolls, sum = sum_rolls))
+}
+
+mult_dice(4, 2)
+
+```
+
+```{r}
+
+#NPC stat generator 
+
+stat_gen <- function() {
+  stat <- c(sample(1:6, 4, replace = TRUE))
+  stat <- stat[stat != min(stat)]
+  sum(stat)
+}
+
+for(i in 1:6) {
+  temp <- paste0("stat", i)
+  
+  assign(temp, stat_gen())
+}
+
+npc <- paste("Strength:", stat1,
+      "Dexterity:", stat2,
+      "Constitution:", stat3,
+      "Intelligence:", stat4,
+      "Wisdom:", stat5,
+      "Charisma:", stat6, sep = "\n")
+
+cat(npc, sep="\n")
+
+```
+
+```{r}
+## Difficulty Class
+
+
+difficulty_check <- function(dc, mod=0){
+  roll <- sample(1:20, 1)
+  if((roll + mod) >= dc){
+    paste("Roll:", roll, "+ Modifer:", mod, "=", (roll + mod), "...Success!")
+  } 
+  else {
+    paste("Roll:", roll, "+ Modifer:", mod, "=", (roll + mod), "...Failure")
+  }
+}
+
+difficulty_check(18, 8)
+
+```
+
+```{r}
+
+container <- c("A glass statuette of a God", "A thin glass vial", "A leather pouch",
+               "A drinking horn", "A metal flask", "A hallowed out crystal",
+               "The sealed bone of an ogre", "A short, fat, glass jar",
+               "A wooden jar with a cork", "An ornate iron flagon", "A syringe",
+               "A clay urn", "A glass skull", "A shot-glass sized container",
+               "A fist-sized barrel", "A sealed, ornate tankard",
+               "A hallowed out dragon tooth", "A glass sphere with a cork",
+               "A repurpsed scorpion tail", "A small bronze container")
+
+color <- c("white", "lime green", "bronze", "purple", "ruby", "pale blue",
+           "forest green", "lavender", "orange", "plum", "silver", "black",
+           "jade", "peach", "red", "yellow", "azure", "olive", "sky blue", "tan")
+
+effect <- c("instantly restores some health (2d6 + 2)",
+            "gives the strength of a giant for ten minutes",
+            "makes the drinker double in size",
+            "cures an illness",
+            "doubles speed for one hour",
+            "ages the drinker by five years",
+            "temporarily turns the drinker's teeth into stone",
+            "puts the drinker into a coma for 6 hours",
+            "gives resistence to acid damage for one hour",
+            "increases acrobatics for one hour",
+            "instantly grows a beard on the drinker",
+            "turns the drinker invisible for 10 minutes",
+            "grants levitation for two minutes",
+            "forces the drinker to tell the truth for one hour",
+            "grants a temporary increase in max health until the health is lost",
+            "grants the drinker underwater breathing for twenty minutes",
+            "gives the user a single vision of the future",
+            "makes the drinker lose sight for one hour",
+            "lets the drinker ask their deity one question",
+            "gives the drinker a slight experience boost"
+            )
+
+tavern <- paste(sample(container, 1), "containing a liquid of", sample(color, 1),
+                "color that", sample(effect, 1))
+
+print(tavern)
+
+```
+
+```{r}
+
+hp_down <- function(x){
+  hp <- x
+  hp <- x - 1
+}
+
+hp_up <- function(x){
+  hp <- x
+  hp <- x + 1
+}
+
+print(hp_down(20))
+print(hp_up(20))
+
+```

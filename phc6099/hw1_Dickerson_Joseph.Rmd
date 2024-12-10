@@ -1,0 +1,395 @@
+---
+title: "HW1"
+author: "Total points: 100 (5% of final grade)."
+date: "Due: 11:59 pm, Sep 12th, 2024"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(stringsAsFactors = FALSE) ## prevent read in string data to factors.
+```
+
+
+## Name: Joseph Dickerson
+
+## Question A (24 pts)
+#### 1. Basic calculation in R. (6 pts)
+Calculate $\sum_{i = 1} ^ {14} (\frac{2^i}{i^2} + \frac{3^i}{i^3} + \frac{4^i}{i^4})$
+
+```{r}
+
+fnc <- function(i){(2^i/i^2)+(3^i/i^3)+(4^i/i^4)}
+
+sum(fnc(1:14))
+
+```
+
+#### 2. High frequency value search. (6 pts)
+Below we have two vectors avec and bvec.  
+(a) Find all the values in avec,
+for which the frequencies are greater or equal to 5.  
+(b) Find all the values in bvec,
+for which the frequencies are greater or equal to 3.  
+What is the union of (a) and (b)?  
+(avec, bvec you generated will be exactly the same as I generated as long as we set the same seed number at the begining.)
+
+```{r}
+
+library(dplyr)
+
+set.seed(32611) ## set random seed
+avec <- sample(1:100, 100, replace = T)
+bvec <- sample(1:100, 100, replace = T)
+
+avecData <- as.data.frame(table(avec))
+bvecData <- as.data.frame(table(bvec))
+
+## finding the values with frequencies >=5 for avec and >=3 for bvec
+a <- filter(avecData, Freq >= 5)
+b <- filter(bvecData, Freq >= 3)
+
+## outputting the result
+a
+b
+
+## The union of (a) and (b) consists of the values of bvec with frequency >= 3 because there are no values of avec with frequency >= 5:
+
+union(a$avec,b$bvec)
+
+```
+
+#### 3. Index search. (6 pts)
+Below we have two vectors (exactly the same vectors as in Question A2).  
+For avec, we can find the indexes such that the corresponding value is >= 70.  
+For bvec, we can also find the indexes such that the corresponding value is >= 75.  
+What are the intersection of these two indexes vectors?
+
+```{r}
+
+set.seed(32611) ## set random seed
+avec <- sample(1:100, 100, replace = T)
+bvec <- sample(1:100, 100, replace = T)
+
+##specify the value of the threshold
+threshavec <- 70
+##establish the logic
+log_avec <- avec >= threshavec
+##find indexes
+index_avec <- which(log_avec)
+
+index_avec
+
+##same process for bvec
+threshbvec <- 75
+
+log_bvec <- bvec >= threshbvec
+
+index_bvec <- which(log_bvec)
+
+index_bvec
+
+## Intersection of the two vectors:
+intersect(index_avec,index_bvec)
+
+```
+
+#### 4. American state names manipulation. (6 pts)
+All states in US are inside a pre-defined variable state.name in R.
+Firstly remove any space inside the state name (e.g New Mexico becomes NewMexico).
+For those states with largest number of letters (after removing spaces),
+flip the state name (flip the state name means "Connecticut becomes tucitcennoC").
+Output all these flipped state names to the result 
+(Hint: there should be 3 of them).
+
+```{r}
+
+##remove spaces from the state names
+state1 <- gsub(" ","",state.name)
+
+##determine the maximum character length of the states
+max(nchar(state1))
+
+##sort by character length and locate index of states with largest number of characters 
+stateChars <- nchar(state1)
+
+sort(stateChars, decreasing=TRUE, index.return = TRUE)
+
+##we find index value 21,33,40
+
+stateMAX <- state1[c(21,33,40)]
+
+##split the strings
+stateSplit1 <- strsplit(stateMAX, NULL)[[1]]
+stateSplit2 <- strsplit(stateMAX, NULL)[[2]]
+stateSplit3 <- strsplit(stateMAX, NULL)[[3]]
+
+rev1 <- rev(stateSplit1)
+rev2 <- rev(stateSplit2)
+rev3 <- rev(stateSplit3)
+
+paste(rev1, collapse="")
+paste(rev2, collapse="")
+paste(rev3, collapse="")
+
+
+```
+
+
+
+
+## Question B (30 pts)
+The Huber function <https://en.wikipedia.org/wiki/Huber_loss> is defined as:
+$$
+f(x) = \begin{cases}
+x^2 & \text{if $|x| \leq 1$} \\
+2|x| - 1 & \text{if $|x| > 1$} 
+\end{cases}
+$$
+The Huber function is quadratic in the interval [-1, 1] (red line in the figure below) and linear outside the interval (blue line in the figure below). The transitioning between these two curves is smooth as you can be verified by taking derivatives. 
+
+![](https://caleb-huo.github.io/teaching/2017FALL/HW/HW1/huber.png)
+
+#### 1. Implement this huber function (6 pts)
+Evaluate f(0) + f(1) + f(2)
+
+```{r}
+
+fnc1 <- function(x) {
+    if (abs(x)<=1) {
+        (x^2)}
+    
+    else {
+        (2*abs(x)-1)
+      }
+}
+
+fnc1(0) + fnc1(1) + fnc1(2)
+
+```
+
+#### 2. Huber function with two argument (6 pts)
+The Huber function can be modified to 
+$$
+f(x; a) = \begin{cases}
+x^2 & \text{if $|x| \leq a$} \\
+2a|x| - a^2 & \text{if $|x| > a$} 
+\end{cases}
+$$
+Rewrite the your Huber function with default value of **a to be 1** (e.g., $a = 1$).
+Evaluate f(x=1; a=0) + f(x=1; a=1) + f(x=1; a=2) 
+
+```{r}
+
+fnc2 <- function(x,a) {
+   if (abs(x)<=a){
+     return((x^2))
+   }
+
+  else {
+    return((2*a*abs(x)-a^2))
+  }
+  
+}
+
+fnc2(1, 0) + fnc2(1, 1) + fnc2(1, 2)
+
+```
+
+
+#### 3. Vectorize the huber function (6 pts)
+If you already vectorize the Huber function, you can just output your result!
+Otherwise vectorize the Huber function nicely.  (Hint: you might consider to use ifelse())
+Then please evalaute $\frac{1}{10}\sum_{i=1}^{10} f(i;a=3) - \frac{1}{10}\sum_{i=1}^{10} f(i;a=2)$, 
+or mean(f(x=1:10, a=3)) - mean(f(x=1:10, a=2)), if you name your Huber function as f. 
+
+```{r}
+
+fncv <- function(x, a){
+  ifelse(
+    abs(x)<=a, x^2, 2*a*abs(x)-a^2
+  )
+}
+
+mean(fncv(x=1:10, a=3)) - mean(fncv(x=1:10, a=2))
+
+```
+
+#### 4. Implement the Huber function with verifying. (6 pts)
+You need to verify in your function:
+
+- a and x non-missing.
+- a and x have to be numeric type.
+- a has to be greater or equal to 0.
+
+Otherwise, stop the function by using stop or stopifnot.
+You may want to test your function yourself, but don't put them in the Rmd file because otherwise the Rmd will not render if an error is thrown out. 
+You only need to write down the function.
+
+```{r}
+
+fncv <- function(x, a){
+  stopifnot(!missing(x), !missing(a), a>=0, !numeric(x), !numeric(a))
+    ifelse(
+      abs(x)<=a, x^2, 2*a*abs(x)-a^2
+          )
+}
+
+```
+
+#### 5. tryCatch to capture exception. (6 pts)
+Based on **B4**,
+incorporate tryCatch function to hundle errors.
+If any error occurs, return -1.
+Since the correct Huber function value is always positive, it is very easy to recognize this error message.
+Then try to evaluate f(1:5, a = -1), f(), f(x="1"), which should all return -1.
+
+```{r}
+
+fncv <- function(x, a){
+  tryCatch({
+    stopifnot(!missing(x), !missing(a), a>=0, !numeric(x), !numeric(a))
+    ifelse(abs(x)<=a, x^2, 2*a*abs(x)-a^2)
+  }, error = function(e) -1
+  )
+}
+
+fncv(1:5, a = -1)
+fncv()
+fncv(x="1")
+
+```
+
+
+## Question C (36 pts)
+The Cancer Genome Atlas ([TCGA](https://cancergenome.nih.gov/abouttcga)) is a collaboration between the National Cancer Institute (NCI) and the National Human Genome Research Institute (NHGRI) that has generated comprehensive, multi-dimensional maps of the key genomic changes in 33 types of cancer with multiple types of genomics data.
+Here we will work on a small subset of breast cancer gene expression data (BRCA) comparing tumor subjects with normal subjects.
+The data is in file brca_tcga.csv ([Download here](https://caleb-huo.github.io/teaching/data/BreastCancer/brca_tcga.csv)), with each row representing a gene and each column representing a subject.
+
+
+#### 1. Read the data into R. (6 pts)
+
+Note that the subject names look like TCGA-B6-A0RL-01A-11R-A084-07 (you don't need to worry if - was automatically converted to . in R) and gene names look like TRAF2, MGC10981 etc. Use the subject names as colnames of the data and gene names as rownames of the data. What is the dimension of the data (number of rows and columns). (Optional: you can download to local and read, or you can directly read online)
+
+```{r}
+
+tcgaData <- read.csv("https://caleb-huo.github.io/teaching/data/BreastCancer/brca_tcga.csv", row.names = 1)
+
+dim(tcgaData)
+
+## There are 200 rows and 40 columns.
+
+```
+
+
+
+#### 2. Get all gene names containing letter A or R (ingore cases, also with a or r).  (6 pts)
+
+Save a vector of gene names in the result.
+
+```{r}
+## Your code
+genes <- row.names(tcgaData)
+
+ARgenes <- grep("A|R", genes, ignore.case = TRUE, value = TRUE)
+
+ARgenes
+
+```
+
+#### 3. Identify tumor and normal subjects (6 pts).
+TCGA barcode wiki can be found here <https://docs.gdc.cancer.gov/Encyclopedia/pages/TCGA_Barcode/>. 
+![](https://docs.gdc.cancer.gov/Encyclopedia/pages/images/barcode.png)
+
+For sample code (14-15 position of the subject name), 
+01 represent solid tumor and 11 represent normal control.
+Find the tumor index (a vector of integer numbers) and normal index (a vector of integer numbers) and print out your results.
+
+```{r}
+
+sampleVec <- colnames(tcgaData)
+
+sampleString <- substring(sampleVec, 14, 15)
+
+tumor <- which(sampleString == "01")
+normal <- which(sampleString == "11")
+
+print(tumor)
+
+print(normal) 
+
+```
+
+#### 4. What are the genes with the top 20% variance (6 pts).
+For each gene, we can calculate the variance across all samples. 
+We want to obtain the gene names such that these genes have larger variance (top 20%) than the rest of genes.
+
+```{r}
+
+geneVariance <- numeric(length=200)
+
+for(i in 1:200){
+  geneVariance[i] <- var(as.matrix(tcgaData)[i,])
+}
+
+geneVarSort <- sort(geneVariance, decreasing = TRUE)
+
+varNamed <- data.frame(geneVariance, rownames(tcgaData))
+
+arrange(varNamed, desc(geneVariance), .by_group = TRUE) %>% slice(1:40)
+
+```
+
+#### 5. Tumor vs Normal (6 pts).
+For each gene, we want to perform two sample t.test by using t.test() function with default option (alternative = "two.sided", paired = FALSE, var.equal = FALSE). We can obtain a vector of p-value for all genes. What is the smallest p-value and the second smallest p-value?
+
+```{r}
+
+pvalfunc <- function(row){
+  ttest <- t.test(row)
+  return(ttest$p.value)
+}
+
+pvals <- apply(tcgaData, 1, pvalfunc)
+
+which.min(pvals)
+
+which.min(pvals[-123])
+
+## The gene with the smallest p-value is MLANA, and the gene with the second smallest p-value is CPN1.
+
+```
+
+
+#### 6. Controlling multiple comparison (6 pts).
+We want to adjust for multiple comparison and convert the resulting p-values to q-values <http://www.statisticshowto.com/q-value/>
+(closely related to false positive rate).
+Please checkout p.adjust funciton in R and convert the resulting p-values to q-values using Benjamini & Hochberg (1995) method ("BH" option).
+How many genes have q-value < 0.05?
+These genes are declared as differentially expressed genes (DE genes) under false discovery rate 5% 
+
+```{r}
+
+qvals <- p.adjust(pvals, method = "BH")
+
+length(which(qvals < 0.05))
+
+```
+
+
+
+
+## Note (10 pts):
+
+
+
+### Homework should be uploaded to courseweb (5 pts):
+1. Save your compiled result as html file. Rename the file name as: hw1_Lastname_Firstname.html.
+2. Don't forget to write your name on the top of the html file.
+3. RMD file is not required. You only need to upload the html file to the [e-leaning](https://elearning.ufl.edu) website.
+
+### If you generate a figure, please write appropriate figure title, labels, legend if necessary.
+
+### If your code is not intuitive, please write comments to make the code readible (5 pts). 
+
+

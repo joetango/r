@@ -1,0 +1,315 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PHC6099 Final Project Report
+
+Student: Joe Dickerson
+
+Link to shiny app: https://joetd.shinyapps.io/dnd-tools/
+
+### Introduction:
+
+For my final project, I set out to create a few useful tools for the popular role-playing game "Dungeons & Dragons", a game that is simple on the surface, yet a little more complicated under the hood. This is especially true for the dungeon master, the one player in the game who is in charge of the story, the sequence of events, the random encounters, and the world of the game itself. 
+
+I decided to create the app centered around tools I could see myself using in an actual Dungeons & Dragons session, with a few additional tools that may not be as often used but can be helpful in a pinch. A session of Dungeons & Dragons (which will be referred to as D&D from here on) can last several hours, so any small application to help the dungeon master run the session can be a help.
+
+### Methods and Results
+
+I started with the foundation of D&D, which is the dice. Rolling dice dictates the outcome of every decision, no matter how grand or insignificant. Below are the various dice used in D&D, and an additional roller that can roll multiple of a given dice at once. The mult_dice() function first takes the type of dice (how many sides the dice has) and how many you would like to roll. In the shiny app, dice_type is selected from a drop down list so that only the type of dice used in the game may be rolled.
+
+```{r}
+
+#d20
+sample(1:20, 1)
+
+#d12
+sample(1:12, 1)
+
+#d10
+sample(1:10, 1)
+
+#d8
+sample(1:8, 1)
+
+#d6
+sample(1:6, 1)
+
+#d4
+sample(1:4, 1)
+
+#d100
+sample(1:100, 1)
+
+mult_dice <- function(dice_type, dice_quant){
+  rolls <- c(sample(1:dice_type, dice_quant, replace = TRUE))
+  sum_rolls <- sum(rolls)
+  return(list(rolls = rolls, sum = sum_rolls))
+}
+
+mult_dice(4, 2)
+
+```
+
+Next, I decided to expand upon the dice rollers and include a difficulty class checker. In D&D, a DC check occurs when a player attempts an action that might constitute failure. Opening a bottle does not require a DC check, but scaling a wall does. If the player wishes to scale a wall, the dungeon master assesses the risk, how difficult it would be for such a character (an elf will have an easier time than a dwarf), and attributes a number that reflects the difficulty, between 5 and 30 and divisible by 5. Then, depending on the task, the player might have a modifier associated with the task at hand. Scaling a wall might test a character's athletics, so the dungeon master will as the player if they have a modifier for athletics. If they do, the modifier is added to the d20 (20-sided dice) roll. 
+
+The difficulty_check() function uses logic, sampling, and string manipulation to complete this task. The dc is selected with a dropdown in the shiny app again to ensure the user doesn't input a number outside the possibility of the game. I have also set the modifier to default at 0 if none is entered. The paste() function is used for readability so the user knows the results of the rolls. 
+
+```{r}
+
+difficulty_check <- function(dc, mod=0){
+  roll <- sample(1:20, 1)
+  if((roll + mod) >= dc){
+    paste("Roll:", roll, "+ Modifer:", mod, "=", (roll + mod), "...Success!")
+  } 
+  else {
+    paste("Roll:", roll, "+ Modifer:", mod, "=", (roll + mod), "...Failure")
+  }
+}
+
+difficulty_check(15, 3)
+
+```
+
+Following some of the bread and butter tools, I wanted to create some that can help with some of the world-building aspects of the game. The first of these tools is an NPC stat generator. Usually, if the dungeon master expects that the player characters are going to fight a non-player character (NPC), they will generate stats for this NPC so that the combat can be properly operated. An NPC with high dexterity will have a higher chance of dodging an arrow than an NPC with low dexterity. Similarly, a player character may try to deceive an NPC in order to obtain information, or for any number of reasons. The success of this attempt will depend on a difficulty check, and the intelligence of the NPC will effect the level of the DC roll. An NPC with low intelligence will be easier to fool than one with high intelligence, etc. Though it is the job of the dungeon master to prepare NPCs before the start of the game, sometimes the players will decide to attack, or deceive, or attempt to charm an NPC that the dungeon master was not anticipating. This is a very useful tool to quickly generate stats for this NPC in order to properly run the interaction.
+
+The common way stats are generated in D&D is to roll four d6 dice, drop the lowest roll, and combine the remaining three. Therefore, the lowest a stat can be is 3, and the highest 18. 
+
+For the stat_gen() function, the dice are rolled and stored into the "stat" value, then the lowest value is removed from "stat" before we sum the remaining values in "stat".
+
+A loop is then used to repeat this process for each stat point, and the values are applied to the stats using the paste() function. The shiny app does not use the cat() function, but I have used it here for demonstration. 
+
+```{r}
+#NPC stat generator 
+
+stat_gen <- function() {
+  stat <- c(sample(1:6, 4, replace = TRUE))
+  stat <- stat[stat != min(stat)]
+  sum(stat)
+}
+
+for(i in 1:6) {
+  temp <- paste0("stat", i)
+  
+  assign(temp, stat_gen())
+}
+
+npc <- paste("Strength:", stat1,
+      "Dexterity:", stat2,
+      "Constitution:", stat3,
+      "Intelligence:", stat4,
+      "Wisdom:", stat5,
+      "Charisma:", stat6, sep = "\n")
+
+cat(npc, sep="\n")
+
+```
+
+After the stat generator is a tool that may not be often used, but will certainly offer a smile or two for the playgroup. Often, the first thing a party will do when they arrive to a new town is check out the local tavern (a staple in D&D) to mingle with the locals. This is a tool that generates  the name of a tavern when one is needed in a pinch.
+
+```{r}
+
+tavern_adj <- c("Stout", "Bloody", "Slow", "Dull", "Soaked", "Drunken",
+            "Crooked", "Dark", "Fabulous", "Noble", "Soft", "Red",
+            "Green", "Whtie", "Black", "Yellow", "Blue", "Burning",
+            "Broken", "Shattered", "Mighty", "Strong", "Lonely",
+            "Poor", "Old", "Generous", "Lanky", "Hapless", "Tall",
+            "Remarkable", "Frugal", "Prudent", "Foul", "Evil", "Good",
+            "Rotten", "Shining", "Fragile", "Hungry", "Tired",
+            "Patient", "Merciful", "Immortal", "Faithful", "Friendly",
+            "Forlorn", "Adoring", "Brittle", "Floating", "Sharp",
+            "Worn", "Cursed", "Beautiful", "Beleoved", "Quiet",
+            "Happy", "Courageous", "Wounded", "Blind", "Clairvoyant",
+            "Blushing", "Calm", "Wary", "Cheerful", "Wise", "Clumsy",
+            "Boorish", "Boastful", "Sly", "Daring", "Rebellious",
+            "Diligent", "Disguised", "Ominous", "Determined", "Reliable",
+            "Loyal", "Raging", "Excited", "Shy", "Magical", "Trecherous",
+            "False", "Foolhardy", "Golden", "Frozen", "Gracious", "Hairy",
+            "Hidden", "Hoarse", "Honest", "Humble", "Limping",
+            "Lively", "Lucky", "Lean", "Nefarious", "Ogling",
+            "Subtle", "Crazy")
+
+tavern_noun <- c("Rooster", "Raven", "Crow", "Toad", "Hound", "Fox",
+                 "Bull", "Boar", "Clam", "Hawk", "Eagle", "Mouse",
+                 "Rat", "Frog", "Elk", "Cat", "Guardian", "Hunter",
+                 "Barbarian", "Witch", "Troll", "Sword", "Shield",
+                 "Bow", "Dagger", "Hammer", "Helm", "Acrobat", "Lion",
+                 "Ghoul", "Druid", "Master", "King", "Queen", "Prince",
+                 "Princess", "Shrub", "Tree", "Bear", "Smile", "Eye",
+                 "Tounge", "Flounder", "Whale", "Steer", "Stallion",
+                 "Mare", "Wish", "Hoof", "Goat", "Tower", "Fist",
+                 "Monk", "Sleep", "Fool", "Knight", "Poet", "Thrush",
+                 "Diamond", "Ruby", "Emerald", "Lute", "Drum", "Flute",
+                 "Farmer", "Songbird", "Mother", "Father", "Solider",
+                 "Sailor", "Brewer", "Hornet", "Donkey", "Hare",
+                 "Twig", "Barrel", "Boot", "Fang", "Skull", "Snail",
+                 "Beetle")
+
+tavern <- paste("The", sample(tavern_adj, 1), sample(tavern_noun, 1))
+
+print(tavern)
+
+```
+
+Similarly, I have made a potion generator that can be useful for making a reward on a whim. In my experience as a dungeon master, players love potions that do odd things. They will go out of their way to find a use for these potions, because they represent the fruits of a completed challenge. A common idea in game design is that if you give the player a less-than-optimal tool, they will try to succeed with it for the sheer challenge. If the player is given a potion that lets them breathe underwater, I can almost guarantee that they will be looking forward to the next body of water they come across, and will find a reason to use the potion no matter how thin. This is a tool that enhances the gameplay experience in a more creative light.
+
+```{r}
+
+container <- c("A glass statuette of a God", "A thin glass vial", "A leather pouch",
+               "A drinking horn", "A metal flask", "A hallowed out crystal",
+               "The sealed bone of an ogre", "A short, fat, glass jar",
+               "A wooden jar with a cork", "An ornate iron flagon", "A syringe",
+               "A clay urn", "A glass skull", "A shot-glass sized container",
+               "A fist-sized barrel", "A sealed, ornate tankard",
+               "A hallowed out dragon tooth", "A glass sphere with a cork",
+               "A repurpsed scorpion tail", "A small bronze container")
+
+color <- c("white", "lime green", "bronze", "purple", "ruby", "pale blue",
+           "forest green", "lavender", "orange", "plum", "silver", "black",
+           "jade", "peach", "red", "yellow", "azure", "olive", "sky blue", "tan")
+
+effect <- c("instantly restores some health (2d6 + 2)",
+            "gives the strength of a giant for ten minutes",
+            "makes the drinker double in size",
+            "cures an illness",
+            "doubles speed for one hour",
+            "ages the drinker by five years",
+            "temporarily turns the drinker's teeth into stone",
+            "puts the drinker into a coma for 6 hours",
+            "gives resistence to acid damage for one hour",
+            "increases acrobatics for one hour",
+            "instantly grows a beard on the drinker",
+            "turns the drinker invisible for 10 minutes",
+            "grants levitation for two minutes",
+            "forces the drinker to tell the truth for one hour",
+            "grants a temporary increase in max health until the health is lost",
+            "grants the drinker underwater breathing for twenty minutes",
+            "gives the user a single vision of the future",
+            "makes the drinker lose sight for one hour",
+            "lets the drinker ask their deity one question",
+            "gives the drinker a slight experience boost"
+            )
+
+tavern <- paste(sample(container, 1), "containing a liquid of", sample(color, 1),
+                "color that", sample(effect, 1))
+
+print(tavern)
+
+```
+
+The final tool was the greatest challenge as it used functions not learned in the course, and without the tools of the shiny app I am unable to recreate it in the R markdown file. A reactive combat tracker that allows the user to input an amount of enemies and keep track of their life total in the midst of a combat situation. This is perhaps the most useful of all the tools, in my experience. It can be rather troublesome keeping track of multiple enemies in a combat scenario. This is a very useful tool for keeping track by naming each enemy (even something simple like Goblin 1, Goblin 2, Hobgoblin) and keeping track of their life total. The user can either use the arrows to assign the values, or enter the number with the keyboard. The tool uses table rendering to display and update the information based on the user's input, which went outside of what I was comfortable with in the context of what we have learned. 
+
+The user simply enters the amount of enemies, assigns a name to each, and assigns total HP and AC (armor class). Then, it is easy to modify the HP as the combat progresses. I have also included a d20 at the bottom, which is a common die for combat. If a player has an AC of 14, the enemy needs to roll a 14 or higher on the d20 for their attack to land, so having a d20 on the same page is handy.
+
+I have included the code from the UI and server side of the combat tracker below for illustration.
+
+```{r, eval=FALSE}
+
+          ##############
+          ##### UI #####
+          ##############
+
+tabItem(tabName = "combat",
+              h2("Combat Tracker"),
+              h2(""),
+              p("Enter the amount of enemies and a table will appear to help keep track of
+                an instance of combat. Use the arrows or your numpad to change the
+                enemy HP."),
+              numericInput("enemy_quant", "How many enemies?", value = 0, min = 0,
+                           max = 10),
+              uiOutput("enemy_inputs"),
+              tableOutput("combat_stats"),
+              actionButton("run_d20_2", "Roll d20"),
+              textOutput("d20_2", inline = TRUE))
+
+          ##############
+          ### SERVER ###
+          ##############
+
+  d20_2 <- reactiveVal(NULL)
+  
+  enemies <- reactiveVal(data.frame(Enemy = character(0), HP = numeric(0),
+                                    AC = numeric(0)))
+  
+  observeEvent(input$run_d20_2, {
+    d20_2(sample(1:20, 1))
+  })
+  
+  output$d20_2 <- renderText ({
+    paste(d20_2())
+  })
+  
+  output$enemy_inputs <- renderUI({
+    n <- input$enemy_quant
+    
+    if(n==0){
+      return(NULL)
+    }
+    
+    lapply(1:n, function(i){
+      fluidRow(
+        column(6, textInput(paste0("enemy_name_", i), label = paste("Enemy", i, "Name"), value = paste("Enemy", i))),
+        column(3, numericInput(paste0("enemy_hp_", i), label = paste("HP", i), value = 20, min = 1, max = 1000)),
+        column(3, numericInput(paste0("enemy_ac_", i), label = paste("AC", i), value = 12, min = 1, max = 30))
+      )
+    })
+  })
+  
+  observeEvent(input$hp_up_btn, {
+    n <- input$enemy_quant
+    if (n > 0) {
+      for (i in 1:n) {
+        
+        enemy_hp <- input[[paste0("enemy_hp_", i)]]
+        new_hp <- hp_up(enemy_hp)
+        updateNumericInput(session, paste0("enemy_hp_", i), value = new_hp)
+      }
+    }
+  })
+  
+  observeEvent(input$hp_down_btn, {
+    n <- input$enemy_quant
+    if (n > 0) {
+      for (i in 1:n) {
+        
+        enemy_hp <- input[[paste0("enemy_hp_", i)]]
+        new_hp <- hp_down(enemy_hp)
+        updateNumericInput(session, paste0("enemy_hp_", i), value = new_hp)
+      }
+    }
+  })
+  
+  observe({
+    n <- input$enemy_quant
+    if (n > 0) {
+      
+      enemy_data <- data.frame(Enemy = character(0), HP = numeric(0), AC = numeric(0))
+      for (i in 1:n) {
+        enemy_data <- rbind(enemy_data, data.frame(
+          Enemy = input[[paste0("enemy_name_", i)]],
+          HP = input[[paste0("enemy_hp_", i)]],
+          AC = input[[paste0("enemy_ac_", i)]]
+        ))
+      }
+      enemies(enemy_data)
+    }
+  })
+  
+  
+  output$combat_stats <- renderTable({
+    enemies()
+  })
+
+```
+
+### Conclusion
+
+This was a very rewarding and educating project. For the most part, I wrote the code in a separate R script and translated it over to the shiny app, which taught me a lot about how user interfaces work and the complexities of something as simple as a dropdown menu. One of the greatest challenges was organizing the various tools and functions in a reasonable manner. I first tried to organize them all on one page, but ultimately opted to use the dashboard from the shinydashboard package, which improved readability and kept the app clean in appearance. Shinydashboard is another example of something outside of the class I had to learn for this app, and I am very glad I did. It is an immensely useful package for many shiny apps, I would imagine. 
+
+If I had more time or I were to return to this app, I would add the ability for a user to upload an image (jpeg or png or otherwise) so that they can import their own maps and diagrams for reference. 
+
+I am happy with this app because it is an accumulation of several topics learned throughout the course, and each is applied in a very practical manner for Dungeons & Dragons. 
