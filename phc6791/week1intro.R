@@ -12,13 +12,20 @@ df %>%
   ggplot() +
   geom_point(aes(x = TestNumber, y = LefthandTime,
                  color = "Left Hand Time"), size = 3) +
+  geom_line(aes(x = TestNumber, y = LefthandTime,
+                 color = "Left Hand Time")) +
   geom_text(aes(x = TestNumber, y = LefthandTime,
                 label = "L"), size = 5, hjust = -.5) +
   geom_point(aes(x = TestNumber, y = RighthandTime,
                  color = "Right Hand Time"), size = 3) +
+  geom_line(aes(x = TestNumber, y = RighthandTime,
+                color = "Right Hand Time")) +
   geom_text(aes(x = TestNumber, y = RighthandTime,
                 label = "R", hjust = -.5), size = 5) +
-  labs(title = "Lefthand vs. Righthand Reaction Times",
+  ##Averages
+  geom_label(aes(x = 4, y = .375), label = "Left Hand Average: 0.3152") +
+  geom_label(aes(x = 4.05, y = .371), label = "Right Hand Average: 0.3126") +
+  labs(title = "Left Hand vs. Right Hand Reaction Times",
        x = "Test Number", y = "Time (seconds)", colour = "Key") +
   xlim(1,5.5) +
   ylim(.275,.375)
