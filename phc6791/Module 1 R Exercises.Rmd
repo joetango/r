@@ -1,0 +1,152 @@
+---
+title: "Module 1 R Exercises"
+author: "Dr. Foti"
+date: ""
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+If you are reading this, then you successfully downloaded, saved, and opened
+the RMarkdown file! Nice Job!
+
+Please complete the following exercises by typing your code under each question. When finished, click Knit and include your name in the filename. Upload the file you saved back to Canvas as your submission.
+
+As you write your code in the code chunks below, you can click run or use ctrl + enter to run/test your code as you go. When you are finished, click Knit to create the final document for submission. If you are getting errors that you cannot figure out, ask for help!
+
+## Question 1
+
+We are going to use the runif() function to complete some tasks. Using the code chunk below, open the help documentation for the function named runif (hint: use the ? symbol). Underneath the code chunk, explain what the function does.
+
+```{r}
+
+?runif
+
+```
+
+runif() generates random deviates for the purpose of providing information on an interval's uniform distribution.
+
+## Question 2
+
+Draw 20 random numbers (n = 20) from the Uniform distribution with the arguments min = 0 and max = 10.
+
+```{r}
+
+runif(20, min = 0, max = 10)
+
+```
+
+## Question 3
+
+Repeat question 2, except this time store your 20 numbers in a variable called: numbers.
+
+```{r}
+
+numbers <- runif(20, min = 0, max = 10)
+
+```
+
+## Question 4
+
+Use what you know or use Google to complete the following on your numbers variable:
+- Find the mean of the 20 numbers, find the median of the 20 numbers
+- Find the minimum value in your set, and the maximum value in your set.
+
+```{r}
+
+mean(numbers)
+median(numbers)
+min(numbers)
+max(numbers)
+
+```
+
+## Question 5
+
+Try to use the function called summary() on your numbers variable. What does it do?
+
+```{r}
+
+summary(numbers)
+
+```
+
+It finds all the previous values of question 4 (min, max, mean, median) as well as the 1st. and 3rd. quartile 
+
+## Question 6
+
+Run the following code: numbers < 10
+What did this do? What is the result telling you?
+
+```{r}
+
+numbers < 10
+
+```
+
+The code determines if each number in the object is less than 10. It returns all TRUE because our max possible value was set to 10.
+
+## Question 7
+
+Instead, try running the following: numbers < 5
+What did this do? What is the result telling you?
+
+```{r}
+
+numbers < 5
+
+```
+
+Similarly to question 8, the result is determining if each number is less than 5. We get some FALSE results as expected as many of the numbers in the object are less than 5. 
+
+## Question 8
+
+The data type "logical" is equivalent to the binary 0 (FALSE) and 1 (TRUE).
+Try to take the sum() of your result from step 7, what is the result? What does it mean?
+
+```{r}
+
+sum(numbers<5)
+
+```
+
+The result is 12 and it is summing the total amount of true values, i.e. how many numbers are less than 5.
+
+## Question 9
+
+Install the package named palmerpenguins by using the install.packages() function. Alternatively, use Tools -> Install Packages. Then, load the package by running the following code: library(palmerpenguins). Open the help documentation for the dataset called penguins by using the ? symbol. Run the summary function on the dataset called penguins.
+
+```{r}
+
+library(palmerpenguins)
+?penguins
+summary(penguins)
+
+```
+
+## Question 10
+
+Install the package named tidyverse. This package will be useful throughout the course for visualizations and data manipulation. Removing the "comments" (# symbols) from the following code (check the "Code" menu, next to File and Edit; highlight your code and then click comment/uncomment lines) to get a sneak preview at some of what we will learn this semester. Once you see the graph, answer the following question: Are we able to differentiate penguin species by their body mass and flipper length?
+
+```{r}
+library(tidyverse)
+ggplot(data = penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g)) +
+  geom_point(aes(color = island,
+                 shape = species),
+             size = 3,
+             alpha = 0.8) +
+  scale_color_manual(values = c("darkorange","purple","cyan4")) +
+  labs(title = "Penguin size, Palmer Station LTER",
+       subtitle = "Flipper length and body mass for each island",
+       x = "Flipper length (mm)",
+       y = "Body mass (g)",
+       color = "Penguin island",
+       shape = "Penguin species") +
+  theme_minimal()
+
+
+```
+
+Based on the graph, it seems we are able to differentiate Gentoo penguins from Chinstrap and Adelie, but not necessarily Chinstrap from Adelie as their flipper lengths are roughly in the same range.
