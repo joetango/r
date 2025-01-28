@@ -1,0 +1,90 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-01-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+## Packages
+library(faraway)
+library(tidyverse)
+
+
+
+```
+
+(a)
+
+i. The plot is not illustrative in a helpful way. We have no conception of how the data is distributed because the points are all stacked on top of one another. 
+
+```{r}
+
+data(wbca)
+
+plot(Class ~ BNucl, wbca)
+
+```
+
+ii. We notice that a high BNucl appears to have some sort of relationship to whether a tumor is malignant or benign. We see here that higher a Bnucl might make it more probable for a tumor to be malignant. 
+
+```{r}
+
+wbca %>% 
+  ggplot(aes(x = factor(Class), y = BNucl)) +
+  geom_boxplot() +
+  labs(x = "Class", y = "BNucl")
+
+```
+
+iii. This plot seems to indicate that a small BNucl measurement is more likely to have a benign tumor, while a high BNucl measurement is more likely to have an instance of a malignant tumor.
+
+```{r}
+
+plot(jitter(Class, 0.1) ~ jitter(BNucl), wbca, pch = ".")
+
+```
+
+iv. Similarly to the previous visualizations, we see higher instances of malignant tumors with high BNucl, and higher instances of benign tumors with low BNucl.
+
+```{r}
+
+wbca %>% 
+  ggplot(aes(x = BNucl, fill = factor(Class), group = factor(Class))) +
+  geom_histogram(position = "dodge", binwidth = 1)
+
+wbca %>% 
+  ggplot(aes(x = BNucl, fill = factor(Class), group = factor(Class))) +
+  geom_histogram(position = "dodge", binwidth = 1, aes(y=..density..))
+
+```
+
+(b) In the first graph, it appears that higher clump thickness will relate to higher bare nuclei, while lower clump thickness indicates lower bare nuclei. In the second graph, we see similar distribution, and that higher clump thickness may contribute to a tumor being malignant, while lower clump thickness might contribute to a tumor being benign. 
+
+```{r}
+
+wbca %>% 
+  ggplot(aes(x = Thick, y = BNucl)) +
+  geom_point(alpha=0.2, position = position_jitter()) +
+  facet_grid( ~ Class)
+
+wbca %>% 
+  ggplot(aes(x = Thick, y = BNucl, color = factor(Class),
+             group = factor(Class))) +
+  geom_point(alpha = 0.5, position = position_jitter())
+
+```
+
+(c) We have a residual deviance of 89.464 on 671 degrees of freedom. 
+
+```{r}
+
+glmod <- glm(Class ~ ., family = binomial, wbca)
+
+summary(glmod)
+
+```

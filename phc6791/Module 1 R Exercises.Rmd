@@ -2,7 +2,7 @@
 title: "Module 1 R Exercises"
 author: "Dr. Foti"
 date: ""
-output: html_document
+output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -110,7 +110,7 @@ sum(numbers<5)
 
 ```
 
-The result is 12 and it is summing the total amount of true values, i.e. how many numbers are less than 5.
+The result is the total amount of true values, i.e. how many numbers are less than 5. In my first instance it was 12, but the result will be different after this is knitted as the code will be rerun with a new list of numbers. 
 
 ## Question 9
 
