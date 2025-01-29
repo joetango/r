@@ -10,11 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
+
 ## Packages
 library(faraway)
 library(tidyverse)
-
-
+library(MASS)
+library(vcdExtra)
+library(glmtoolbox)
+library(pROC)
 
 ```
 
@@ -79,12 +82,63 @@ wbca %>%
 
 ```
 
-(c) We have a residual deviance of 89.464 on 671 degrees of freedom. 
+(c) We have a residual deviance of 89.464 on 671 degrees of freedom. However, for binary data the residual deviance should not be used for determining goodness of fit. 
 
 ```{r}
 
 glmod <- glm(Class ~ ., family = binomial, wbca)
 
 summary(glmod)
+
+```
+
+(d) It appears a model excluding Epith (epithelial cell size) and USize (cell size uniformity) contains the best subset of variables. However, performing a Hosmer-Lemeshow goodness-of-fit test returns a p-value of 0.8125. Discussed in the lecture, the Hosmer-Lemeshow test might not be the most reliable. 
+
+```{r}
+
+step(glmod)
+
+subsetmodel <- step(glmod)
+summary(subsetmodel)
+
+hltest(subsetmodel)
+
+```
+
+(e) 
+
+```{r}
+
+table(wbca$Class, ifelse(predict(subsetmodel, type = "response") < 0.5, "no", "yes"))
+
+```
+
+(f) 
+
+```{r}
+
+table(wbca$Class, ifelse(predict(subsetmodel, type = "response") < 0.9, "no", "yes"))
+
+```
+
+(g) We find a very favorable ROC plot with an area of 0.9974 under the curve.
+
+```{r}
+
+linpred <- predict(subsetmodel)
+
+predprob <- predict(subsetmodel, type = "response")
+
+wbcam <- mutate(wbcam, residuals = residuals(subsetmodel), linpred = predict(subsetmodel))
+
+mod_roc = roc(wbca$Class, predprob)
+plot(mod_roc)
+auc(mod_roc)
+
+```
+
+```{r}
+
+set.seed(123)
 
 ```
