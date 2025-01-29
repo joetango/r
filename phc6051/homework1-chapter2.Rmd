@@ -1,5 +1,6 @@
 ---
-title: "Untitled"
+title: "Homework 01"
+author: "Joe Dickerson"
 output: html_document
 date: "2025-01-27"
 ---
@@ -121,15 +122,13 @@ table(wbca$Class, ifelse(predict(subsetmodel, type = "response") < 0.9, "no", "y
 
 ```
 
-(g) We find a very favorable ROC plot with an area of 0.9974 under the curve.
+(g) We find a very favorable ROC plot with an area of 0.9974 under the curve, which indicates a good fit. The area under curve is useful because it can be used to measure the efficacy of different models.
 
 ```{r}
 
-linpred <- predict(subsetmodel)
-
 predprob <- predict(subsetmodel, type = "response")
 
-wbcam <- mutate(wbcam, residuals = residuals(subsetmodel), linpred = predict(subsetmodel))
+wbcam <- mutate(wbca, residuals = residuals(subsetmodel), linpred = predict(subsetmodel))
 
 mod_roc = roc(wbca$Class, predprob)
 plot(mod_roc)
@@ -137,8 +136,33 @@ auc(mod_roc)
 
 ```
 
+(h) Our training data determines the best model to exclude Epith, UShap, and USize. We see similar results of predictive performance compared to the full model. 
+
 ```{r}
 
 set.seed(123)
+
+sequence <- seq(1, 681, by = 3)
+
+wbcaTest <- wbca[sequence,]
+wbcaTrain <- wbca[-sequence,]
+
+## Determining model
+
+glmTrain <- glm(Class ~ ., family = binomial, wbcaTrain)
+
+step(glmTrain)
+
+Trainmodel <- step(glmTrain)
+summary(Trainmodel)
+
+## Predictive Performance 
+
+predTest <- predict(Trainmodel, type="response", newdata = wbcaTest)
+
+table(wbcaTest$Class, ifelse(predTest < 0.5, "no", "yes"))
+
+table(wbcaTest$Class, ifelse(predTest < 0.9, "no", "yes"))
+
 
 ```
