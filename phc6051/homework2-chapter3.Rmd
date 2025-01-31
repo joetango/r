@@ -1,0 +1,34 @@
+---
+title: "Homework 2"
+author: "Joe Dickerson"
+date: "2025-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+## Packages
+library(faraway)
+library(tidyverse)
+
+data(seeds)
+
+```
+
+3.
+
+(a) It appears that when the container is not covered, we see germination increase as moisture increases. With a cover, we see higher germination at the lower moisture levels, and lower germination at the higher moisture levels. It appears that the cover helped to create an ideal environment for the seeds at lower moisture levels than when the seeds are uncovered. 
+
+```{r}
+
+seeds %>% 
+  ggplot(aes(x = germ, y = moisture)) +
+  geom_point() +
+  facet_grid( ~ covered)
+
+```
+
+(b) 
