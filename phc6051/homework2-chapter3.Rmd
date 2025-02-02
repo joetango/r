@@ -25,10 +25,93 @@ data(seeds)
 ```{r}
 
 seeds %>% 
-  ggplot(aes(x = germ, y = moisture)) +
+  ggplot(aes(y = germ, x = moisture)) +
   geom_point() +
-  facet_grid( ~ covered)
+  facet_grid( ~ covered) +
+  labs(x = "Moisture level", y = "Germination Percentage") 
 
 ```
 
-(b) 
+(b) There does not appear to be a box effect based on the plot.
+
+```{r}
+
+df <- seeds %>% 
+  mutate(box = rep(1:8, each = 6))
+
+df %>% ggplot(aes(y = germ, x = moisture, color = factor(box))) +
+  geom_point() +
+  geom_line() +
+  facet_grid( ~ covered) +
+  labs(x = "Moisture level", y = "Germination Percentage")
+
+```
+
+(c)
+
+```{r}
+
+glmod <- glm(cbind(germ, 100 - germ) ~ moisture + covered + factor(box), family = binomial, df)
+
+summary(glmod)
+glmod_sum = summary(glmod)
+
+
+```
+(d) We have very low p-values, which would indicate problems with the model.
+
+```{r}
+
+pchisq(deviance(glmod), df.residual(glmod), lower = F)
+
+pearsonstat = sum(residuals(glmod, "pearson")^2)
+
+pchisq(pearsonstat, glmod_sum$df.residual, lower.tail = F)
+
+```
+
+(e)
+
+```{r}
+
+predict(glmod, moisture = 13)
+
+```
+
+(f) Our fitted values against residuals plot shows a nonlinear pattern. 
+
+```{r}
+
+glmfitted <- fitted(glmod)
+glmresiduals <- residuals(glmod)
+
+plot(residuals(glmod) ~ fitted(glmod))
+abline(h=0)
+
+```
+
+(g)
+
+```{r}
+
+## removed the 47th row to fit with the residuals as the original dataset is missing a value here. The model omits this row
+
+df_new <- df[-47,]
+
+df_new %>% ggplot(aes(x = moisture, y = glmresiduals, color = covered)) +
+  geom_point() +
+  geom_smooth(fill=NA)
+
+```
+
+(h) 
+
+```{r}
+
+hatv <- hatvalues(glmod)
+halfnorm(hatv, ylab = "Leverages")
+
+qqnorm(residuals(glmod))
+qqline(residuals(glmod))
+
+```
