@@ -1,0 +1,82 @@
+---
+title: "Homework 3"
+author: "Joe Dickerson"
+date: "2025-02-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+## packages
+library(faraway)
+library(tidyverse)
+
+```
+
+3. 
+(a) It does appear that there is a higher likelihood of spontaneous abortions among the case group when keeping in mind there there are two observations of control for every one case observation. For example, 22 instances of a single spontaneous abortion with 0 induced in the case group, and 25 in the control. With half the observations in the case group, this is a higher rate. Looking at the same column of 0 induced abortions, we have similar findings with the count of two spontaneous abortions, 18 in the case group and 11 in the control. This is a much higher rate in the case group than the control. 
+
+```{r}
+
+data(infert)
+
+case <- infert[infert$case == 1,]
+control <- infert[infert$case == 0,]
+
+
+
+case_table <- table(case$spontaneous, case$induced)
+case_table <- addmargins(case_table)
+control_table <- table(control$spontaneous, control$induced)
+control_table <- addmargins(control_table)
+
+rownames(case_table) <- paste("Spontaneous", rownames(case_table))
+colnames(case_table) <- paste("Induced", colnames(case_table))
+rownames(control_table) <- paste("Spontaneous", rownames(control_table))
+colnames(control_table) <- paste("Induced", colnames(control_table))
+
+cat("Cases")
+case_table
+
+cat("\nControls")
+control_table
+
+```
+
+(b) Fit a binary response model with only spontaneous and induced as predictors. Determine the statistical significance of these predictors. Express the effects of the predictors in terms of odds.
+
+
+```{r}
+
+glmod <- glm(case ~ spontaneous + induced, family = binomial, infert)
+
+summary(glmod)
+
+```
+
+(c) Fit a binary response model with only education, age and parity as predictors. Explain how the significance (or lack thereof) of these predictors should be interpreted.
+
+```{r}
+
+glmod2 <- glm(case ~ education + age + parity, family = binomial, infert)
+
+summary(glmod2)
+
+```
+
+(d)  Now put all five predictors in a binary response model. Interpret the results in terms of odds.
+
+```{r}
+
+glmod3 <- glm(case ~ spontaneous + induced + education + age + parity, family = binomial, infert)
+
+summary(glmod3)
+
+exp(coef(glmod3))
+
+# glmod3pred <- predict(glmod3, type = "response")
+
+```
