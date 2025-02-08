@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## packages
 library(faraway)
 library(tidyverse)
+library(MASS)
+library(survival)
 
 ```
 
@@ -78,5 +80,26 @@ summary(glmod3)
 exp(coef(glmod3))
 
 # glmod3pred <- predict(glmod3, type = "response")
+
+```
+
+(e) Fit a matched case control model appropriate to the data. Interpret the output and compare the odds to those found in the previous model.
+
+```{r}
+
+cmod = clogit(case ~ spontaneous + induced + strata(stratum), infert)
+summary(cmod)
+
+exp(coef(cmod))
+
+```
+
+(f) The spontaneous and induced predictors could be viewed as ordinal due to the grouping in the highest level. Refit the model using ordinal factors rather than numerical variables for these two predictors. Is there evidence that the ordinal representation is necessary?
+
+```{r}
+
+cmodr = clogit(case ~ unclass(spontaneous) + unclass(induced) + strata(stratum), infert)
+
+summary(cmodr)
 
 ```
