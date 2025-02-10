@@ -10,7 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+
 ## packages
+
 library(faraway)
 library(tidyverse)
 library(MASS)
@@ -19,7 +21,10 @@ library(survival)
 ```
 
 3. 
-(a) It does appear that there is a higher likelihood of spontaneous abortions among the case group when keeping in mind there there are two observations of control for every one case observation. For example, 22 instances of a single spontaneous abortion with 0 induced in the case group, and 25 in the control. With half the observations in the case group, this is a higher rate. Looking at the same column of 0 induced abortions, we have similar findings with the count of two spontaneous abortions, 18 in the case group and 11 in the control. This is a much higher rate in the case group than the control. 
+
+(a)
+
+It does appear that there is a higher likelihood of spontaneous abortions among the case group when keeping in mind there there are two observations of control for every one case observation. For example, 22 instances of a single spontaneous abortion with 0 induced in the case group, and 25 in the control. With half the observations in the case group, this is a higher rate. Looking at the same column of 0 induced abortions, we have similar findings with the count of two spontaneous abortions, 18 in the case group and 11 in the control. This is a much higher rate in the case group than the control. 
 
 ```{r}
 
@@ -48,7 +53,9 @@ control_table
 
 ```
 
-(b) Fit a binary response model with only spontaneous and induced as predictors. Determine the statistical significance of these predictors. Express the effects of the predictors in terms of odds.
+(b) 
+
+We have an odds ratio of 3.31 for spontaneous and 1.52 for induced, which suggests higher odds for a case (infertile) when a spontaneous abortion has occurred than an induced one. Both values are greater than one, so both increase the odds of a case. 
 
 
 ```{r}
@@ -57,9 +64,14 @@ glmod <- glm(case ~ spontaneous + induced, family = binomial, infert)
 
 summary(glmod)
 
+exp(coef(glmod))
+
+
 ```
 
-(c) Fit a binary response model with only education, age and parity as predictors. Explain how the significance (or lack thereof) of these predictors should be interpreted.
+(c) 
+
+Without spontaneous and induced, we are only measuring the effect of education and age on the likelihood of a person being infertile. It would be reasonable to suggest that these factors alone would not have a great impact on the response. However, the contribute to the matching of case vs control.
 
 ```{r}
 
@@ -69,7 +81,9 @@ summary(glmod2)
 
 ```
 
-(d)  Now put all five predictors in a binary response model. Interpret the results in terms of odds.
+(d)  
+
+With all five predictors in the model, there seems to be a higher odds ratio for spontaneous and induced than without the additional predictors. We also see values less than 1 for education and parity. Age is 1.04, which is very close to 1.
 
 ```{r}
 
@@ -79,27 +93,36 @@ summary(glmod3)
 
 exp(coef(glmod3))
 
-# glmod3pred <- predict(glmod3, type = "response")
-
 ```
 
-(e) Fit a matched case control model appropriate to the data. Interpret the output and compare the odds to those found in the previous model.
+(e) 
+
+We see similar results in the summary for spontaneous and induced, as well as our odds ratio. It seems that if a person has had a spontaneous abortion, the odds are higher than they will be infertile. The same is true for an induced abortion. 
 
 ```{r}
 
-cmod = clogit(case ~ spontaneous + induced + strata(stratum), infert)
+cmod = clogit(case ~ spontaneous + induced + education + age + parity + strata(stratum), infert)
+
 summary(cmod)
 
 exp(coef(cmod))
 
 ```
 
-(f) The spontaneous and induced predictors could be viewed as ordinal due to the grouping in the highest level. Refit the model using ordinal factors rather than numerical variables for these two predictors. Is there evidence that the ordinal representation is necessary?
+(f) 
+
+The significance of spontaneousOrd.L and inducedOrd.L seem to indicate that there is in fact a linear relationship in the predictors, but not a quadratic one due to the insignificance of spontaneousOrd.Q and inducedOrd.Q. It appears there is could be an advantage to making the distinction.
 
 ```{r}
 
-cmodr = clogit(case ~ unclass(spontaneous) + unclass(induced) + strata(stratum), infert)
+infert$spontaneousOrd <-ordered(infert$spontaneous, levels = 0:2, labels = c("0", "1","2+"))
+
+infert$inducedOrd <-ordered(infert$induced, levels = 0:2, labels = c("0", "1","2+"))
+
+cmodr = clogit(case ~ spontaneousOrd + inducedOrd + education + age + parity + strata(stratum), infert)
 
 summary(cmodr)
+
+exp(coef(cmodr))
 
 ```

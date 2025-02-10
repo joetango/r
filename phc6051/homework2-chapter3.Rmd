@@ -47,7 +47,7 @@ df %>% ggplot(aes(y = germ, x = moisture, color = factor(box))) +
 
 ```
 
-(c)
+(c) It seems that box has no effect on the model and can be excluded.
 
 ```{r}
 
@@ -56,25 +56,43 @@ glmod <- glm(cbind(germ, 100 - germ) ~ moisture + covered + factor(box), family 
 summary(glmod)
 glmod_sum = summary(glmod)
 
-
 ```
-(d) We have very low p-values, which would indicate problems with the model.
+
+(d) We have very low p-values, which would indicate problems with the model. Performing a chi-sq test on both the model with and without box confirms the absence of the box predictor is a better choice of model.
 
 ```{r}
 
-pchisq(deviance(glmod), df.residual(glmod), lower = F)
+## model without box
+
+glmod2 <- glm(cbind(germ, 100-germ) ~ moisture + covered, family = binomial, df)
+glmod2_sum = summary(glmod2)
+
+pchisq(deviance(glmod2), df.residual(glmod2), lower = F)
 
 pearsonstat = sum(residuals(glmod, "pearson")^2)
+pearsonstat2 = sum(residuals(glmod2, "pearson")^2)
 
 pchisq(pearsonstat, glmod_sum$df.residual, lower.tail = F)
+pchisq(pearsonstat2, glmod2_sum$df.residual, lower.tail = F)
+
 
 ```
 
-(e)
+(e) According to this prediction, it appears that moisture 1 is the predicted moisture for maximum germination in both covered and uncovered boxes. However, this seems to contradict the plots, so I'm not confident in the accuracy of this result.
 
 ```{r}
 
-predict(glmod, moisture = 13)
+seeds <- na.omit(seeds)
+
+glmod2pred <- predict(glmod2, type = "link")
+
+seeds$pred <- glmod2pred
+
+nocover <- seeds[seeds$covered == "no",]
+covered <- seeds[seeds$covered == "yes",]
+
+which.max(nocover$pred)
+which.max(covered$pred)
 
 ```
 
@@ -82,19 +100,18 @@ predict(glmod, moisture = 13)
 
 ```{r}
 
-glmfitted <- fitted(glmod)
-glmresiduals <- residuals(glmod)
+glmfitted <- fitted(glmod2)
 
-plot(residuals(glmod) ~ fitted(glmod))
+plot(residuals(glmod2) ~ fitted(glmod2))
 abline(h=0)
 
 ```
 
-(g)
+(g) It appears that the higher moisture levels have higher residuals when the box is covered, and the lower moisture boxes that are covered have higher residuals. This might be due to the cover adding moisture to the boxes when the moisture levels are low, mimicking the germination of boxes without covers at higher moisture levels.
 
 ```{r}
 
-## removed the 47th row to fit with the residuals as the original dataset is missing a value here. The model omits this row
+glmresiduals <- residuals(glmod2)
 
 df_new <- df[-47,]
 
@@ -104,14 +121,10 @@ df_new %>% ggplot(aes(x = moisture, y = glmresiduals, color = covered)) +
 
 ```
 
-(h) 
+(h) There appear to be some influential points located at the bottom right of the plot. This seems to indicate some problems with the model.
 
 ```{r}
 
-hatv <- hatvalues(glmod)
-halfnorm(hatv, ylab = "Leverages")
-
-qqnorm(residuals(glmod))
-qqline(residuals(glmod))
+plot(glmod2, which = 5)
 
 ```
