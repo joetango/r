@@ -1,0 +1,86 @@
+---
+title: "Homework 5"
+author: "Joe Dickerson"
+date: "2025-02-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(faraway)
+library(tidyverse)
+
+data(esdcomp)
+
+```
+
+7.
+
+(a) We see similar means but a higher range between doctors in their residency and doctors not in their residency when looking at rate of complaints. We see similar findings when comparing gender to rate of complaints, however the minimum is a bit higher for the female doctors than the male. There are approximately 1/3 the amount of female doctors in the study, however, so this may not be as significant. It seems there is a somewhat noticeable relationship between hours worked and rate of complaints.
+
+```{r}
+
+comp_rate <- esdcomp$complaints/esdcomp$visits
+
+plot(comp_rate ~ residency, esdcomp)
+plot(comp_rate ~ gender, esdcomp)
+plot(comp_rate ~ revenue, esdcomp)
+plot(comp_rate ~ hours, esdcomp)
+
+```
+
+(b) Fit a binomial GLM for the number of complaints out of the number of visits with the other four variables as predictors. Does this model fit the data? Perform this check numerically and graphically.
+
+```{r}
+
+bimod <- glm(cbind(complaints, visits - complaints) ~ ., family = binomial, esdcomp)
+
+summary(bimod)
+
+plot(residuals(bimod) ~ fitted(bimod))
+abline(h=0)
+
+```
+
+(c) Check the significance of the four predictors in the binomial model. Give a numerical interpretation to the effect of any significant predictors.
+
+```{r}
+
+summary(bimod)
+
+```
+
+(d)
+
+```{r}
+
+pmod <- glm(complaints ~ visits + residency + gender + revenue + hours, family = poisson, esdcomp)
+
+summary(pmod)
+
+plot(esdcomp$complaints, pmod$fitted.values, xlab="Observed Complaints", ylab="Predicted Complaints")
+abline(a=0, b=1)
+
+```
+
+(e)
+
+```{r}
+
+
+
+```
+
+(f)
+
+```{r}
+
+stepmod <- step(pmod)
+
+summary(stepmod)
+
+```
