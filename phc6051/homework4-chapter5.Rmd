@@ -20,7 +20,9 @@ data(esdcomp)
 
 7.
 
-(a) We see similar means but a higher range between doctors in their residency and doctors not in their residency when looking at rate of complaints. We see similar findings when comparing gender to rate of complaints, however the minimum is a bit higher for the female doctors than the male. There are approximately 1/3 the amount of female doctors in the study, however, so this may not be as significant. It seems there is a somewhat noticeable relationship between hours worked and rate of complaints.
+(a) Consider the rate of complaints in terms of the number received in relation to the number of patient visits made. Plot this against each of the four potential predictors and comment on the relationships.
+
+We see similar means but a higher range between doctors in their residency and doctors not in their residency when looking at rate of complaints. We see similar findings when comparing gender to rate of complaints, however the minimum is a bit higher for the female doctors than the male. There are approximately 1/3 the amount of female doctors in the study, however, so this may not be as significant. It seems there is a somewhat noticeable relationship between hours worked and rate of complaints.
 
 ```{r}
 
@@ -35,6 +37,8 @@ plot(comp_rate ~ hours, esdcomp)
 
 (b) Fit a binomial GLM for the number of complaints out of the number of visits with the other four variables as predictors. Does this model fit the data? Perform this check numerically and graphically.
 
+It does not appear the model fits the data well. There is not much significance in the predictors, aside from hours worked with a decent p-value of 0.0451. Our residuals vs fitted plot looks acceptable, but looking at the fitted vs observed results, there does not appear to be a linear relationship.
+
 ```{r}
 
 bimod <- glm(cbind(complaints, visits - complaints) ~ ., family = binomial, esdcomp)
@@ -44,9 +48,14 @@ summary(bimod)
 plot(residuals(bimod) ~ fitted(bimod))
 abline(h=0)
 
+plot(comp_rate, fitted(bimod))
+abline(a=0, b=1)
+
 ```
 
 (c) Check the significance of the four predictors in the binomial model. Give a numerical interpretation to the effect of any significant predictors.
+
+The only predictor with significance is hours with a p-value of 0.0451. It seems to suggest that the rate of complaints will increase by 0.0007 for each additional hour worked with the other variables remaining unchanged. 
 
 ```{r}
 
@@ -54,7 +63,9 @@ summary(bimod)
 
 ```
 
-(d)
+(d) Fit an appropriate Poisson rate model for number of complaints that takes a comparable form to the binomial GLM fitted earlier. Does this model fit the data? Again check this numerically and graphically.
+
+The model does appear to fit the data, better than the binomial model at least. Graphically we do see a better fitting plot of observed vs fitted values. 
 
 ```{r}
 
@@ -62,25 +73,38 @@ pmod <- glm(complaints ~ visits + residency + gender + revenue + hours, family =
 
 summary(pmod)
 
-plot(esdcomp$complaints, pmod$fitted.values, xlab="Observed Complaints", ylab="Predicted Complaints")
+pchisq(deviance(pmod), df.residual(pmod), lower = FALSE)
+
+plot(esdcomp$complaints, fitted(pmod), xlab="Observed Complaints", ylab="Predicted Complaints")
 abline(a=0, b=1)
 
 ```
 
-(e)
+(e) Again check the significance of the predictors and provide a numerical interpretation. Compare the conclusions of the two models.
+
+In this model, predictors seems to be very significant and indicates that for each additional visit, we expect 0.0009 more complaints. 
 
 ```{r}
 
-
+summary(pmod)
 
 ```
 
-(f)
+(f) Exchange the role of hours and visits in the Poisson rate model. Again check the significance of the predictors and interpret the outcome.
+
+We do not have significance with hours, but we still have significance with the visits, with a p-value of 0.005. A graphical check reveals a satisfactory trend as well.
 
 ```{r}
 
-stepmod <- step(pmod)
+pmod1<-glm(complaints ~ hours + residency + gender + revenue + visits, family=poisson, esdcomp)
 
-summary(stepmod)
+summary(pmod1)
+
+plot(esdcomp$complaints, fitted(pmod1), xlab="Observed Complaints", ylab="Predicted Complaints")
+abline(a=0, b=1)
 
 ```
+
+(g) Compare the two proposed rate models.
+
+The Poisson model seems to be the more appropriate choice over the binomial model when measuring an unbounded count. The graphical check of observed and fitted values between these two models illustrates this the most. The difference in the two Poisson models constructed is not significant, both seem to fit the data the same. 
