@@ -1,0 +1,131 @@
+---
+title: "Data Transformation Exercise"
+author: "Joe Dickerson"
+date: "2025-02-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+## packages
+library(tidyverse)
+library(nycflights13)
+
+data(flights)
+
+
+
+```
+5.2.4 
+
+```{r}
+
+## 1
+
+flights %>% 
+  filter(arr_delay >= 120)
+
+flights %>% 
+  filter(dest %in% c("IAH", "HOU"))
+
+flights %>% 
+  filter(carrier %in% c("UA", "AA", "DL"))
+
+flights %>% 
+  filter(month %in% 7:9)
+
+flights %>% 
+  filter(arr_delay > 120, dep_delay <= 0)
+
+flights %>% 
+  filter(dep_delay >= 60, dep_delay - arr_delay > 30)
+
+flights %>% 
+  filter(dep_time <= 600 | dep_time == 2400)
+
+```
+
+5.3.1 
+
+```{r}
+
+## 1.
+
+flights %>% 
+  arrange(desc(is.na(dep_time)))
+
+## 2.
+
+flights %>% 
+  arrange(desc(dep_delay))
+  
+
+```
+
+5.4.1
+
+3. any_of() seems to select any values from a vector, in this case it is the vector of strings that correspond to the tibble, and in conjunction with select() it will select the columns that have the same name from the list of strings.
+
+```{r}
+
+## 3.
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+
+flights %>% 
+  select(any_of(vars))
+
+
+```
+
+5.5.2
+
+```{r}
+
+## 1.
+
+flights_new <- flights %>% 
+  mutate(new_dep_time = (dep_time %% 100 + (dep_time %/% 100 * 60)))
+
+flights_new %>% 
+  select(dep_time, new_dep_time)
+
+## 3.
+## Departure delay should be the difference between departure time and scheduled departure time. We can check this:
+
+
+flights[1,4] - flights[1,5]
+
+flights[1,6]
+
+```
+
+5.6.7 According to the dataframe, Frontier has the worst delays. As for disentangling bad airports vs. bad carriers, I have attempted to do this by further processing the data to show the mean of means with respect to both airport and carrier. It conceptually seems possible to disentangle this but very challenging to do in practice.
+
+```{r}
+
+## 5.
+
+worst_delays_carrier <- flights %>% 
+  group_by(carrier) %>% 
+  summarise(mean_delays = mean(arr_delay, na.rm = TRUE)) %>% 
+  arrange(desc(mean_delays))
+
+worst_delays_carrier[1,1]
+
+
+flights %>% 
+  group_by(carrier, dest) %>%
+  summarise(n())
+
+flights %>% 
+  group_by(carrier, dest) %>% 
+  summarise(mean_delays = mean(arr_delay, na.rm = TRUE)) %>% 
+  group_by(dest, carrier) %>% 
+  summarise(means2 = mean(mean_delays)) %>% 
+  arrange(desc(means2))
+
+```
