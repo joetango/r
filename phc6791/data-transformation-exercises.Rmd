@@ -12,19 +12,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 
 ## packages
+
 library(tidyverse)
 library(nycflights13)
 
 data(flights)
-
-
 
 ```
 5.2.4 
 
 ```{r}
 
-## 1
+## 1.
 
 flights %>% 
   filter(arr_delay >= 120)
@@ -83,6 +82,8 @@ flights %>%
 
 5.5.2
 
+3. Departure delay should be the difference between departure time and scheduled departure time. We can check this:
+
 ```{r}
 
 ## 1.
@@ -94,7 +95,6 @@ flights_new %>%
   select(dep_time, new_dep_time)
 
 ## 3.
-## Departure delay should be the difference between departure time and scheduled departure time. We can check this:
 
 
 flights[1,4] - flights[1,5]
@@ -103,7 +103,7 @@ flights[1,6]
 
 ```
 
-5.6.7 According to the dataframe, Frontier has the worst delays. As for disentangling bad airports vs. bad carriers, I have attempted to do this by further processing the data to show the mean of means with respect to both airport and carrier. It conceptually seems possible to disentangle this but very challenging to do in practice.
+5.6.7 According to the data frame, Frontier has the worst delays. As for disentangling bad airports vs. bad carriers, I have attempted to do this by further processing the data to show the mean of means with respect to both airport and carrier. It conceptually seems possible to disentangle this but very challenging to do in practice.
 
 ```{r}
 
