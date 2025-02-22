@@ -69,7 +69,7 @@ The model does appear to fit the data, better than the binomial model at least. 
 
 ```{r}
 
-pmod <- glm(complaints ~ visits + residency + gender + revenue + hours, family = poisson, esdcomp)
+pmod <- glm(complaints ~ offset(log(visits)) + residency + gender + revenue + hours, family = poisson, esdcomp)
 
 summary(pmod)
 
@@ -82,23 +82,28 @@ abline(a=0, b=1)
 
 (e) Again check the significance of the predictors and provide a numerical interpretation. Compare the conclusions of the two models.
 
-In this model, predictors seems to be very significant and indicates that for each additional visit, we expect 0.0009 more complaints. 
+In this model, the hour predictor seems to be most significant and indicates that for each additional hour, we expect 1.0007 higher count of complaints. This model appears to be a better fit than the binomial model, especiialy when comparing the graphical checks.
 
 ```{r}
 
 summary(pmod)
 
+exp(pmod$coefficients)
+
 ```
 
 (f) Exchange the role of hours and visits in the Poisson rate model. Again check the significance of the predictors and interpret the outcome.
 
-We do not have significance with hours, but we still have significance with the visits, with a p-value of 0.005. A graphical check reveals a satisfactory trend as well.
+We have a notable significance with visits with a p-value of 0.00237. A graphical check reveals a satisfactory trend as well. It appears a one unit change in visits will have 1.0006 higher expected count of complaints.
 
 ```{r}
 
-pmod1<-glm(complaints ~ hours + residency + gender + revenue + visits, family=poisson, esdcomp)
+pmod1<-glm(complaints ~ offset(log(hours)) + residency + gender + revenue + visits, family=poisson, esdcomp)
 
 summary(pmod1)
+
+exp(pmod1$coefficients)
+
 
 plot(esdcomp$complaints, fitted(pmod1), xlab="Observed Complaints", ylab="Predicted Complaints")
 abline(a=0, b=1)
@@ -107,4 +112,4 @@ abline(a=0, b=1)
 
 (g) Compare the two proposed rate models.
 
-The Poisson model seems to be the more appropriate choice over the binomial model when measuring an unbounded count. The graphical check of observed and fitted values between these two models illustrates this the most. The difference in the two Poisson models constructed is not significant, both seem to fit the data the same. 
+The Poisson model seems to be the more appropriate choice over the binomial model when measuring an unbounded count. The graphical check of observed and fitted values between these two models illustrates this the most. The difference in the two Poisson models constructed is not as noticeable as the difference between the Poisson and binomial; both Poisson models seem to fit the data about the same the same. The choice in model may depend on how one wished to interpret the data--in complaint rate measured against hour or visits. 

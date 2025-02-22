@@ -1,0 +1,128 @@
+---
+title: "Homework 5"
+author: "Joe Dickerson"
+date: "2025-02-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+## packages
+library(tidyverse)
+library(faraway)
+library(DescTools)
+library(vcdExtra)
+library(AMR)
+
+data(melanoma)
+
+
+```
+
+2.
+
+(a) Display the data in a two-way table. Make a mosaic plot and comment on the evidence for independence.
+
+Based on the mosaic plot, it appears that there is some element of dependence on the head location. We see a much larger amount of freckles on head than indeterminate, nodular, and superficial. Superficial tumor also appears notably smaller. I have displayed the data in a few different ways for additional help with interpreting.
+
+```{r}
+
+ct <- xtabs(count ~ tumor + site, melanoma)
+
+ct
+
+mosaicplot(ct, color=c("purple", "darkgreen", "blue"), main=NULL)
+
+mosaicplot(t(ct), color=c("lightblue", "darkblue", "blue"), main=NULL)
+
+
+mosaicplot(ct, color=FALSE, shade=TRUE, main=NULL)
+
+```
+
+(b) Check for independence between site and tumor type using a Chi-squared test.
+
+It appears that the null hypothesis is rejected, which would indicate there is dependence.
+
+```{r}
+
+chisq.test(ct)
+
+```
+
+(c) Fit a Poisson GLM model and use it to check for independence.
+
+We have a deviance of 51.795 on 6 degrees of freedom, which further suggests dependence. (p 110)
+
+```{r}
+
+glmod <- glm(count ~ tumor + site, family=poisson, melanoma)
+
+summary(glmod)
+
+pchisq(deviance(glmod), df.residual(glmod), lower.tail = FALSE)
+
+```
+
+(d) Make a two-way table of the deviance residuals from the last model. Comment on the larger residuals.
+
+The two-way table shows similar findings to the interpretation of the mosaic plot. Freckle and superficial are very large residuals for head.
+
+```{r}
+
+round(xtabs(residuals(glmod) ~ tumor + site, melanoma), 2)
+
+```
+
+(e) Construct the correspondence plot. Interpret the plot.
+
+As previously pointed out, we see a correspondence between freckle and head. We also see this with indeterminate and trunk. 
+
+```{r}
+
+z <- xtabs(residuals(glmod, type="pearson") ~ tumor + site, melanoma)
+svdz <- svd(z, 2, 2)
+leftsv <- svdz$u %*% diag(sqrt(svdz$d[1:2]))
+rightsv <- svdz$v %*% diag(sqrt(svdz$d[1:2]))
+ll <- 1.1*max(abs(rightsv), abs(leftsv))
+plot(rbind(leftsv, rightsv), asp=1, xlim=c(-1.25, 1.25), ylim=c(-1.25, 1.25), xlab="SV1", ylab="SV2", type = "n")
+abline(h=0, v=0)
+text(leftsv, dimnames(z)[[1]])
+text(rightsv, dimnames(z)[[2]])
+
+```
+
+(f) Omit all the head location data and repeat the test for independence. What does this indicate?
+
+A G-test on the data set without the head location fails to reject the null of independence.
+
+```{r}
+
+df <- melanoma[5:12,]
+
+ct2 <- xtabs(count ~ tumor + site, df)
+
+g.test(ct2)
+
+mosaicplot(ct2, color=c("purple", "darkgreen", "blue"), main=NULL)
+
+glmod2 <- glm(count ~ tumor + site, family=poisson, df)
+
+round(xtabs(residuals(glmod2) ~ tumor + site, df), 2)
+
+z <- xtabs(residuals(glmod2, type="pearson") ~ tumor + site, df)
+svdz <- svd(z, 2, 2)
+leftsv <- svdz$u %*% diag(sqrt(svdz$d[1:2]))
+rightsv <- svdz$v %*% diag(sqrt(svdz$d[1:2]))
+ll <- 1.1*max(abs(rightsv), abs(leftsv))
+plot(rbind(leftsv, rightsv), asp=1, xlim=c(-.5, .5), ylim=c(-.5, .5), xlab="SV1", ylab="SV2", type = "n")
+abline(h=0, v=0)
+text(leftsv, dimnames(z)[[1]])
+text(rightsv, dimnames(z)[[2]])
+
+
+```
