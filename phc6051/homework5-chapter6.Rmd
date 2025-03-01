@@ -56,7 +56,7 @@ chisq.test(ct)
 
 (c) Fit a Poisson GLM model and use it to check for independence.
 
-We have a deviance of 51.795 on 6 degrees of freedom, which further suggests dependence. (p 110)
+We have a deviance of 51.795 on 6 degrees of freedom, which further suggests dependence. The null deviance is much higher at 295.2 on 11 degrees of freedom.
 
 ```{r}
 
@@ -80,7 +80,7 @@ round(xtabs(residuals(glmod) ~ tumor + site, melanoma), 2)
 
 (e) Construct the correspondence plot. Interpret the plot.
 
-As previously pointed out, we see a correspondence between freckle and head. We also see this with indeterminate and trunk. 
+As previously pointed out, we see a correspondence between freckle and head. We also see this with indeterminate and trunk. It appears that freckle and head have the strongest correspondence with each other, which seems to be confirmed by the two-way table in the previous problem.
 
 ```{r}
 
@@ -98,7 +98,7 @@ text(rightsv, dimnames(z)[[2]])
 
 (f) Omit all the head location data and repeat the test for independence. What does this indicate?
 
-A G-test on the data set without the head location fails to reject the null of independence.
+A G-test on the data set without the head location fails to reject the null of independence. It appears the remaining data is more independent with the absence of the head data. This is noteworthy as part of the analysis--it is important to know how select variables impact the entire model.  
 
 ```{r}
 
@@ -111,6 +111,8 @@ g.test(ct2)
 mosaicplot(ct2, color=c("purple", "darkgreen", "blue"), main=NULL)
 
 glmod2 <- glm(count ~ tumor + site, family=poisson, df)
+
+summary(glmod2)
 
 round(xtabs(residuals(glmod2) ~ tumor + site, df), 2)
 

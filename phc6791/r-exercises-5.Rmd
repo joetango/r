@@ -1,0 +1,53 @@
+---
+title: "R Exercises (05)"
+author: "Joe Dickerson"
+date: "2025-02-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.
+
+```{r}
+
+library(tidyverse)
+library(NHANES)
+
+data(NHANES)
+
+```
+
+2. 
+
+```{r}
+
+NHANES %>% 
+  ggplot(aes(x = BMI, y = TotChol)) +
+  geom_point()
+
+```
+
+3. Setting the color in the aesthetic here does not change the color of the geom_point layer, but it is trying to stratify the data points in the plot by a string, "blue" in this case, which is why we see the "blue" in the legend. 
+```{r}
+
+ggplot(data = NHANES) + 
+  geom_point(mapping = aes(x = Height, y = Weight, color = "blue"))
+
+```
+
+4. I am unable to map a continuous variable to shape 
+
+```{r}
+
+NHANES %>% 
+  ggplot(aes(x = Height, y = Weight, color = Poverty, size = Poverty, shape = Education)) +
+  geom_point()
+
+NHANES %>% 
+  ggplot(aes(x = Height, y = Weight, shape = Education)) +
+  geom_point()
+
+```
