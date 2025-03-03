@@ -30,7 +30,7 @@ NHANES %>%
 
 ```
 
-3. Setting the color in the aesthetic here does not change the color of the geom_point layer, but it is trying to stratify the data points in the plot by a string, "blue" in this case, which is why we see the "blue" in the legend. 
+3. Setting the color in the aesthetic here does not change the color of the geom_point layer, but it is trying to stratify the data points in the plot by a string, "blue" in this case, which is why we see the "blue" in the legend. It would have to go outside of the aes() somewhere.
 ```{r}
 
 ggplot(data = NHANES) + 
@@ -38,7 +38,7 @@ ggplot(data = NHANES) +
 
 ```
 
-4. I am unable to map a continuous variable to shape 
+4. I am unable to map a continuous variable to shape because shape can only take categorical variables. 
 
 ```{r}
 
@@ -49,5 +49,54 @@ NHANES %>%
 NHANES %>% 
   ggplot(aes(x = Height, y = Weight, shape = Education)) +
   geom_point()
+
+```
+
+5. The stroke aesthetic appears to modify the width of the point layer for a few specific point shapes (per the geom_point documentation).
+
+```{r}
+
+NHANES %>% 
+  ggplot(aes(x = Height, y = Weight)) +
+  geom_point(shape = 23, size = 3, color = "blue", fill = "green", stroke = 3) 
+
+```
+
+6.
+
+```{r}
+
+NHANES %>% 
+  ggplot(aes(x = Height, y = Weight, color = interaction(Gender,Race1))) +
+  geom_line()
+
+```
+
+7.
+
+```{r}
+
+NHANES %>% 
+  ggplot(aes(x = Height, y = Weight)) +
+  geom_line() + 
+  facet_grid(~ Gender)
+
+NHANES %>% 
+  ggplot(aes(x = Height, y = Weight)) +
+  geom_line() + 
+  facet_grid(~ Race1)
+
+```
+
+8.
+
+```{r}
+
+NHANES %>% 
+  ggplot(aes(x = BPSysAve, y = TotChol, color = Gender)) +
+  geom_point() +
+  geom_smooth(color = "black", size = .5) +
+  facet_grid(SmokeNow ~ Gender) +
+  labs(y = "Total cholesterol (mg/dl)", x = "Blood pressure (mm Hg)", title = "Blood Pressure vs. Gender vs. Smoking Status", caption = "Source: NHANES survey 2009-2012")
 
 ```
