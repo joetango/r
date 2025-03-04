@@ -47,7 +47,7 @@ pneumo_sum %>%
 
 (b) Treating the pneumonoconiosis status as response variable as nominal, build a model for predicting the frequency of the three outcomes in terms of length of service. What does the model say about the similarity of the proportions falling into the mild and severe categories?
 
-Per the model, it appears that we expect a the log-odds of severe status to increase 0.0257 each year of service, while we expect the log odds of normal status to decrease by 0.0836 for each year of service. At 0 years of service, the log-odds of being a normal case is 4.292, while the log-odds of being a severe case is -0.7682.
+Per the model, it appears that we expect a the log-odds of mild status to increase 0.0837 each year of service, while we expect the log odds of severe status to increase by 0.1093 for each year of service. At 0 years of service, the log-odds of being a mild case is -4.292, while the log-odds of being a severe case is -5.0598.
 
 ```{r}
 
@@ -59,18 +59,13 @@ summary(mmod)
 
 (c) Would it be better to use log(year) as the predictor? 
 
-We have a slightly lower deviance so it seems log(year) fits the model slightly better. However, looking at a visual of the data in terms of log(year) and odds, we do not necessarily see a stronger linear relationship than the data without logging year. The deviance is more ideal though. 
+We have a slightly lower deviance so it seems log(year) fits the model slightly better. However, it is possible that changing the scale would decrease interpretability of the data.
 
 ```{r}
 
 mmodLog <- multinom(status ~ log(year), data = pneumo_sum, weights = count)
 
 summary(mmodLog)
-
-# pneumo_sum %>% 
-#   ggplot(aes(x = log(year), y = (proportion / (1 - proportion)), color = status)) +
-#   geom_point() +
-#   geom_line()
 
 ```
 
@@ -94,6 +89,8 @@ pneumo_long %>%
 
 (e) Fit a proportional odds model to the data. Take care to order response correctly. You will need to specify the number falling in each case using the weight argument. What is the estimated value of θ1 and how should it be interpreted?
 
+The zeta value of 9.676 represents the log odds threshold that someone is more likely to fall into the mild category than normal. 
+
 ```{r}
 
 pneumo_ordered <- pneumo_sum %>% 
@@ -101,11 +98,13 @@ pneumo_ordered <- pneumo_sum %>%
 
 pomod <- polr(status ~ log(year), data = pneumo_sum, weights = count)
 
-summary(pomod)
+pomod$zeta
 
 ```
 
 (g) Extract the predicted probabilities from the model and plot in the same format as (a). Compare to the predictions from the nominal model.
+
+We have a very similar plot, though it appears that mild and severe are more closely linked in the proportional-odds model, though not by much.
 
 ```{r}
 
@@ -124,25 +123,32 @@ pomod_long %>%
 
 (h) Fit a hierarchical model to the status response. First fit a binomial response normal and not normal. Interpret the effect of year on the odds of getting the lung disease.
 
+It appears there is a strong effect on year and the odds of getting penumonoconiosis. We have a very small p-value. However, our deviance is rather high for our degrees of freedom. Our AIC is also very high.
+
 ```{r}
 
-bmod_data <- pneumo_sum %>% 
-  group_by(status, year) %>% 
-  mutate(test = sum(count)) 
+df <- pneumo %>%
+  mutate(normal = ifelse(status == "normal", Freq, 0),
+         mild = ifelse(status == "mild", Freq, 0),
+         severe = ifelse(status == "severe", Freq, 0),
+         notnormal = ifelse(status == "normal", 0, mild + severe))
   
 
-bmod1 <- glm(status_binomial ~ year, bmod_data, family = "binomial")
+bmod1 <- glm(cbind(normal, notnormal) ~ year, df, family = "binomial")
 
 summary(bmod1)
 
-
 ```
 
-(i) Now fit a binomial model for mild vs. severe lung disease. Is the year effect signficant. What is the probability of a mild disease within the diseased sub group?
+(i) Now fit a binomial model for mild vs. severe lung disease. Is the year effect significant. What is the probability of a mild disease within the diseased sub group?
+
+The year effect does not appear significant in this model. The relationship of year on mild and severe is similar.  
 
 ```{r}
 
+bmod2 <- glm(cbind(mild, severe) ~ year, df, family = "binomial")
 
+summary(bmod2)
 
 ```
 
@@ -150,6 +156,9 @@ summary(bmod1)
 
 ```{r}
 
+p1 <- predict(bmod1, type = "response")
+p2 <- predict(bmod2, type = "response")
 
+bmodPreds <- cbind(p1, p2)
 
 ```
