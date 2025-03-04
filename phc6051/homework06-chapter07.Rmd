@@ -1,0 +1,155 @@
+---
+title: "Homework 06"
+author: "Joe Dickerson"
+date: "2025-02-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+## packages
+library(faraway)
+library(tidyverse)
+library(nnet)
+library(MASS)
+
+```
+4.
+
+The pneumo data gives the number of coal miners classified by radiological examination into one of three categories of pneumonoconiosis and by the number of years spent working at the coal face divided into eight categories.
+
+(a) Make a plot showing how the proportion on miners in the three categories at each year point varies over time. Comment on the relationship.
+
+As we might expect from presumptions, we see the proportion of pneumonoconiosis increase as years of service increases. Likewise, we see normal proportion decrease.
+
+```{r}
+
+data(pneumo)
+
+pneumo_sum <- pneumo %>% 
+  group_by(year, status) %>% 
+  summarise(count = sum(Freq), .groups = "drop") %>%  
+  group_by(year) %>%  
+  mutate(tot_count = sum(count),
+         proportion = count / tot_count,
+         status = factor(status, levels = c("normal", "mild", "severe")))
+
+pneumo_sum %>% 
+  ggplot(aes(x = year, y = proportion, color = status)) +
+  geom_point() +
+  geom_line()
+
+```
+
+(b) Treating the pneumonoconiosis status as response variable as nominal, build a model for predicting the frequency of the three outcomes in terms of length of service. What does the model say about the similarity of the proportions falling into the mild and severe categories?
+
+Per the model, it appears that we expect a the log-odds of severe status to increase 0.0257 each year of service, while we expect the log odds of normal status to decrease by 0.0836 for each year of service. At 0 years of service, the log-odds of being a normal case is 4.292, while the log-odds of being a severe case is -0.7682.
+
+```{r}
+
+mmod <- multinom(status ~ year, data = pneumo_sum, weights = count)
+
+summary(mmod)
+
+```
+
+(c) Would it be better to use log(year) as the predictor? 
+
+We have a slightly lower deviance so it seems log(year) fits the model slightly better. However, looking at a visual of the data in terms of log(year) and odds, we do not necessarily see a stronger linear relationship than the data without logging year. The deviance is more ideal though. 
+
+```{r}
+
+mmodLog <- multinom(status ~ log(year), data = pneumo_sum, weights = count)
+
+summary(mmodLog)
+
+# pneumo_sum %>% 
+#   ggplot(aes(x = log(year), y = (proportion / (1 - proportion)), color = status)) +
+#   geom_point() +
+#   geom_line()
+
+```
+
+(d) Produce a plot of the predicted probabilities in the same format as (a).
+
+
+```{r}
+
+mmodPred <- predict(mmodLog, type = "probs")
+
+pneumo_long <- cbind(pneumo_sum, mmodPred) %>% 
+  gather(key = "status", value = "pred_long", normal, mild, severe) %>% 
+  mutate(status = factor(status, levels = c("normal", "mild", "severe")))
+
+pneumo_long %>% 
+  ggplot(aes(x = year, y = pred_long, color = status)) +
+  geom_line() +
+  labs(y = "Predicted Probabilities")
+
+```
+
+(e) Fit a proportional odds model to the data. Take care to order response correctly. You will need to specify the number falling in each case using the weight argument. What is the estimated value of θ1 and how should it be interpreted?
+
+```{r}
+
+pneumo_ordered <- pneumo_sum %>% 
+  mutate(status_ordered = factor(status, levels = c("normal", "mild", "severe"), ordered = TRUE))
+
+pomod <- polr(status ~ log(year), data = pneumo_sum, weights = count)
+
+summary(pomod)
+
+```
+
+(g) Extract the predicted probabilities from the model and plot in the same format as (a). Compare to the predictions from the nominal model.
+
+```{r}
+
+pomodPred <- predict(pomod, type = "probs")
+
+pomod_long <- cbind(pneumo_sum, pomodPred) %>% 
+  gather(key = "status", value = "pomod_long", normal, mild, severe) %>% 
+  mutate(status = factor(status, levels = c("normal", "mild", "severe")))
+
+pomod_long %>% 
+  ggplot(aes(x = year, y = pomod_long, color = status)) +
+  geom_line() +
+  labs(y = "Predicted Probabilities")
+
+```
+
+(h) Fit a hierarchical model to the status response. First fit a binomial response normal and not normal. Interpret the effect of year on the odds of getting the lung disease.
+
+```{r}
+
+bmod_data <- pneumo_sum %>% 
+  group_by(status, year) %>% 
+  mutate(test = sum(count)) 
+  
+
+bmod1 <- glm(status_binomial ~ year, bmod_data, family = "binomial")
+
+summary(bmod1)
+
+
+```
+
+(i) Now fit a binomial model for mild vs. severe lung disease. Is the year effect signficant. What is the probability of a mild disease within the diseased sub group?
+
+```{r}
+
+
+
+```
+
+(j) Compute the predicted probabilities of the three categories by combining the two binomial model predictions. Plot in the same format as (a) and comment.
+
+```{r}
+
+
+
+```
