@@ -142,7 +142,7 @@ summary(bmod1)
 
 (i) Now fit a binomial model for mild vs. severe lung disease. Is the year effect significant. What is the probability of a mild disease within the diseased sub group?
 
-The year effect does not appear significant in this model. The relationship of year on mild and severe is similar.  
+The year effect does not appear significant in this model, which seems to indicate that the probability of mild and severe are similar with respect to one another. 
 
 ```{r}
 
@@ -156,9 +156,23 @@ summary(bmod2)
 
 ```{r}
 
-p1 <- predict(bmod1, type = "response")
-p2 <- predict(bmod2, type = "response")
+predbmod1 <- predict(bmod1, type = "response")
+predbmod2 <- predict(bmod2, type = "response")
 
-bmodPreds <- cbind(p1, p2)
+predcombined <- df %>%
+  mutate(
+    normalprob = predbmod1,
+    notnormalprob = 1 - predbmod1,
+    mildprob = predbmod2,
+    severeprob = 1 - predbmod2
+  )
+
+predlong <- predcombined %>%
+  gather(key = "status", value = "predprob", normalprob, mildprob, severeprob) %>%
+  mutate(status = factor(status, levels = c("normalprob", "mildprob", "severeprob"),
+                         labels = c("normal", "mild", "severe")))
+
+ggplot(predlong, aes(x = year, y = predprob, color = status)) +
+  geom_line()
 
 ```
