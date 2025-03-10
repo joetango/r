@@ -1,0 +1,72 @@
+---
+title: "Homework 07"
+author: "Joe Dickerson"
+date: "2025-03-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Data is generated from the exponential distribution with density f (y) = λ exp(−λy) where λ, y > 0.**
+
+**A. Identify the specific form of $\theta$, $\phi$, a(), b() and c() for the exponential distribution.**
+
+$$
+f(y) = \lambda e^{-\lambda y}
+$$
+
+$$
+f(y) = e^{ln(\lambda)}e^{-\lambda y}
+$$
+$$
+f(y) = e^{ln(\lambda)-\lambda y}
+$$
+$$
+f(y) = e^{\frac{-\ln(\lambda) + \lambda y}{-1}}
+$$
+$$
+f(y) = e^{\frac{\lambda y - ln(\lambda) }{-1}}
+$$
+**Answer:**
+
+$\theta = \lambda$
+
+$\phi = -1$
+
+$a(\phi) = -1$
+
+$b(\lambda) = ln(\lambda)$
+
+$c(y, \phi) = 0$
+
+
+
+
+
+**B. What is the canonical link and variance function for a GLM with a response following the exponential distribution?**
+
+Canonical link is the inverse of the mean:
+
+$\eta = \mu^{-1}$
+
+Variance function:
+
+$\mu^{2}$
+
+
+**C. Identify a practical difficulty that may arise when using the canonical link in this instance.**
+
+One issue that may arise are 0 or non-positive predictive values, as the canonical link in this instance requires that $y > 0$
+
+**D. When comparing nested models in this case, should an F or χ2 test be used? Explain.**
+
+A chi-squared test should be used because there is not an F-test for nonlinear regression. The F-test assumes normal distribution. 
+
+
+**E. Express the deviance in this case in terms of the responses yi and the fitted values ˆμi.**
+
+$$
+2 \sum_i \left[ - \log \left( \frac{y_i}{\hat{\mu}_i} \right) + \frac{y_i - \hat{\mu}_i}{\hat{\mu}_i} \right]
+$$

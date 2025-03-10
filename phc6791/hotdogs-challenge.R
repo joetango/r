@@ -15,7 +15,7 @@ hotdogs %>%
   scale_x_continuous(breaks = seq(1980, 2010, by = 4)) +
   scale_y_continuous(limits = c(0, max(hotdogs$Dogs.eaten)),
                      breaks = c(0, seq(10, 60, by = 10)),
-                     labels = function(x) ifelse(x %in% c(20,40, 60), "", x)) +
+                     labels = c(0, 10, "", 30, "", 50, "")) +
   theme(legend.position = "none",
         axis.line.x = element_blank(),
         axis.ticks.x = element_blank(),
