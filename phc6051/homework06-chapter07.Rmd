@@ -32,7 +32,7 @@ data(pneumo)
 
 pneumo_sum <- pneumo %>% 
   group_by(year, status) %>% 
-  summarise(count = sum(Freq), .groups = "drop") %>%  
+  summarize(count = sum(Freq), .groups = "drop") %>%  
   group_by(year) %>%  
   mutate(tot_count = sum(count),
          proportion = count / tot_count,
