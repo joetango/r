@@ -1,0 +1,88 @@
+---
+title: "Homework 08"
+author: "Joe Dickerson"
+date: "2025-03-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(faraway)
+library(tidyverse)
+
+data(rats)
+
+```
+
+2. An experiment was conducted as part of an investigation to combat the effects of certain toxic agents. The survival time of rats depended on the type of poison used and the treatment applied. The data is found in rats.
+
+a. Make plots of the data and comment on differences between the treatments and poisons.
+
+
+```{r, message=FALSE}
+
+rats %>% ggplot(aes(x = treat, y = time, color = treat)) +
+  geom_point() +
+  facet_grid(~ poison, labeller = as_labeller(c("I" = "Poison I",
+                                                "II" = "Poison II",
+                                                "III" = "Poison III"))) +
+  labs(y = "Survival Time", x = "Treatment Level", title = "Efficacy of Treatment Grouped By Poison Type") +
+  theme(legend.position = "none")
+
+rats2 <- rats %>% 
+  group_by(treat, poison) %>% 
+  summarize(time.mean = mean(time)) 
+
+rats2 %>% ggplot(aes(x = treat, y = time.mean, fill = treat)) +
+  geom_col(width = .4) +
+  facet_grid(~ poison, labeller = as_labeller(c("I" = "Poison I",
+                                                "II" = "Poison II",
+                                                "III" = "Poison III"))) +
+  labs(y = "Mean Survival Time", x = "Treatment Level", title = "Efficacy of Treatment Grouped By Poison Type") +
+  theme(legend.position = "none")
+
+```
+
+b. Fit a linear model with an interaction between the two predictors. Use the Box - Cox method to determine an optimal transformation on the response. Can this optimal transformation be rounded to a more interpretable function?
+
+```{r}
+
+
+
+```
+
+c. Refit the model using your chosen interpretable transformation. Check the standard diagnostics and report any problems.
+
+```{r}
+
+
+
+```
+
+d. Is the interaction term significant? Simplify the model if justified and indicate which poison and treatment will result in the shortest survival time.
+
+```{r}
+
+
+
+```
+
+e. Build an inverse Gaussian GLM for this data. Select an appropriate link function consistent with the previous modeling. Perform diagnostics to verify your choice. Which poison and treatment will result in the shortest survival time?
+
+```{r}
+
+
+
+```
+
+f. Compare the predicted values on the original scale of the response for the two models. Do the two models achieve a similar fit?
+
+```{r}
+
+
+
+```
