@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(faraway)
 library(tidyverse)
+library(MASS)
 
 data(rats)
 
@@ -22,15 +23,23 @@ data(rats)
 
 a. Make plots of the data and comment on differences between the treatments and poisons.
 
+It appears that treatments B and D are more effective than A and C and treating the different poisons. None of the treatments are particularly effective with poison type III, however. 
 
 ```{r, message=FALSE}
+
+rats %>% 
+  ggplot(aes(x = poison, y = time, color = treat)) +
+  geom_point() +
+  stat_summary(fun.y = "mean", geom = "line", aes(group = treat, color = treat)) +
+  theme(legend.position = "top", legend.direction = "horizontal") +
+  labs(x = "Poison Type", y = "Time")
 
 rats %>% ggplot(aes(x = treat, y = time, color = treat)) +
   geom_point() +
   facet_grid(~ poison, labeller = as_labeller(c("I" = "Poison I",
                                                 "II" = "Poison II",
                                                 "III" = "Poison III"))) +
-  labs(y = "Survival Time", x = "Treatment Level", title = "Efficacy of Treatment Grouped By Poison Type") +
+  labs(y = "Survival Time", x = "Treatment Level", title = "Treatment Effect Grouped By Poison Type") +
   theme(legend.position = "none")
 
 rats2 <- rats %>% 
@@ -42,16 +51,23 @@ rats2 %>% ggplot(aes(x = treat, y = time.mean, fill = treat)) +
   facet_grid(~ poison, labeller = as_labeller(c("I" = "Poison I",
                                                 "II" = "Poison II",
                                                 "III" = "Poison III"))) +
-  labs(y = "Mean Survival Time", x = "Treatment Level", title = "Efficacy of Treatment Grouped By Poison Type") +
+  labs(y = "Mean Survival Time", x = "Treatment Level", title = "Treatment Effect Grouped By Poison Type") +
   theme(legend.position = "none")
 
 ```
 
-b. Fit a linear model with an interaction between the two predictors. Use the Box - Cox method to determine an optimal transformation on the response. Can this optimal transformation be rounded to a more interpretable function?
+b. Fit a linear model with an interaction between the two predictors. Use the Box-Cox method to determine an optimal transformation on the response. Can this optimal transformation be rounded to a more interpretable function?
+
+Using the Box-Cox method, we find a lambda value of -0.8282828. An inverse transformation might be more interpretable, using -1 for lambda. 
 
 ```{r}
 
+lmod <- lm(time ~ treat*poison, rats)
 
+bc <- boxcox(lmod)
+lambda <- bc$x[which.max(bc$y)]
+
+lambda
 
 ```
 
@@ -59,14 +75,28 @@ c. Refit the model using your chosen interpretable transformation. Check the sta
 
 ```{r}
 
+time_new <- (rats$time^-1 - 1) / -1
 
+lmod2 <- lm(time_new ~ treat*poison, rats)
+
+summary(lmod2)
+
+qqnorm(residuals(lmod2))
+qqline(residuals(lmod2))
 
 ```
 
 d. Is the interaction term significant? Simplify the model if justified and indicate which poison and treatment will result in the shortest survival time.
 
+It appears that the interaction term is not significant. It appears that poison III and treatment C will result in the shortest survival time.
+
 ```{r}
 
+anova(lmod2)
+
+lmod3 <- lm(time_new ~ treat + poison, rats)
+
+summary(lmod3)
 
 
 ```
@@ -75,7 +105,15 @@ e. Build an inverse Gaussian GLM for this data. Select an appropriate link funct
 
 ```{r}
 
+glm <- glm(time ~ treat + poison, family = inverse.gaussian(link="inverse"), rats)
 
+summary(glm)
+
+plot(rats$time ~ fitted(glm))
+abline(a=0, b=1)
+
+plot(residuals(glm) ~ fitted(glm))
+abline(h=0)
 
 ```
 
@@ -83,6 +121,16 @@ f. Compare the predicted values on the original scale of the response for the tw
 
 ```{r}
 
+time_new <- (rats$time^-1 - 1) / -1
 
+fnc <- function(x){
+  (-x + 1)^-1 
+}
+
+plot(rats$time ~ fnc(fitted(lmod3)))
+abline(a=0, b=1)
+
+plot(rats$time ~ fitted(glm))
+abline(a=0, b=1)
 
 ```
