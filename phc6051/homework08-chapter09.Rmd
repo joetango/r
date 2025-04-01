@@ -47,7 +47,7 @@ rats2 <- rats %>%
   summarize(time.mean = mean(time)) 
 
 rats2 %>% ggplot(aes(x = treat, y = time.mean, fill = treat)) +
-  geom_col(width = .4) +
+  geom_col(width = .3) +
   facet_grid(~ poison, labeller = as_labeller(c("I" = "Poison I",
                                                 "II" = "Poison II",
                                                 "III" = "Poison III"))) +
@@ -58,7 +58,7 @@ rats2 %>% ggplot(aes(x = treat, y = time.mean, fill = treat)) +
 
 b. Fit a linear model with an interaction between the two predictors. Use the Box-Cox method to determine an optimal transformation on the response. Can this optimal transformation be rounded to a more interpretable function?
 
-Using the Box-Cox method, we find a lambda value of -0.8282828. An inverse transformation might be more interpretable, using -1 for lambda. 
+Using the Box-Cox method, we find a lambda value of -0.8282828. An inverse transformation might be more interpretable, i.e. using -1 for lambda. 
 
 ```{r}
 
@@ -73,6 +73,8 @@ lambda
 
 c. Refit the model using your chosen interpretable transformation. Check the standard diagnostics and report any problems.
 
+Our diagnostic plots are acceptable, however the summary output of the model indicates that the interaction terms might not be significant. 
+
 ```{r}
 
 time_new <- (rats$time^-1 - 1) / -1
@@ -84,11 +86,14 @@ summary(lmod2)
 qqnorm(residuals(lmod2))
 qqline(residuals(lmod2))
 
+plot(residuals(lmod2) ~ fitted(lmod2))
+abline(h=0)
+
 ```
 
 d. Is the interaction term significant? Simplify the model if justified and indicate which poison and treatment will result in the shortest survival time.
 
-It appears that the interaction term is not significant. It appears that poison III and treatment C will result in the shortest survival time.
+It appears that the interaction term is not significant. It appears that poison III and treatment C will result in the shortest survival time. Treatments B and D are most significant, but that significance is demonstrating an increase in survival time. 
 
 ```{r}
 
@@ -102,6 +107,8 @@ summary(lmod3)
 ```
 
 e. Build an inverse Gaussian GLM for this data. Select an appropriate link function consistent with the previous modeling. Perform diagnostics to verify your choice. Which poison and treatment will result in the shortest survival time?
+
+We have acceptable diagnostic plots when looking at the Q-Q plot and residuals vs fitted values. Similar to part D, it appears that Poison III will result in the shortest survival time among poisons and treatment C among treatments. This follows what we might expect from our initial analysis of the data in part A. Treatment A from those plots seems would also be a contender for smallest survival time, though that treatment is being used as the intercept in the model.
 
 ```{r}
 
@@ -118,6 +125,8 @@ abline(h=0)
 ```
 
 f. Compare the predicted values on the original scale of the response for the two models. Do the two models achieve a similar fit?
+
+After transforming the predicted values to the original scale, the models do appear to have a similar fit. We compare the actual values to the fitted values for the two models and see very similar visuals. 
 
 ```{r}
 
