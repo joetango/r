@@ -1,0 +1,96 @@
+---
+title: "Homework 09"
+author: "Joe Dickerson"
+date: "2025-04-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(faraway)
+library(tidyverse)
+library(lme4)
+library(lattice)
+## library(nlme)
+
+data(coagulation)
+
+```
+
+2. The coagulation dataset comes from a study of blood coagulation times. Twenty-four animals were randomly assigned to four different diets and the samples were taken in a random order.
+
+a. Plot the data and comment.
+
+We see generally higher blood coagulation times with diets B and C, and lower with diets A and D. The lowest (quickest) times for diet B overlap with the highest (slowest) times for diets A and D. 
+
+```{r}
+
+coagulation %>% ggplot(aes(x = diet, y = coag)) +
+  geom_point(position = position_jitter(width = 0.05, height = 0))
+
+```
+
+b. Fit a fixed effects model and construct a prediction together with a 95% prediction interval for the response of a new animal assigned to diet D.
+
+```{r}
+
+lmod <- aov(coag ~ diet, coagulation)
+summary(lmod)
+
+df_new <- data.frame(diet = "D")
+
+predict(lmod, newdata = df_new, interval = "prediction", level = 0.95)
+
+```
+
+c. Now fit a random effects model using REML. A new animal is assigned to diet D. Predict the blood coagulation time for this animal along with a 95% prediction interval.
+
+We predict a blood coagulation time of 61.17 for a new animal on diet D. We see this both with the predict() function and by checking the random effect of diet D with ranef(), subtracting 2.842495 from our intercept of 64.01. 
+
+```{r}
+
+mmod <- lmer(coag ~ 1 + (1|diet), coagulation)
+
+summary(mmod)
+
+df_new <- data.frame(diet = "D")
+
+pred <- predict(mmod, newdata = df_new, interval = "prediction", level = 0.95)
+
+lme4::ranef(mmod)
+
+paste("Prediction:", round(pred, 3))
+
+paste("Model coefficient:", round(coef(mmod)$diet[4,], 3))
+
+## Showing that the fixed model intercept combined with random effect mode of diet D is equal to our prediction
+64.01 - 2.84
+
+```
+
+d. A new diet is given to a new animal. Predict the blood coagulation time for this animal along with a 95% prediction interval.
+
+The prediction interval is 60.41 to 67.57, found with the confint() function. We expect the blood coagulation time to be 64.01, which is the intercept of our model. 
+
+
+```{r}
+
+confint(mmod, method = "boot")
+
+fixef(mmod)
+
+```
+
+e. A new diet is given to the first animal in the dataset. Predict the blood coagulation time for this animal with a prediction interval. You may assume that the effects of the initial diet for this animal have washed out.
+
+Because the animals are independent from each other, we would expect the same result for the first animal as one that is introduced after the study, so the prediction interval is again 60.41 to 67.57, and the predicted blood coagulation time for this animal is also the intercept of our model, 64.01.
+
+```{r}
+
+confint(mmod, method = "boot")
+
+```
