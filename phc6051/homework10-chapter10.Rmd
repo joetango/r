@@ -1,0 +1,120 @@
+---
+title: "Homework 10"
+author: "Joe Dickerson"
+date: "2025-04-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, message=FALSE}
+
+library(faraway)
+library(tidyverse)
+library(lme4)
+library(pbkrtest)
+library(RLRsim)
+
+data(eggprod)
+
+```
+
+3. The eggprod dataset concerns an experiment where six pullets were placed into each of 12 pens. Four blocks were formed from groups of three pens based on location. Three treatments were applied. The number of eggs produced was recorded.
+
+a. Make suitable plots of the data and comment.
+
+```{r}
+
+eggprod %>% ggplot(aes(x = treat, y = eggs, color = block, shape = block)) +
+  geom_point(position = position_jitter(width = 0.1, height = 0.0)) 
+
+```
+
+b. Fit a fixed effects model for the number of eggs produced with the treatments and blocks as predictors. Determine the significance of the two predictors and perform a basic diagnostic check.
+
+It appears that the different treatments are significant, though the difference in blocks might not be significant. We have a satisfactory Q-Q plot, and a satisfactory plot of our fitted values against our residuals.
+
+```{r, message=FALSE}
+
+lmod <- aov(eggs ~ treat + block, eggprod)
+summary(lmod)
+
+qqnorm(residuals(lmod))
+qqline(residuals(lmod))
+
+plot(lmod, 1)
+
+```
+
+c. Fit a model for the number of eggs produced with the treatments as fixed effects and the blocks as random effects. Which treatment is best in terms of maximizing production according to the model? Are you sure it is better than other two treatments?
+
+According to the model, treatment E, which is our reference treatment, is best for maximizing egg production. However, we are not certain that it is better than treatment F, which is about half of a standard deviation less than treatment H. Compare this to treatment O, which is roughly 3 standard deviations less than treatment H. It appears that we can say treatment H is better at  maximizing egg production than treatment O, but not necessarily treatment F. 
+
+```{r, message=FALSE}
+
+
+mmod <- lmer(eggs ~ treat + (1|block), eggprod)
+summary(mmod)
+
+## treat O ~3 std deviations less than reference
+## treat F less than one
+
+```
+
+d. Use the Kenward-Roger approximation for an F-test to check for differences between the treatments. How does the result compare to the fixed effects result?
+
+The result suggests that there is a difference in treatments. This is similar to the result we found in our fixed model, which had a p-value that suggested significance for treatment. 
+
+```{r, message=FALSE}
+
+mmod_1 <- lmer(eggs ~ treat + (1|block), eggprod, REML = FALSE)
+mmod_2 <- lmer(eggs ~ 1 + (1|block), eggprod, REML = FALSE)
+
+KRmodcomp(mmod_1, mmod_2)
+
+```
+
+e. Perform the same test but using a bootstrap method. How do the results compare?
+
+We have a p-value of 0.064, which is slightly larger than what we found with the Kenward-Roger approximation, though they are relatively close to one another given the size of the dataset. 
+
+```{r, message=FALSE}
+
+set.seed(123)
+
+PBmodcomp(mmod_1, mmod_2)
+
+```
+
+f. Test for the significance of the blocks. Does the outcome agree with the fixed effects result?
+
+We have a p-value of 0.2, or 0.22 with the exactRLRT() function. This suggests an insignificant block effect, which agrees with our original fixed effects model from problem 3b. 
+
+```{r, message=FALSE}
+
+set.seed(123)
+
+rmod <- lmer(eggs ~ treat + (1|block), eggprod)
+nlmod <- lm(eggs ~ treat, eggprod)
+
+LRT <- as.numeric(2*(logLik(rmod)-logLik(nlmod, REML=TRUE)))
+
+lrstatf <- numeric(1000)
+for (i in 1:1000) {
+  ryield <- unlist(simulate(nlmod))
+  nlmodr <- lm(ryield ~ treat, eggprod)
+  rmodr <- refit(rmod, ryield)
+  lrstatf[i] <- 2*(logLik(rmodr)-logLik(nlmodr, REML=TRUE))
+}
+
+mean(lrstatf < 0.00001)
+
+mean(lrstatf > LRT)
+
+exactRLRT(rmod)
+
+```
