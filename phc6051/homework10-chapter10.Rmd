@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 
 library(faraway)
 library(tidyverse)
@@ -27,9 +27,14 @@ data(eggprod)
 
 a. Make suitable plots of the data and comment.
 
+Treatments E and F seem to generally have higher egg production than treatment O. There does not seem to be a block effect based on the initial exploration of the data.
+
 ```{r}
 
 eggprod %>% ggplot(aes(x = treat, y = eggs, color = block, shape = block)) +
+  geom_point(position = position_jitter(width = 0.1, height = 0.0)) 
+
+eggprod %>% ggplot(aes(x = block, y = eggs, color = treat, shape = treat)) +
   geom_point(position = position_jitter(width = 0.1, height = 0.0)) 
 
 ```
@@ -80,7 +85,7 @@ KRmodcomp(mmod_1, mmod_2)
 
 e. Perform the same test but using a bootstrap method. How do the results compare?
 
-We have a p-value of 0.064, which is slightly larger than what we found with the Kenward-Roger approximation, though they are relatively close to one another given the size of the dataset. 
+We have a p-value of 0.064, which is slightly larger than what we found with the Kenward-Roger approximation, though they seem relatively close to one another given the size of the dataset. 
 
 ```{r, message=FALSE}
 
