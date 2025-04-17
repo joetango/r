@@ -3,6 +3,7 @@ trashwheel <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience
 library(tidyverse)
 library(viridis)
 library(paletteer)
+library(gridExtra)
 
 data <- trashwheel %>% 
   group_by(ID, Year, Month) %>% 
@@ -35,9 +36,10 @@ data %>%
        x = "") +
   theme_minimal()
  
+### Mister ###
 
 data_mister <- trashwheel %>% 
-  filter(ID == "mister") %>% 
+  filter(ID == "mister", Year >= 2017) %>% 
   group_by(ID, Year, Month) %>% 
   summarize(PlasticBottles = sum(PlasticBottles),
             GlassBottles = sum(PlasticBottles),
@@ -58,7 +60,7 @@ data_mister <- trashwheel %>%
   arrange(ID, Year, Month) %>% 
   mutate(Date = as.Date(paste(Year, Month, "01", sep = "-")))
 
-data_mister %>% 
+pb_mister <- data_mister %>% 
   ggplot(aes(x = Date, y = PlasticBags)) +
   geom_point() +
   geom_smooth(fill = NA, color = "#4DBBD5") +
@@ -66,3 +68,39 @@ data_mister %>%
        y = "Plastic Bags (count)",
        x = "") +
   theme_minimal()
+
+
+### Professor ###
+
+data_prof <- trashwheel %>% 
+  filter(ID == "professor") %>% 
+  group_by(ID, Year, Month) %>% 
+  summarize(PlasticBottles = sum(PlasticBottles),
+            GlassBottles = sum(PlasticBottles),
+            PlasticBags = sum(PlasticBags)) %>% 
+  mutate(Month = recode(Month,
+                        January = 1,
+                        February = 2,
+                        March = 3,
+                        April = 4,
+                        May = 5,
+                        June = 6,
+                        July = 7,
+                        August = 8,
+                        September = 9,
+                        October = 10,
+                        November = 11,
+                        December = 12)) %>% 
+  arrange(ID, Year, Month) %>% 
+  mutate(Date = as.Date(paste(Year, Month, "01", sep = "-")))
+
+pb_prof <- data_prof %>% 
+  ggplot(aes(x = Date, y = PlasticBags)) +
+  geom_point() +
+  geom_smooth(fill = NA, color = "#4DBBD5") +
+  labs(title = "Plastic Bags Collected Over Time",
+       y = "Plastic Bags (count)",
+       x = "") +
+  theme_minimal()
+
+grid.arrange(pb_prof, pb_mister)
