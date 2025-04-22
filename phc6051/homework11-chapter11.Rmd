@@ -1,0 +1,103 @@
+---
+title: "Homework 11"
+author: "Joe Dickerson"
+date: "2025-04-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+
+library(faraway)
+library(tidyverse)
+library(lme4)
+
+```
+
+1. The ratdrink data consist of five weekly measurements of body weight for 27 rats. The first 10 rats are on a control treatment while 7 rats have thyroxine added to their drinking water. Ten rats have thiouracil added to their water.
+
+a. Plot the data showing how weight increases with age on a single panel, taking care to distinguish the three treatment groups. Now create a three-panel plot, one for each group. Discuss what can be seen.
+
+```{r, warning=FALSE}
+
+data(ratdrink)
+
+ratdrink %>% 
+  ggplot(aes(x = weeks, y = wt, color = treat, group = subject)) +
+  geom_line()
+
+ratdrink %>% 
+  ggplot(aes(x = weeks, y = wt, group = treat)) +
+  geom_line(aes(color = treat), stat = "summary", fun = mean) +
+  labs(title = "Mean Response Over Time")
+
+ratdrink %>% 
+  ggplot(aes(x = weeks, y = wt, group = subject)) +
+  geom_line() +
+  facet_wrap(~ treat)
+
+```
+
+b. Fit a linear longitudinal model that allows for a random slope and intercept for each rat. Each group should have a different mean line. Give interpretation for the following estimates:
+  i. The fixed effect intercept term.
+  ii. The interaction between thiouracil and week.
+  iii. The intercept random effect SD.
+
+i.
+
+ii. There appears to be statistical significance for the treatment effect of thiouracil. The effect is large relative to the size of the standard error. The rats in this group gain less weight over time than the rats in the other two groups.
+
+iii. We expect that any rat at week 0 will have a starting weight within 5.7 units above or below the mean.
+  
+```{r, warning=FALSE}
+
+ratdrink %>% 
+  mutate(subject = factor(subject))
+
+# ml <- lmList(wt ~ weeks|subject, ratdrink)
+# intercepts <- sapply(ml, coef)[1,]
+# slopes <- sapply(ml, coef)[2,]
+# plot(intercepts, slopes, xlab = "Intercept", ylab = "Slope")
+# rtrt = ratdrink$treat[match(1:27, ratdrink$subject)]
+# boxplot(split(slopes, rtrt))
+# kruskal.test(slopes ~ rtrt)
+
+mmod <- lmer(wt ~ treat*weeks + (1+weeks|subject), data = ratdrink)
+
+summary(mmod)
+
+```
+
+c. Check whether there is a significant treatment effect.
+
+```{r, warning=FALSE}
+
+library(pbkrtest)
+
+
+mmod <- lmer(wt ~ treat*weeks + (1+weeks|subject), data = ratdrink, REML = FALSE)
+
+mmodr <- lmer(wt ~ 1 + (1+weeks|subject), data = ratdrink, REML = FALSE)
+
+KRmodcomp(mmod, mmodr)
+
+```
+
+d. Construct diagnostic plots showing the residuals against the fitted values and a QQ plot of the residuals. Interpret.
+
+```{r, warning=FALSE}
+
+
+
+```
+
+e. Construct confidence intervals for the parameters of the model. Which random effect terms may not be significant? Is the thyroxine group significantly different from the control group?
+
+```{r, warning=FALSE}
+
+confint(mmod, method="boot")
+
+```
