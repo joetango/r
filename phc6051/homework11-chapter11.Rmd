@@ -21,6 +21,8 @@ library(lme4)
 
 a. Plot the data showing how weight increases with age on a single panel, taking care to distinguish the three treatment groups. Now create a three-panel plot, one for each group. Discuss what can be seen.
 
+We see similar weight increase between the control group and the thyroxine group, while thiouracil has a smaller increase of weight over time. This is also illustrated when looking at the means over time.
+
 ```{r, warning=FALSE}
 
 data(ratdrink)
@@ -46,9 +48,9 @@ b. Fit a linear longitudinal model that allows for a random slope and intercept 
   ii. The interaction between thiouracil and week.
   iii. The intercept random effect SD.
 
-i.
+i. We expect the weight of a rat in the control group at week 0 to be 52.88 units.
 
-ii. There appears to be statistical significance for the treatment effect of thiouracil. The effect is large relative to the size of the standard error. The rats in this group gain less weight over time than the rats in the other two groups.
+ii. There appears to be significance for the treatment effect of thiouracil. The effect is large relative to the size of the standard error. The rats in this group gain less weight over time than the rats in the other two groups. The t-value is rather large which confirms this, and our estimate of -9.37 indicates we expect a rate to gain -9.37 units of weight less than a rat in the control group over time.
 
 iii. We expect that any rat at week 0 will have a starting weight within 5.7 units above or below the mean.
   
@@ -56,14 +58,6 @@ iii. We expect that any rat at week 0 will have a starting weight within 5.7 uni
 
 ratdrink %>% 
   mutate(subject = factor(subject))
-
-# ml <- lmList(wt ~ weeks|subject, ratdrink)
-# intercepts <- sapply(ml, coef)[1,]
-# slopes <- sapply(ml, coef)[2,]
-# plot(intercepts, slopes, xlab = "Intercept", ylab = "Slope")
-# rtrt = ratdrink$treat[match(1:27, ratdrink$subject)]
-# boxplot(split(slopes, rtrt))
-# kruskal.test(slopes ~ rtrt)
 
 mmod <- lmer(wt ~ treat*weeks + (1+weeks|subject), data = ratdrink)
 
@@ -73,30 +67,42 @@ summary(mmod)
 
 c. Check whether there is a significant treatment effect.
 
+There appears to be a significant treatment effect as we have a significant p-value when performing an F test with the Kenward-Roger approach. This seems to follow what we found in the model summary.
+
 ```{r, warning=FALSE}
 
 library(pbkrtest)
 
 
-mmod <- lmer(wt ~ treat*weeks + (1+weeks|subject), data = ratdrink, REML = FALSE)
+mmod1 <- lmer(wt ~ treat*weeks + (1+weeks|subject), data = ratdrink, REML = FALSE)
 
-mmodr <- lmer(wt ~ 1 + (1+weeks|subject), data = ratdrink, REML = FALSE)
+mmod2 <- lmer(wt ~ 1 + (1+weeks|subject), data = ratdrink, REML = FALSE)
 
-KRmodcomp(mmod, mmodr)
+KRmodcomp(mmod1, mmod2)
 
 ```
 
 d. Construct diagnostic plots showing the residuals against the fitted values and a QQ plot of the residuals. Interpret.
 
+We have acceptable diagnostic plots, both residual vs. fitted values and the Q-Q plot. 
+
 ```{r, warning=FALSE}
 
+plot(residuals(mmod) ~ fitted(mmod))
+abline(h=0)
 
+qqnorm(residuals(mmod))
+qqline(residuals(mmod))
 
 ```
 
 e. Construct confidence intervals for the parameters of the model. Which random effect terms may not be significant? Is the thyroxine group significantly different from the control group?
 
+The thyroxine group includes 0, so there might not be a significant effect of thyroxine on weight. It does not appear to be significantly different from the control group. We also see that thiouracil seems to have a strong negative interaction. 
+
 ```{r, warning=FALSE}
+
+set.seed(123)
 
 confint(mmod, method="boot")
 
