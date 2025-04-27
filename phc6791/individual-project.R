@@ -31,7 +31,7 @@ data %>%
   geom_smooth(fill = NA) +
   coord_cartesian(ylim = c(0, 40)) +
   scale_color_paletteer_d("ggsci::nrc_npg") +
-  labs(title = "Collected Trash Over Time",
+  labs(title = "Col lected Trash Over Time",
        y = "Weight (tons)",
        x = "") +
   theme_minimal()
@@ -62,9 +62,9 @@ data_mister <- trashwheel %>%
 
 pb_mister <- data_mister %>% 
   ggplot(aes(x = Date, y = PlasticBags)) +
-  geom_point() +
+  geom_point(size = 0.9) +
   geom_smooth(fill = NA, color = "#4DBBD5") +
-  labs(title = "Plastic Bags Collected Over Time",
+  labs(title = "Plastic Bags Collected Over Time In Jones Falls",
        y = "Plastic Bags (count)",
        x = "") +
   theme_minimal()
@@ -96,11 +96,21 @@ data_prof <- trashwheel %>%
 
 pb_prof <- data_prof %>% 
   ggplot(aes(x = Date, y = PlasticBags)) +
-  geom_point() +
+  geom_point(size = 0.9) +
   geom_smooth(fill = NA, color = "#4DBBD5") +
-  labs(title = "Plastic Bags Collected Over Time",
+  labs(title = "Plastic Bags Collected Over Time In Canton (Harris Creek)",
+       y = "Plastic Bags (count)",
+       x = "",
+       caption = "Source: Waterfront Partnership of Baltimore") +
+  theme_minimal()
+
+data_prof %>% 
+  ggplot(aes(x = Date, y = PlasticBottles)) +
+  geom_point(size = 0.9) +
+  geom_smooth(fill = NA, color = "#4DBBD5") +
+  labs(title = "Plastic Bags Collected Over Time In Canton (Harris Creek)",
        y = "Plastic Bags (count)",
        x = "") +
   theme_minimal()
 
-grid.arrange(pb_prof, pb_mister)
+grid.arrange(pb_mister, pb_prof)
