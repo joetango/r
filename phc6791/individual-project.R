@@ -23,17 +23,19 @@ data <- trashwheel %>%
                        December = 12)) %>% 
   arrange(ID, Year, Month) %>% 
   filter(ID != "gwynnda", Year >= 2016) %>% 
-  mutate(Date = as.Date(paste(Year, Month, "01", sep = "-")))
+  mutate(Date = as.Date(paste(Year, Month, "01", sep = "-"))) %>% 
+  mutate(Trashwheel = str_to_title(ID))
 
 data %>% 
-  ggplot(aes(x = Date, y = Weight, color = ID)) +
-  geom_point() +
+  ggplot(aes(x = Date, y = Weight, color = Trashwheel)) +
+  geom_point(size = .7) +
   geom_smooth(fill = NA) +
   coord_cartesian(ylim = c(0, 40)) +
   scale_color_paletteer_d("ggsci::nrc_npg") +
-  labs(title = "Col lected Trash Over Time",
+  labs(title = "Total Weight of Trash Collected Trash by Month",
        y = "Weight (tons)",
-       x = "") +
+       x = "",
+       caption = "Source: Waterfront Partnership of Baltimore") +
   theme_minimal()
  
 ### Mister ###
