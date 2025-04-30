@@ -68,7 +68,8 @@ data_mister <- trashwheel %>%
             GlassBottles = sum(PlasticBottles),
             PlasticBags = sum(PlasticBags),
             Butts = sum(CigaretteButts),
-            Poly = sum(Polystyrene)) %>% 
+            Poly = sum(Polystyrene),
+            Weight = sum(Weight)) %>% 
   mutate(Month = recode(Month,
                         January = 1,
                         February = 2,
@@ -142,6 +143,19 @@ j4 <- data_mister %>%
 grid.arrange(j1, j2, j3, j4,
              ncol = 2,
              top = "Trash Collection Over Time in Jones Falls")
+
+### Jones Falls Conclusion ###
+
+c1 <- data_mister %>% 
+  ggplot(aes(x = Date, y = (PlasticBags + PlasticBottles + Butts + Poly))) +
+  geom_point() +
+  geom_smooth(fill = NA, color = "#4DBBD5") +
+  labs(title = "Jones Falls",
+       x = "",
+       y = "Count") +
+  theme_light() +
+  theme(plot.title = element_text(size = 10))
+
 
 ### Harris Creek Data Cleaning ###
 
@@ -225,3 +239,22 @@ grid.arrange(h1, h2, h3, h4,
              ncol = 2,
              top = "Trash Collection Over Time in Harris Creek")
              
+
+### Harris Creek Conclusion ###
+
+c2 <- data_prof %>% 
+  ggplot(aes(x = Date, y = (PlasticBags + PlasticBottles + Butts + Poly))) +
+  geom_point() +
+  geom_smooth(fill = NA, color = "#4DBBD5") +
+  labs(title = "Harris Creek",
+       x = "",
+       y = "") +
+  theme_light() +
+  theme(plot.title = element_text(size = 10))
+
+### Conclusion ###
+
+grid.arrange(c1, c2,
+             ncol = 2,
+             top = "Units of Trash Collected Over Time")
+
