@@ -22,9 +22,9 @@ data <- trashwheel %>%
                        November = 11,
                        December = 12)) %>% 
   arrange(ID, Year, Month) %>% 
-  filter(ID != "gwynnda", Year >= 2016) %>% 
+  filter(ID != "gwynnda", ID !="captain", Year >= 2016) %>% 
   mutate(Date = as.Date(paste(Year, Month, "01", sep = "-"))) %>% 
-  mutate(Trashwheel = str_to_title(ID))
+  mutate(Trashwheel = ifelse(ID == "mister", "Jones Falls", "Harris Creek"))
 
 data %>% 
   ggplot(aes(x = Date, y = Weight, color = Trashwheel)) +
@@ -32,13 +32,13 @@ data %>%
   geom_smooth(fill = NA) +
   coord_cartesian(ylim = c(0, 40)) +
   scale_color_paletteer_d("ggsci::nrc_npg") +
-  labs(title = "Total Weight of Trash Collected Trash by Month",
+  labs(title = "Total Weight of Trash Collected by Month",
        y = "Weight (tons)",
        x = "",
        caption = "Source: Waterfront Partnership of Baltimore") +
   theme_minimal()
  
-### Mister ###
+### Jones Falls Data Cleaning ###
 
 data_mister <- trashwheel %>% 
   filter(ID == "mister", Year >= 2017) %>% 
@@ -62,17 +62,30 @@ data_mister <- trashwheel %>%
   arrange(ID, Year, Month) %>% 
   mutate(Date = as.Date(paste(Year, Month, "01", sep = "-")))
 
+### Jones Falls Plastic Bags ###
+
 pb_mister <- data_mister %>% 
   ggplot(aes(x = Date, y = PlasticBags)) +
   geom_point(size = 0.9) +
   geom_smooth(fill = NA, color = "#4DBBD5") +
-  labs(title = "Plastic Bags Collected Over Time In Jones Falls",
+  labs(title = "Plastic Bags Collected Over Time In Jones Falls Stream",
        y = "Plastic Bags (count)",
        x = "") +
   theme_minimal()
 
+### Jones Falls Plastic Bottles ###
 
-### Professor ###
+data_mister %>% 
+  ggplot(aes(x = Date, y = PlasticBottles)) +
+  geom_point(size = 0.9) +
+  geom_smooth(fill = NA, color = "#4DBBD5") +
+  labs(title = "Plastic Bottles Collected Over Time In Jones Falls",
+       y = "Plastic Bottles (count)",
+       x = "",
+       caption = "Source: Waterfront Partnership of Baltimore") +
+  theme_minimal()
+
+### Harris Creek Data Cleaning ###
 
 data_prof <- trashwheel %>% 
   filter(ID == "professor") %>% 
@@ -96,23 +109,28 @@ data_prof <- trashwheel %>%
   arrange(ID, Year, Month) %>% 
   mutate(Date = as.Date(paste(Year, Month, "01", sep = "-")))
 
+### Harris Creek Plastic Bags ###
+
 pb_prof <- data_prof %>% 
   ggplot(aes(x = Date, y = PlasticBags)) +
   geom_point(size = 0.9) +
   geom_smooth(fill = NA, color = "#4DBBD5") +
-  labs(title = "Plastic Bags Collected Over Time In Canton (Harris Creek)",
+  labs(title = "Plastic Bags Collected Over Time In Harris Creek",
        y = "Plastic Bags (count)",
        x = "",
        caption = "Source: Waterfront Partnership of Baltimore") +
   theme_minimal()
 
+### Harris Creek Plastic Bottles ###
+
 data_prof %>% 
   ggplot(aes(x = Date, y = PlasticBottles)) +
   geom_point(size = 0.9) +
   geom_smooth(fill = NA, color = "#4DBBD5") +
-  labs(title = "Plastic Bags Collected Over Time In Canton (Harris Creek)",
-       y = "Plastic Bags (count)",
-       x = "") +
+  labs(title = "Plastic Bottles Collected Over Time In Harris Creek",
+       y = "Plastic Bottles (count)",
+       x = "",
+       caption = "Source: Waterfront Partnership of Baltimore") +
   theme_minimal()
 
-grid.arrange(pb_mister, pb_prof)
+             
