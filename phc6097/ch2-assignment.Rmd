@@ -1,0 +1,188 @@
+---
+title: "ch2-assignment"
+author: "Joe Dickerson"
+date: "2025-08-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Exercise 8
+
+(a)
+
+```{r}
+
+college <- read.csv("phc6097/College.csv")
+
+```
+
+(b)
+
+```{r}
+
+rownames(college) <- college[, 1]
+college <- college[, -1]
+View(college)
+
+```
+
+(c) For part vi., I was most interested with the graduation rate variable, so I explored how the student faculty ratio, expenditure per student, and public vs. private school variables might influence graduation rate. The most clear finding is the box plot that shows a higher graduation rate among the private schools in the data. It also appears in our scatter plot of instructional expenditure per student that there is some relationship with higher spending and a higher graduation rate. I could not discern a relationship between student/faculty ratio and graduation rate, however. 
+
+```{r}
+
+## i. 
+  summary(college)
+
+## ii.
+  pairs(college[,2:11])
+  
+## iii.
+  plot(as.factor(college$Private), college$Outstate, xlab="Private Indicator", ylab="Out-of-state tuition")
+  
+## iv. 
+  Elite <- rep("No", nrow(college))
+  Elite[college$Top10perc > 50] <- "Yes"
+  Elite <- as.factor(Elite)
+  college <- data.frame(college, Elite)
+  
+      ## summary(college)
+  
+  plot(as.factor(college$Elite), college$Outstate, xlab="Elite Indicator", ylab="Out-of-state tuition")
+  
+## v. 
+  hist(college$Books, breaks = 12, xlab = "Estimated Book Cost")
+  hist(college$F.Undergrad, breaks = 8, xlab = "Full-time Undergraduate Count")
+  hist(college$P.Undergrad, breaks = 8, xlab = "Part-time Undergraduate Count")
+
+## vi.
+  plot(college$S.F.Ratio, college$Grad.Rate)
+  plot(college$Expend, college$Grad.Rate)
+  plot(as.factor(college$Private), college$Grad.Rate, xlab = "Private School Indicator", ylab = "Graduation Rate")
+
+  
+  
+```
+
+Exercise 9
+
+(a) Our quantitative predictors are MPG, displacement, horsepower, weight, and acceleration. Our qualitative predictors are cylinders, year, origin, and name.
+
+```{r}
+
+auto <- read.table("Auto.data", header = T, stringsAsFactors = T, na.strings = "?")
+
+```
+
+(b)
+
+```{r}
+
+range(auto$mpg)
+range(auto$displacement)
+range(auto$horsepower, na.rm = T)
+range(auto$weight)
+range(auto$acceleration)
+
+```
+
+(c)
+
+```{r}
+
+print("Means:")
+mean(auto$mpg)
+mean(auto$displacement)
+mean(auto$horsepower, na.rm = T)
+mean(auto$weight)
+mean(auto$acceleration)
+
+print("Standard deviations:")
+sd(auto$mpg)
+sd(auto$displacement)
+sd(auto$horsepower, na.rm = T)
+sd(auto$weight)
+sd(auto$acceleration)
+
+```
+
+(d)
+
+```{r}
+
+auto2 <- auto[-(10:85),]
+
+print("Ranges:")
+range(auto2$mpg)
+range(auto2$displacement)
+range(auto2$horsepower, na.rm = T)
+range(auto2$weight)
+range(auto2$acceleration)
+
+print("Means:")
+mean(auto2$mpg)
+mean(auto2$displacement)
+mean(auto2$horsepower, na.rm = T)
+mean(auto2$weight)
+mean(auto2$acceleration)
+
+print("Standard deviations:")
+sd(auto2$mpg)
+sd(auto2$displacement)
+sd(auto2$horsepower, na.rm = T)
+sd(auto2$weight)
+sd(auto2$acceleration)
+
+```
+
+(e) For my first plot, I wanted to see if there is a relationship between the weight of the vehicle and how much horsepower it has, and I found there is a connection between the two variables. As weight goes up, so does the horsepower. This makes sense as the engine is perhaps the heaviest part of the vehicle, and it is only worthwhile to make the engine heavier if it is also going to make it more powerful. 
+
+My second plot makes a similar comparison, but instead of horsepower, we are looking at how the weight affects the miles per gallon. As expected, as the weight goes up, the mpg goes down. The sacrifice for power is efficiency. 
+
+I was curious to see if gas mileage improves over time, so in my third graph I used the year variable as a quantitative measure of time and looked at the mpg. It appears there is a slight improvement in mpg over time.
+
+I used ggplot2 to make these graphs for the added regression line.
+
+```{r}
+
+library(tidyverse)
+
+auto %>% 
+  ggplot(aes(x = weight, y = horsepower)) +
+  geom_point() +
+  geom_smooth(fill = NA)
+
+auto %>% 
+  ggplot(aes(x = weight, y = mpg)) +
+  geom_point() +
+  geom_smooth(fill = NA)
+
+auto %>% 
+  ggplot(aes(x = year, y = mpg)) +
+  geom_point() +
+  geom_smooth(fill = NA)
+
+```
+
+(f) Coincidentally, I have already looked at mpg against the weight and year already, and we saw a clear relationship between weight and mpg (higher weight resulted in a lower mpg). So, I have also made graphs to compare the displacement, acceleration, and horsepower to mpg. We see a strong relationship between displacement and mpg, and between horsepower and mpg. Mileage goes down as displacement and horsepower go up. However, we see a weaker relationship between acceleration and mpg. As I looked in the previous question, it does seem like the categorical variable of year does influence the mpg, probably because as technology improved and people wanted to save more money on fuel, auto manufacturers responded with vehicles that get better mileage. 
+
+```{r}
+
+auto %>% 
+  ggplot(aes(x = displacement, y = mpg)) +
+  geom_point() +
+  geom_smooth(fill = NA)
+
+auto %>% 
+  ggplot(aes(x = horsepower, y = mpg)) +
+  geom_point() +
+  geom_smooth(fill = NA)
+
+auto %>% 
+  ggplot(aes(x = acceleration, y = mpg)) +
+  geom_point() 
+
+```
+
