@@ -1,0 +1,135 @@
+---
+title: "Chapter 3 Assignment"
+author: "Joe Dickerson"
+date: "2025-09-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Problem 9.
+
+a.
+
+```{r}
+
+library("ISLR")
+data(Auto, package="ISLR")
+
+pairs(Auto)
+
+```
+
+b.
+
+```{r}
+
+cor(Auto[, -9])
+
+```
+
+c. 
+
+i. There does appear to be a relationship between the predictors and the response, however not all predictors seem to have a relationship.
+
+ii. Displacement, weight, year, and origin appear to have statistical significance.
+
+iii. With all other predictors constant, we would expect the mpg to increase by 0.751 each additional year.
+
+```{r}
+
+lmod <- lm(mpg ~ . -name, data=Auto)
+summary(lmod)
+
+```
+
+d. There appears to be some nonlinearity in our residuals vs fitted values graph. The Q-Q plot shows normally distributed residuals, though they may be skewed to the right. There is an outlier on the leverage plot, and it is labeled as observation 14. 
+
+```{r}
+
+par(mfrow = c(2,2))
+plot(lmod)
+
+```
+
+e. The interaction term between weight and displacement appears statistically significant as it has a very small p-value. We see the same result when creating an interaction between weight and year, which suggests statistical significance. However, when we make an interaction between weight and year using :, which creates an interaction without the main effects, the interaction loses its statistical significance. 
+
+```{r}
+
+lmod2 <- lm(mpg ~ weight*displacement + year + origin + horsepower + cylinders + acceleration, data=Auto)
+
+summary(lmod2)
+
+lmod3 <- lm(mpg ~ weight*year + displacement + origin + horsepower + cylinders + acceleration, data=Auto)
+
+summary(lmod3)
+
+lmod4 <- lm(mpg ~ weight:year + displacement + origin + horsepower + cylinders + acceleration, data=Auto)
+
+summary(lmod4)
+
+```
+
+f. We still see statistical significance when doing a log transformation on weight, and when squaring displacement. We also see statistical significance when taking the square root of year. 
+
+```{r}
+
+lmod5 <- lm(mpg ~ log(weight) + displacement^2 + year + origin + horsepower + cylinders + acceleration, data=Auto)
+
+summary(lmod5)
+
+lmod6 <- lm(mpg ~ weight + displacement + sqrt(year) + origin + horsepower + cylinders + acceleration, data=Auto)
+
+summary(lmod6)
+
+```
+
+
+Problem 14.
+
+a. 
+
+The form of the linear model is a function of x1 and x2
+
+  y = 2 + 2$x_1$ + 0.3$x_2$ + rnorm(100)
+
+  The regression coefficients are:
+  $B_0$ = -2
+  $B_1$ = 2
+  $B_2$ = 0.3
+
+```{r}
+
+set.seed(1)
+x1 <- runif(100)
+x2 <- 0.5 * x1 + rnorm(100) / 10
+y <- 2 + 2 * x1 + 0.3 * x2 + rnorm(100)
+
+```
+
+b. We see a positive correlation between x1 and x2. The correlation found using the cor() function is 0.8351
+
+```{r}
+
+plot(x1, x2)
+cor(x1, x2)
+
+```
+
+c.
+
+$\hat{\beta}_0$ = 2.131
+
+$\hat{\beta}_1$ = 1.440
+
+$\hat{\beta}_2$ = 1.010
+
+```{r}
+
+lm1 <- lm(y ~ x1 + x2)
+
+summary(lm1)
+
+```
