@@ -15,12 +15,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(ISLR2)
 data(Weekly)
+library(tidyverse)
 
 ```
 
 Question 13.
 
-a.
+a. 
+
+When looking at the scatterplot matrices with the pairs() function, the most notable pattern is between Year and Volume. Producing a scatterplot of those two variables shows the volume increase as the years increase. This is not unexpected based on an understanding of how the S&P tends to grow with the economy. 
 
 ```{r}
 
@@ -28,4 +31,136 @@ summary(Weekly)
 pairs(Weekly)
 cor(Weekly[,-9])
 
+Weekly %>% 
+  ggplot(aes(x = Year, y = Volume)) +
+  geom_point()
+
 ```
+
+b.
+
+The summary output of the model shows only Lag2 has statistical significance with a p-value of 0.0296.
+
+```{r}
+
+glmod <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, family = binomial, data = Weekly)
+
+summary(glmod)
+
+```
+
+c.
+
+The diagonals indicate the correct predictions, so there are (557 + 54) correct predictions. 
+
+nrow(Weekly) = 1089
+
+611 / 1089 = 0.5611
+
+This can be confirmed using mean().
+
+```{r}
+
+## Creating a prediction table
+
+glm.probs <- predict(glmod, type = "response")
+glm.probs[1:10]
+
+contrasts(Weekly$Direction)
+
+table(glmod, Weekly$Direction)
+
+glm.pred <- rep("Down", nrow(Weekly))
+glm.pred[glm.probs > 0.5] = "Up"
+
+summary(glm.pred)
+
+## Producing the confusion matrix
+table(glm.pred, Weekly$Direction)
+
+611 / nrow(Weekly)
+
+mean(glm.pred == Weekly$Direction)
+
+
+```
+
+d. 
+
+Using the mean() function we determine the correct predictions of the held out data to be 0.375.
+
+```{r}
+
+train <- (Weekly$Year < 2009)
+
+weekly.2009 <- Weekly[!train,]
+
+direction.2009 <- Weekly$Direction[!train]
+
+glmod2 <- glm(Direction ~ Lag2, data = Weekly, family = binomial, subset = train) 
+glm.probs2 <- predict(glmod2, weekly.2009, type = "response")
+
+glm.pred2 <- rep("Down", nrow(weekly.2009))
+
+glm.pred2[glm.probs2 > 0.5] <- "Up"
+
+table(glm.pred2, direction.2009)
+
+mean(glm.pred2 == direction.2009)
+
+mean(glm.pred2 != direction.2009)
+
+```
+
+e.
+
+We repeat the process with LDA, and the fraction of correct predictions is 62.5%:
+
+```{r}
+
+library(MASS)
+
+lda.fit <- lda(Direction ~ Lag2, data = Weekly, subset = train)
+
+summary(lda.fit)
+
+lda.pred <- predict(lda.fit, weekly.2009)
+names(lda.pred)
+
+lda.class <- lda.pred$class
+
+table(lda.class, direction.2009)
+
+mean(lda.class == direction.2009)
+
+```
+
+f. 
+
+We repeat the process for QDA, and the fraction of correct predictions is 0.587:
+
+```{r}
+
+qda.fit <- qda(Direction ~ Lag2, data = Weekly, subset = train)
+
+qda.class <- predict(qda.fit, weekly.2009)$class
+
+table(qda.class, direction.2009)
+
+mean(qda.class == direction.2009)
+
+```
+
+g.
+
+We repeat the data for KNN with K=1:
+
+```{r}
+
+library(class)
+
+train.X <- as.matrix(Weekly$Lag2[train])
+
+```
+
+
