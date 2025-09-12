@@ -1,0 +1,31 @@
+---
+title: "Chapter 4 Assignment"
+author: "Joe Dickerson"
+date: "2025-09-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, echo=FALSE}
+
+library(ISLR2)
+data(Weekly)
+
+```
+
+Question 13.
+
+a.
+
+```{r}
+
+summary(Weekly)
+pairs(Weekly)
+cor(Weekly[,-9])
+
+```

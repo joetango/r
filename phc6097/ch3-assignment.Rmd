@@ -126,10 +126,71 @@ $\hat{\beta}_1$ = 1.440
 
 $\hat{\beta}_2$ = 1.010
 
+The beta-hat values are relatively similar to our beta values being around, and x1 has statistical significance, though x2 does not appear to. It appears we cannot reject either null hypothesis, $B_1$ or $B_2$ due to the lack of statistical significance. 
+
 ```{r}
 
 lm1 <- lm(y ~ x1 + x2)
 
 summary(lm1)
+
+```
+
+d. 
+
+When we include only x1, the coefficient is even closer to our beta value of 2. We also see a much smaller p-value. We can reject the null hypothesis of B1 = 0.
+
+```{r}
+
+lm2 <- lm(y ~ x1)
+
+summary(lm2)
+
+```
+
+e. When we only include x2 in the model, it becomes significant with a very small p-value. With this model alone, it appears the null hypothesis can be rejected. 
+
+```{r}
+
+lm3 <- lm(y ~ x2)
+
+summary(lm3)
+
+```
+
+f. 
+
+The results appear to contradict each other, as the first model cannot reject the null hypothesis while the following two can. It appears that there is some aspect of the predictors that create a lot of noise when observed together.
+
+g. 
+
+In the model that includes both predictors, x1 has a slightly higher p-value, and x2 has a significantly smaller p-value. It has become certainly statistically significant. In our models that include only one of the predictors, once again they are both statistically significant. With both of those models, the null hypothesis can be rejected. In the model with both predictors, per cook's distance, the new point appears to be a leverage point. It does not appear to be an outlier. In the model with just x1, it appears to be an outlier, though in the model with just x2, it does not appear to be so.
+
+```{r}
+
+x1 <- c(x1, 0.1)
+x2 <- c(x2, 0.8)
+y <- c(y, 6)
+
+lm4 <- lm(y ~ x1 + x2)
+
+summary(lm4)
+
+lm5 <- lm(y ~ x1)
+
+summary(lm5)
+
+lm6 <- lm(y ~ x2)
+
+summary(lm6)
+
+par(mfrow = c(2,2))
+plot(lm4)
+
+par(mfrow = c(2,2))
+plot(lm5)
+
+par(mfrow = c(2,2))
+plot(lm6)
 
 ```

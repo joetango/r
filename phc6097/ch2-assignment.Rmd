@@ -15,7 +15,9 @@ Exercise 8
 
 ```{r}
 
-college <- read.csv("phc6097/College.csv")
+getwd()
+
+college <- read.csv("College.csv")
 
 ```
 
@@ -25,7 +27,7 @@ college <- read.csv("phc6097/College.csv")
 
 rownames(college) <- college[, 1]
 college <- college[, -1]
-View(college)
+## View(college)
 
 ```
 
