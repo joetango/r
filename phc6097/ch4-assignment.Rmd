@@ -68,7 +68,7 @@ glm.probs[1:10]
 
 contrasts(Weekly$Direction)
 
-table(glmod, Weekly$Direction)
+## table(glmod, Weekly$Direction)
 
 glm.pred <- rep("Down", nrow(Weekly))
 glm.pred[glm.probs > 0.5] = "Up"
@@ -153,14 +153,102 @@ mean(qda.class == direction.2009)
 
 g.
 
-We repeat the data for KNN with K=1:
+We repeat the process for KNN with K=1 and get 0.5 as the fraction of correct predictions:
 
 ```{r}
 
 library(class)
 
 train.X <- as.matrix(Weekly$Lag2[train])
+test.X <- as.matrix(Weekly$Lag2[!train])
+train.Direction <- Weekly$Direction[train]
+
+knn.pred <- knn(train.X, test.X, train.Direction, k = 1)
+table(knn.pred, direction.2009)
+
+mean(knn.pred == direction.2009) 
 
 ```
 
+h.
 
+We repeat the for naive Bayes and get 0.5865 as the fraction of correct predictions:
+
+```{r}
+
+library(e1071)
+
+nb.fit <- naiveBayes(Direction ~ Lag2, data = Weekly, subset = train)
+
+nb.class <- predict(nb.fit, weekly.2009)
+
+table(nb.class, direction.2009)
+
+mean(nb.class == direction.2009)
+
+```
+
+i.
+
+It appears the LDA method provides the best results as it had a fraction of correct predictions at 62.5%, the highest percentage of the various methods. However, further testing may be required to determine this for certain.
+
+j.
+
+The confusion matrix in the model that includes both Lag1 and Volume with Lag2 is similar to the confusion matrix that contains Lag2 alone. The KNN model is less effective with these additional predictors and K set to 3.
+
+```{r}
+
+glmod2 <- glm(Direction ~ Lag2 + Volume, family = binomial, data = Weekly)
+
+glmod3 <- glm(Direction ~ Lag1 + Lag2 + Volume, family = binomial, data = Weekly)
+
+
+glm.probs3 <- predict(glmod3, type = "response")
+glm.probs3[1:10]
+
+contrasts(Weekly$Direction)
+
+
+glm.pred3 <- rep("Down", nrow(Weekly))
+glm.pred3[glm.probs3 > 0.5] = "Up"
+
+summary(glm.pred3)
+
+
+table(glm.pred3, Weekly$Direction)
+
+611 / nrow(Weekly)
+
+mean(glm.pred3 == Weekly$Direction)
+
+
+#### 
+
+
+glmod4 <- glm(Direction ~ Lag1 + Lag2 + Volume, data = Weekly, family = binomial, subset = train) 
+
+glm.probs4 <- predict(glmod4, weekly.2009, type = "response")
+
+glm.pred4 <- rep("Down", nrow(weekly.2009))
+
+glm.pred4[glm.probs4 > 0.5] <- "Up"
+
+table(glm.pred4, direction.2009)
+
+mean(glm.pred4 == direction.2009)
+
+mean(glm.pred4 != direction.2009)
+
+library(class)
+
+train.X2 <- cbind(Weekly$Lag1, Weekly$Lag2, Weekly$Volume)[train,]
+test.X2 <- cbind(Weekly$Lag1, Weekly$Lag2, Weekly$Volume)[!train,]
+train.Direction <- Weekly$Direction[train]
+
+knn.pred <- knn(train.X2, test.X2, train.Direction, k = 3)
+
+table(knn.pred, direction.2009)
+
+mean(knn.pred == direction.2009) 
+
+```
