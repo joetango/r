@@ -1,0 +1,158 @@
+---
+title: "Chapter 6 Assignment"
+author: "Joe Dickerson"
+date: "2025-09-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+
+library(tidyverse)
+library(leaps)
+library(glmnet)
+
+```
+
+Problem 8.
+
+a.
+
+```{r}
+
+set.seed(1)
+      
+x <- rnorm(100)
+e <- rnorm(100)
+
+```
+
+b.
+
+```{r}
+
+B0 <- 2
+B1 <- -6
+B2 <- 5
+B3 <- -1
+
+Y <- B0 + B1*x + B2*x^2 + B3*x^3 + e
+
+```
+
+c.
+
+Per the plots and checking the min and max values, for bic the model is best fit with 3 variables, with cp it is 4 variables, and with adjr2 it is 4 variables. The plots verify this visually.
+
+```{r}
+
+data <- data.frame(I(x), I(x^2), I(x^3), I(x^4), I(x^5), I(x^6), I(x^7), I(x^8), I(x^9), I(x^10), Y)
+regfit.full <- regsubsets(Y ~ ., data = data, nvmax = 10)
+reg.summary <- summary(regfit.full)
+
+which.min(reg.summary$bic)
+which.min(reg.summary$cp)
+which.max(reg.summary$adjr2)
+
+plot(reg.summary$bic, type = "l")
+
+plot(reg.summary$cp, type = "l")
+
+plot(reg.summary$adjr2, type = "l")
+
+```
+
+d.
+
+Using forward and backward stepwise selection we see similar results to c. Both methods suggest a model using only 3 variables, which does differ slightly from c. as we had a couple indications to use a model with 4 variables. 
+
+```{r}
+
+regfit.fwd <- regsubsets(Y ~ ., data = data, nvmax = 10, method = "forward")
+regfit.bwd <- regsubsets(Y ~ ., data = data, nvmax = 10, method = "backward")
+
+summary(regfit.fwd)
+summary(regfit.bwd)
+
+```
+
+e.
+
+We get a lambda value of 0.0410 and use that to make predictions with the lasso model. We have coefficients for the intercept and x, x2, and x3, but not x4 and beyond, which will not be used. This is somewhat expected from the results in part d. 
+
+```{r}
+
+x <- model.matrix(Y ~ ., data)[,-1]
+y <- data$Y
+
+train <- sample(1:nrow(x), nrow(x) / 2)
+test <- (-train)
+y.test <- y[test]
+
+
+cv.out <- cv.glmnet(x, y, alpha = 1)
+
+plot(cv.out)
+
+bestlam <- cv.out$lambda.min
+bestlam
+
+grid <- 10^seq(10, -2, length = 100)
+
+lasso.mod <- glmnet(x[train, ], y[train], alpha = 1, lambda = grid)
+plot(lasso.mod)
+
+lasso.coef <- predict(lasso.mod, type = "coefficients", s = bestlam)[1:11,]
+
+lasso.coef
+
+```
+
+f.
+
+B7 is equal to 11. We now have ideal variables of 1 or 2 when checking the cp and bic as we had done previously, 1 for bic and 2 for cp. The Lasso model chooses a single variable when checking the coefficients, and the coefficient for B7 (10.68) is very similar to our actual B7 (11). It seems Lasso is the better model among what is tested here.
+
+```{r}
+
+
+set.seed(1)
+      
+x <- rnorm(100)
+e <- rnorm(100)
+
+B7 <- 11
+Y2 <- B0 + B7*x^7 + e
+data2 <- data.frame(x, x^2, x^3, x^4, x^5, x^6, x^7, x^8, x^9, x^10, Y2)
+
+regfit.full2 <- regsubsets(Y2 ~ ., data = data2, nvmax = 10)
+reg.summary2 <- summary(regfit.full2)
+
+which.min(reg.summary2$bic)
+which.min(reg.summary2$cp)
+
+plot(reg.summary2$bic)
+plot(reg.summary2$cp)
+
+x2 <- model.matrix(Y2 ~ ., data = data2)[,-1]
+y2 <- data2$Y2
+
+grid2 <- 10^seq(10, -2, length = 100)
+
+lasso.mod2 = glmnet(x2, y2, alpha = 1, lambda = grid)
+
+cv.out2 <- cv.glmnet(x2, y2, alpha = 1)
+
+plot(cv.out2)
+
+bestlam2 <- cv.out2$lambda.min
+
+bestlam2
+
+lasso.coef2 <- predict(lasso.mod2, type = "coefficients", s = bestlam2)[1:11,]
+
+lasso.coef2
+
+```

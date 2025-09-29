@@ -194,7 +194,7 @@ It appears the LDA method provides the best results as it had a fraction of corr
 
 j.
 
-The confusion matrix in the model that includes both Lag1 and Volume with Lag2 is similar to the confusion matrix that contains Lag2 alone. The KNN model is less effective with these additional predictors and K set to 3.
+The confusion matrix in the model that includes both Lag1 and Volume with Lag2 is similar to the confusion matrix that contains Lag2 alone. The KNN model is less effective with these additional predictors and K set to 3. Overall, it seems the model works best with Lag2 as the only predictor based on the additional exploration.
 
 ```{r}
 

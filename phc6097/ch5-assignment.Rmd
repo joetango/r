@@ -1,0 +1,232 @@
+---
+title: "Chapter 5 Homework"
+author: "Joe Dickerson"
+date: "2025-09-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Problem 8.
+
+a.
+
+n = 100
+p = 2
+
+y = x - 2x^2 
+
+```{r}
+
+set.seed(1)
+x <- rnorm(100)
+y <- x - 2 * x^2 + rnorm(100)
+
+```
+
+b.
+
+There appears to be a quadratic relationship (nonlinear) between x and y.
+
+```{r}
+
+plot(x=x, y=y)
+
+```
+
+c.
+
+We find the LOOCV errors to be 7.29, 0.94, 0.96, and 0.95.
+
+```{r}
+
+library(boot)
+
+set.seed(123)
+
+data <- data.frame(y = y, x = x)
+
+glm <- glm(y ~ x)
+cv.err <- cv.glm(data, glm)
+cv.err$delta
+
+cv.error <- rep(0, 4)
+
+for (i in 1:4) {
+  glm.fit <- glm(y ~ poly(x, i), data = data)
+  cv.error[i] <- cv.glm(data, glm.fit)$delta[1]
+}
+
+cv.error
+
+```
+
+d.
+
+The results are the same because LOOCV does not use random elements.
+
+```{r}
+
+set.seed(100)
+
+data <- data.frame(y = y, x = x)
+
+glm <- glm(y ~ x)
+cv.err <- cv.glm(data, glm)
+cv.err$delta
+
+cv.error <- rep(0, 4)
+
+for (i in 1:4) {
+  glm.fit <- glm(y ~ poly(x, i), data = data)
+  cv.error[i] <- cv.glm(data, glm.fit)$delta[1]
+}
+
+cv.error
+
+```
+
+e.
+
+Model ii., which was Y = B0 + B1X + B2X^2 + Error, technically fit best, though all the quadratic models fit almost identically. This is probably due to the data having a quadratic fit, if we recall the plot from part b. 
+
+```{r}
+
+library(tidyverse)
+
+data %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "lm", fill = NA) +
+  labs(title = "Linear Fit")
+
+data %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y ~ x + I(x^2)", fill = NA) +
+  labs(title = "Quadratic Fit")
+
+```
+
+f.
+
+We see much greater significance in the second model than the first with the inclusion of a quadratic term. However, we see no greater significance in the following models. These results agree with the cross-validation conclusions. The second model is the best fit.
+
+```{r}
+
+glm1 <- glm(y ~ x, data = data)
+summary(glm1)
+
+glm2 <- glm(y ~ x + I(x^2), data = data)
+summary(glm2)
+
+glm3 <- glm(y ~ x + I(x^2) + I(x^3), data = data)
+summary(glm3)
+
+glm4 <- glm(y ~ x + I(x^2) + I(x^3) + I(x^4), data = data)
+summary(glm4)
+
+```
+
+Problem 9.
+
+a. μ-hat = 22.53
+
+```{r}
+
+library(ISLR2)
+data(Boston)
+
+mean(Boston$medv)
+
+```
+
+b.
+
+The estimated standard error of μ-hat is 0.409.
+
+```{r}
+
+sd(Boston$medv) / sqrt(length(Boston$medv))
+
+```
+
+c.
+
+The estimated standard error is 0.418, which is very close and comparable to the standard error from b.
+
+```{r}
+
+set.seed(123)
+
+boot.fn <- function(vector, index){
+  mean(vector[index])
+}
+
+boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+```
+
+d.
+
+We get a 95% confidence interval of 21.72 to 23.34. Using the t.test, we have a very similar confidence interval of 21.73 to 23.33. 
+
+```{r}
+
+boot <- boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+boot.se <- sd(boot$t)
+
+c(mean(Boston$medv) - 2*boot.se, mean(Boston$medv) + 2*boot.se)
+
+t.test(Boston$medv)
+
+```
+
+e. The median u-hat-med is 21.2.
+
+```{r}
+
+median(Boston$medv)
+
+```
+
+f.
+
+We get a standard error of 0.38, which is somewhat similar to the standard error we got of the mean.
+
+```{r}
+
+boot.fn <- function(vector, index){
+  median(vector[index])
+}
+
+boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+```
+
+g.
+
+Using the quantile function, the estimate of the tenth percentile is 12.75.
+
+```{r}
+
+quantile(Boston$medv, 0.1)
+
+```
+
+h.
+
+The standard error is a bit larger than the previous problems when we use the bootstrap method, giving a result of 0.522. It is a small standard error overall, though.
+
+```{r}
+
+boot.fn <- function(vector, index){
+  quantile(vector[index], 0.1)
+}
+
+boot(data = Boston$medv, statistic = boot.fn, R = 1000)
+
+```
