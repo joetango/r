@@ -1,0 +1,108 @@
+---
+title: "Chapter 7 Assignment"
+author: "Joe Dickerson"
+date: "2025-10-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+
+library(tidyverse)
+library(MASS)
+library(ISLR2)
+
+```
+
+Problem 9.
+
+a. Use the poly() function to fit a cubic polynomial regression to predict nox using dis. Report the regression output, and plot the resulting data and polynomial fits.
+
+We see significance with each degree of polynomial, with dis having a coefficient of -2.003, dis^2 a coefficient of 0.856, and dis^3 a coefficient of -0.318. The plots appear as expected as the degree of polynomial increase. 
+
+```{r}
+
+data(Boston)
+
+fit <- lm(nox ~ poly(dis, 3), data = Boston)
+
+summary(fit)
+
+## coef(summary(fit))
+
+## plot(Boston$nox ~ Boston$dis)
+
+Boston %>% 
+  ggplot(aes(x = dis, y = nox)) +
+  geom_point(size = .5) +
+  geom_smooth(fill = NA)
+
+
+Boston %>% 
+  ggplot(aes(x = dis^2, y = nox)) +
+  geom_point(size = .5) +
+  geom_smooth(fill = NA)
+
+
+Boston %>% 
+  ggplot(aes(x = dis^3, y = nox)) +
+  geom_point(size = .5) +
+  geom_smooth(fill = NA)
+
+```
+
+b. Plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
+
+The RSS for the model is 1.832. Interestingly, we lost significance at dis^4, but dis^5, dis^6, and dis^7 are significant. dis^8 is barely significant with a p-value of 0.0536, which would probably not be adequate for an analysis or interpretation. dis^9 and dis^10 are not statistically significant. 
+
+```{r}
+
+fit2 <- lm(nox ~ poly(dis, 10), data = Boston)
+
+sum(resid(fit2)^2)
+
+```
+
+c. Perform cross-validation or another approach to select the optimal degree for the polynomial, and explain your results.
+
+An ANOVA is performed to compare models, and it appears that a cubic model is the best approach as the fourth degree polynomial model loses statistical significance. These results are similar to what was found in part b.
+
+```{r}
+# for (i in 1:10) {
+#   poly.fit[i] <- lm(nox ~ poly(dis, i), data = Boston)
+# }
+
+fit.1 <- lm(nox ~ dis, data = Boston)
+fit.2 <- lm(nox ~ poly(dis, 2), data = Boston)
+fit.3 <- lm(nox ~ poly(dis, 3), data = Boston)
+fit.4 <- lm(nox ~ poly(dis, 4), data = Boston)
+fit.5 <- lm(nox ~ poly(dis, 5), data = Boston)
+fit.6 <- lm(nox ~ poly(dis, 6), data = Boston)
+fit.7 <- lm(nox ~ poly(dis, 7), data = Boston)
+fit.8 <- lm(nox ~ poly(dis, 8), data = Boston)
+fit.9 <- lm(nox ~ poly(dis, 9), data = Boston)
+fit.10 <- lm(nox ~ poly(dis, 10), data = Boston)
+
+anova(fit.1, fit.2, fit.3, fit.4, fit.5, fit.6, fit.7, fit.8, fit.9, fit.10)
+
+```
+
+d. Use the bs () function to fit a regression spline to predict nox using dis. Report the output for the fit using four degrees of freedom. How did you choose the knots? Plot the resulting fit.
+
+We find the knots using the attr() function and the bs() function using four degrees of freedom. We find the amount of knots to be 3.207450.
+
+```{r}
+
+library(splines)
+
+attr(bs(Boston$dis, df = 4), "knots") ## 3.207450 knots
+
+spline.fit <- lm(nox ~ bs(dis, knots = 3.207450), data = Boston)
+coef(spline.fit)
+
+plot(spline.fit)
+
+```
