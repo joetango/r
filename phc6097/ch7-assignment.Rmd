@@ -1,0 +1,233 @@
+---
+title: "Chapter 7 Assignment"
+author: "Joe Dickerson"
+date: "2025-10-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, results="HIDE", message = FALSE}
+
+library(tidyverse)
+library(MASS)
+library(ISLR2)
+library(leaps)
+library(gam)
+library(randomForest)
+
+##test
+
+```
+
+Problem 9.
+
+a. Use the poly() function to fit a cubic polynomial regression to predict nox using dis. Report the regression output, and plot the resulting data and polynomial fits.
+
+We see significance with each degree of polynomial, with dis having a coefficient of -2.003, dis^2 a coefficient of 0.856, and dis^3 a coefficient of -0.318. The plots appear as expected as the degree of polynomial increase. 
+
+```{r}
+
+data(Boston)
+
+fit <- lm(nox ~ poly(dis, 3), data = Boston)
+
+summary(fit)
+
+## coef(summary(fit))
+
+## plot(Boston$nox ~ Boston$dis)
+
+Boston %>% 
+  ggplot(aes(x = dis, y = nox)) +
+  geom_point(size = .5) +
+  geom_smooth(fill = NA)
+
+
+Boston %>% 
+  ggplot(aes(x = dis^2, y = nox)) +
+  geom_point(size = .5) +
+  geom_smooth(fill = NA)
+
+
+Boston %>% 
+  ggplot(aes(x = dis^3, y = nox)) +
+  geom_point(size = .5) +
+  geom_smooth(fill = NA)
+
+```
+
+b. Plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
+
+The RSS for the model is 1.832. Interestingly, we lost significance at dis^4, but dis^5, dis^6, and dis^7 are significant. dis^8 is barely significant with a p-value of 0.0536, which would probably not be adequate for an analysis or interpretation. dis^9 and dis^10 are not statistically significant. 
+
+```{r}
+
+fit2 <- lm(nox ~ poly(dis, 10), data = Boston)
+
+sum(resid(fit2)^2)
+
+```
+
+c. Perform cross-validation or another approach to select the optimal degree for the polynomial, and explain your results.
+
+An ANOVA is performed to compare models, and it appears that a cubic model is the best approach as the fourth degree polynomial model loses statistical significance. These results are similar to what was found in part b.
+
+```{r}
+
+fit.1 <- lm(nox ~ dis, data = Boston)
+fit.2 <- lm(nox ~ poly(dis, 2), data = Boston)
+fit.3 <- lm(nox ~ poly(dis, 3), data = Boston)
+fit.4 <- lm(nox ~ poly(dis, 4), data = Boston)
+fit.5 <- lm(nox ~ poly(dis, 5), data = Boston)
+fit.6 <- lm(nox ~ poly(dis, 6), data = Boston)
+fit.7 <- lm(nox ~ poly(dis, 7), data = Boston)
+fit.8 <- lm(nox ~ poly(dis, 8), data = Boston)
+fit.9 <- lm(nox ~ poly(dis, 9), data = Boston)
+fit.10 <- lm(nox ~ poly(dis, 10), data = Boston)
+
+anova(fit.1, fit.2, fit.3, fit.4, fit.5, fit.6, fit.7, fit.8, fit.9, fit.10)
+
+```
+
+d. Use the bs () function to fit a regression spline to predict nox using dis. Report the output for the fit using four degrees of freedom. How did you choose the knots? Plot the resulting fit.
+
+We find the knots using the attr() function and the bs() function using four degrees of freedom. We find the amount of knots to be 3.207450.
+
+```{r}
+
+library(splines)
+
+attr(bs(Boston$dis, df = 4), "knots") ## 3.207450 knots
+
+spline.fit <- lm(nox ~ bs(dis, knots = 3.207450), data = Boston)
+coef(spline.fit)
+
+
+```
+
+e. Now fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
+
+Our plots are relatively similar with a somewhat quadratic result. The RSS values range from 1.79 to 1.92, which suggests the model is a good fit as the mean of our response is 3.80. 
+
+```{r}
+
+attr(bs(Boston$dis, df=7), "knots")
+
+spline.fit1 <- gam(nox ~ bs(dis, df = 4), data = Boston)
+spline.fit2 <- gam(nox ~ bs(dis, df = 6), data = Boston)
+spline.fit3 <- gam(nox ~ bs(dis, df = 8), data = Boston)
+spline.fit4 <- gam(nox ~ bs(dis, df = 10), data = Boston)
+
+plot(spline.fit1, se = TRUE, col = "blue")
+plot(spline.fit2, se = TRUE, col = "blue")
+plot(spline.fit3, se = TRUE, col = "blue")
+plot(spline.fit4, se = TRUE, col = "blue")
+
+sum(residuals(spline.fit1)^2)
+sum(residuals(spline.fit2)^2)
+sum(residuals(spline.fit3)^2)
+sum(residuals(spline.fit4)^2)
+
+mean(Boston$dis)
+
+```
+
+f. Perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data. Describe your results.
+
+We check the AIC values and it appears the spline.fit4 has the most appropriate degrees of freedom. However, based on the graphs from part e., there is a case to be made that the first fit with 4 degrees of freedom is most appropriate.
+
+```{r}
+
+c(AIC(spline.fit1), AIC(spline.fit2), AIC(spline.fit3), AIC(spline.fit4))
+
+```
+
+
+Problem 10.
+
+a. Split the data into a training set and a test set. Using out-of-state tuition as the response and the other variables as the predictors, perform forward stepwise selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.
+
+Forward stepwise selection is performed on the training set and it is determined that the most satisfactory model will use 6 variables. 
+
+```{r}
+
+data(College)
+set.seed(123)
+
+
+train1 <- sample(nrow(College) * 0.6)
+train <- College[train1, ]
+test <- College[-train1, ]
+
+regfit.best <- regsubsets(Outstate ~ ., data = train, nvmax = ncol(College))
+
+test.mat <- model.matrix(Outstate ~ ., data = test)
+
+val.errors <- rep(NA, ncol(College))
+
+for (i in 1:17) { ## 17 models in regfit.best
+  coefi <- coef(regfit.best, id = i)
+  pred <- test.mat[, names(coefi)] %*% coefi 
+  val.errors[i] <- mean((test$Outstate - pred)^2)
+}
+
+which.min(val.errors[-17])
+
+```
+
+b. Fit a GAM on the training data, using out-of-state tuition as the response and the features selected in the previous step as the predictors. Plot the results, and explain your findings.
+
+We see positive associations with all predictors.
+
+```{r}
+
+summary(regfit.best)
+
+gam <- gam(Outstate ~ Private + Room.Board + Terminal + perc.alumni + Expend + Grad.Rate, data = train)
+
+plot(gam, se = TRUE, col = "blue")
+
+```
+
+c. Evaluate the model obtained on the test set, and explain the results obtained.
+
+We have an RMSE of 1971.75 and an R^2 of 0.759. We see significance with all of the predictors when looking at a summary of the model.
+
+```{r}
+
+calc_rmse <- function(y, y_hat) {
+  mse <- calc_mse(y, y_hat)
+  return(sqrt(mse)) 
+}
+
+calc_mse <- function(y, y_hat) {
+  return(mean((y - y_hat)^2))
+}
+
+gam_preds <- predict(gam, test)
+gam_rmse <- calc_rmse(test$Outstate, gam_preds)
+
+calc_r2 <- function(y, y_hat) {
+  y_bar <- mean(y)
+  rss <- sum((y - y_hat)^2)
+  tss <- sum((y - y_bar)^2)
+  return(1 - (rss / tss))
+}
+
+calc_rmse(test$Outstate, gam_preds)
+calc_r2(test$Outstate, gam_preds)
+
+```
+
+d. For which variables, if any, is there evidence of a non-linear relationship with the response?
+
+There appears to be a nonlinear relationship between all the predictors and the response based on the p-values of the Anova for parametric effects.
+
+```{r}
+
+summary(gam)
+
+```
