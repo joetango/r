@@ -1,0 +1,65 @@
+---
+title: "Kernel Smoothing Assignment"
+author: "Joe Dickerson"
+date: "2025-10-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+Question 1
+  1. True
+  2. True
+  3. False
+  4. True
+  5. True
+
+Question 2 
+  C. Gaussian Kernel
+  
+Question 3.
+
+x0 = 5, x1 = 4.9, x2 = 3, y1 = 1, y2 = 2
+
+
+```{r}
+
+## Computing kernel weights:
+
+exp <- exp(1)
+
+fnc <- function(x, x0, a){
+  exp(-((x - x0)^2) / (2*a^2))
+}
+
+fnc(4.9, 5, .5) ## 0.980200
+fnc(3, 5, .5)   ## 0.000335
+
+```
+
+L(B0, B1) = 2 sigma i=1 ki(yi - (B0 + B1xi))^2
+
+L(B0, B1) = k1(y1 - (B0 +B1x1))^2 + k2(y2 - (B0 + b1x2))^2
+
+Loss function:
+
+L(B0, B1) = 0.9802(1 - (B0 + B1 ⋅ 4.9))^2 + 0.00036(2 - (B0 + B1 ⋅ 3))^2
+
+#############
+
+Question 5.
+
+```{r}
+
+library(dslabs)
+
+data(polls_2008)
+
+
+
+```
