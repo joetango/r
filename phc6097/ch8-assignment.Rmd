@@ -1,0 +1,74 @@
+---
+title: "Chapter 8 Assignment"
+author: "Joe Dickerson"
+date: "2025-10-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question 9.
+
+This problem involves the OJ data set which is part of the ISLR2 package.
+
+a. Create a training set containing a random sample of 800 observations, and a test set containing the remaining observations.
+
+```{r}
+
+library(ISLR2)
+
+data(OJ)
+
+set.seed(100)
+
+seq <- sample(1:nrow(OJ), 800)
+
+train <- OJ[seq, ]
+test <- OJ[-seq, ]
+
+```
+
+b. Fit a tree to the training data, with Purchase as the response and the other variables as predictors. Use the summary() function to produce summary statistics about the tree, and describe the results obtained. What is the training error rate? How many terminal nodes does the tree have?
+
+```{r}
+
+library(tree)
+
+tree.train <- tree(Purchase ~ ., data = train)
+
+summary(tree.train)
+
+```
+
+c. Type in the name of the tree object in order to get a detailed text output. Pick one of the terminal nodes, and interpret the information displayed.
+
+```{r}
+
+tree.train
+
+```
+
+d. Create a plot of the tree, and interpret the results.
+
+```{r}
+
+plot(tree.train)
+text(tree.train, pretty = 0)
+
+```
+
+e. Predict the response on the test data, and produce a confusion
+matrix comparing the test labels to the predicted test labels.
+What is the test error rate?
+
+```{r}
+
+tree.pred <- predict(tree.train, test, type = "class")
+
+table(tree.pred, test$Purchase)
+
+(36 + 23) / length(tree.pred)
+
+```
