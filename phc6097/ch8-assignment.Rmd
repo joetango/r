@@ -72,3 +72,12 @@ table(tree.pred, test$Purchase)
 (36 + 23) / length(tree.pred)
 
 ```
+
+f. Apply the cv.tree() function to the training set in order to determine the optimal tree size.
+
+```{r}
+
+test
+
+
+```
