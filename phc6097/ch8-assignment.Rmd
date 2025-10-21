@@ -32,6 +32,8 @@ test <- OJ[-seq, ]
 
 b. Fit a tree to the training data, with Purchase as the response and the other variables as predictors. Use the summary() function to produce summary statistics about the tree, and describe the results obtained. What is the training error rate? How many terminal nodes does the tree have?
 
+Our tree uses four variables: LoyalCH, PriceDiff, ListPriceDiff, and SalePriceMM, and our tree has 8 nodes. The error rate is 0.1588.
+
 ```{r}
 
 library(tree)
@@ -44,6 +46,8 @@ summary(tree.train)
 
 c. Type in the name of the tree object in order to get a detailed text output. Pick one of the terminal nodes, and interpret the information displayed.
 
+Looking at node 8, there are 59 observations that have met the split criterion LoyalCH < 0.0356 and a deviance of 10.14. 1.7% of the observations in this node purchased Citrus Hill, while 98.3% purchased Minute Maid.
+
 ```{r}
 
 tree.train
@@ -51,6 +55,8 @@ tree.train
 ```
 
 d. Create a plot of the tree, and interpret the results.
+
+The plot shows the various splits, and it appears there is a much higher likelihood of purchasing Minute Maid if LoyaltyCH is less than 0.5036. There is a higher prediction to purchase Citrus hill on the other end of the tree
 
 ```{r}
 
@@ -62,6 +68,8 @@ text(tree.train, pretty = 0)
 e. Predict the response on the test data, and produce a confusion
 matrix comparing the test labels to the predicted test labels.
 What is the test error rate?
+
+The error rate is 0.219, or 21.9%. 
 
 ```{r}
 
@@ -75,9 +83,61 @@ table(tree.pred, test$Purchase)
 
 f. Apply the cv.tree() function to the training set in order to determine the optimal tree size.
 
+It appears the model with 6 nodes is the optimal size with an error rate of 134. 8 nodes has 134 as well, so we will take the simpler tree with fewer nodes as increasing the nodes does not improve the tree enough.
+
 ```{r}
 
-test
+cv.tree <- cv.tree(tree.train, FUN = prune.misclass)
 
+cv.tree
+
+```
+
+g. Produce a plot with tree size on the x-axis and cross-validated classification error rate on the y-axis.
+
+```{r}
+
+plot(cv.tree$size, cv.tree$dev, type = "b")
+
+```
+
+h. Which tree size corresponds to the lowest cross-validated classification error rate?
+
+The tree size with 6 and 8 nodes both appear to have the lowest cross-validated classification error rate. 6 is the optimal choice because it is simpler.
+
+i. Produce a pruned tree corresponding to the optimal tree size obtained using cross-validation. If cross-validation does not lead to selection of a pruned tree, then create a pruned tree with five terminal nodes.
+
+The tree with 6 nodes is produced.
+
+```{r}
+
+prune.tree <- prune.misclass(tree.train, best = 6)
+
+plot(prune.tree)
+text(prune.tree, pretty = 0)
+
+```
+
+j. Compare the training error rates between the pruned and unpruned trees. Which is higher?
+
+The error rates are the same between the unpruned and the pruned trees at 15.9%.
+
+```{r}
+
+summary(tree.train)
+summary(prune.tree)
+
+```
+
+k. Compare the test error rates between the pruned and unpruned trees. Which is higher?
+
+The test error rate is 21.9%, which is the same as the unpruned tree.
+
+```{r}
+
+prune.pred <- predict(prune.tree, test, type = "class")
+table(prune.pred, test$Purchase)
+
+(23 + 36) / length(prune.pred)
 
 ```
