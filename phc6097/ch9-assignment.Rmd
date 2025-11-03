@@ -1,0 +1,176 @@
+---
+title: "Chapter 9 Assignment"
+author: "Joe Dickerson"
+date: "2025-11-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, message=FALSE, warning=FALSE}
+
+library(ISLR2)
+library(e1071)
+data(OJ)
+
+```
+
+Question 8
+
+a. Create a training set containing a random sample of 800 observations, and a test set containing the remaining observations.
+
+```{r, message=FALSE, warning=FALSE}
+
+set.seed(1)
+
+seq <- sample(1:nrow(OJ), 800)
+
+train <- OJ[seq, ]
+test <- OJ[-seq, ]
+
+```
+
+b. Fit a support vector classifier to the training data using cost = 0.01, with Purchase as the response and the other variables as predictors. Use the summary() function to produce summary statistics, and describe the results obtained.
+
+There are 615 support vectors used in the model, splitting the points by 309 and 306 respectively between Citrus Hill and Minute Maid. 
+
+```{r, message=FALSE, warning=FALSE}
+
+svmfit <- svm(Purchase ~ ., data = train, kernel = "linear", cost = 0.01, scale = FALSE)
+
+summary(svmfit)
+
+```
+
+c. What are the training and test error rates?
+
+The training error rate is 0.456 and the test error rate is 0.233.
+
+```{r, message=FALSE, warning=FALSE}
+
+yhat <- predict(svmfit, newdata = test, type = "class")
+
+mean(yhat != train$Purchase)
+
+table(yhat, test$Purchase)
+(20 + 43) / (148 + 59 + 20 + 43)
+
+```
+
+d. Use the tune() function to select an optimal cost. Consider values in the range 0.01 to 10.
+
+```{r, message=FALSE, warning=FALSE}
+
+set.seed(1)
+
+tune.out <- e1071::tune(svm, Purchase ~ ., data = train, kernel = "linear", ranges = list(cost = c(.01, 1, 2, 4, 6, 8, 10)))
+
+summary(tune.out)
+
+plot(tune.out)
+
+```
+
+e. Compute the training and test error rates using this new value for cost.
+
+The training error rate is 0.483, and the test error rate is 0.163. The training error rate is slightly higher, but the test error is lower.
+
+```{r, message=FALSE, warning=FALSE}
+
+svmfit2 <- svm(Purchase ~ ., data = train, kernel = "linear", cost = 4, scale = FALSE)
+
+summary(svmfit2)
+
+yhat2 <- predict(svmfit2, newdata = test, type = "class")
+
+table(yhat2, test$Purchase)
+
+mean(yhat2 != train$Purchase)
+
+(31 + 13) / (155 + 71 + 31 + 13)
+
+```
+
+f. Repeat parts (b) through (e) using a support vector machine with a radial kernel. Use the default value for gamma.
+
+Training error rate is 0.394, and test error rate is 0.378. The optimal cost via the tune() function is 1. We refit the model using 1 as the value for cost. The training error rate is then 0.479 and test error rate is 0.185. Again, a higher training error but a lower test error.
+
+```{r, message=FALSE, warning=FALSE}
+
+svmfit.rad <- svm(Purchase ~ ., data = train, kernel = "radial", cost = 0.01)
+
+summary(svmfit.rad)
+
+yhat.r <- predict(svmfit.rad, newdata = test, type = "class")
+
+mean(yhat.r != train$Purchase)
+
+table(yhat.r, test$Purchase)
+
+(102) / (168 + 102)
+
+set.seed(1)
+
+tune.r <- e1071::tune(svm, Purchase ~ ., data = train, kernel = "radial", ranges = list(cost = c(.01, 1, 2, 4, 6, 8, 10)))
+
+summary(tune.r)
+
+plot(tune.r)
+
+svmfit.rad2 <- svm(Purchase ~ ., data = train, kernel = "radial", cost = 1)
+
+yhat.r2 <- predict(svmfit.rad2, newdata = test, type = "class")
+
+mean(yhat.r2 != train$Purchase)
+
+table(yhat.r2, test$Purchase)
+
+(17 + 33) / (151 + 69 + 17 + 33)
+
+```
+
+g. Repeat parts (b) through (e) using a support vector machine with a polynomial kernel. Set degree = 2.
+
+SVM using 636 support vectors. Our training error rate is 0.395, and our test error rate is 0.367. Ideal cost is 1 as in the radial model. We change cost to 1 and get a higher training error rate of 0.4575 and test rate of 0.286, which again the training error is higher while the test error is lower than when cost is 0.01.
+
+```{r, message=FALSE, warning=FALSE}
+
+svmfit.poly <- svm(Purchase ~ ., data = train, kernel = "polynomial", cost = 0.01, degree = 2)
+
+summary(svmfit.poly)
+
+yhat.poly <- predict(svmfit.poly, newdata = test, type = "class")
+
+mean(yhat.poly != train$Purchase)
+
+table(yhat.poly, test$Purchase)
+
+(98 + 1) / (167 + 4 + 98 + 1)
+
+set.seed(1)
+
+tune.poly <- e1071::tune(svm, Purchase ~ ., data = train, kernel = "polynomial", ranges = list(cost = c(.01, 1, 2, 4, 6, 8, 10)))
+
+summary(tune.poly)
+
+plot(tune.poly)
+
+svmfit.poly2 <- svm(Purchase ~ ., data = train, kernel = "polynomial", cost = 1, degree = 2)
+
+yhat.poly2 <- predict(svmfit.poly2, newdata = test, type = "class")
+
+mean(yhat.poly2 != train$Purchase)
+
+table(yhat.poly2, test$Purchase)
+
+(15 + 45) / (153 + 57)
+
+```
+
+h. Overall, which approach seems to give the best results on this data?
+
+It seems that either linear or radial is the best for this data, while polynomial is not as effective. Between linear and radial, it seems linear possesses the lowest test error rate at 0.163 when the cost is set to 4, which might make that the preferred method. Further testing could be done to get a clearer result.  
