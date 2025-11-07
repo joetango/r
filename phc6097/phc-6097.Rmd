@@ -1,0 +1,205 @@
+---
+title: "PHC6097"
+author: "Joe Dickerson"
+date: "2025-11-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+
+## packages
+library(ISLR2)
+library(glmnet)
+library(class)
+
+```
+
+Question 7.
+
+In this question, we will predict the number of applications received using
+the other variables in the College data set.
+
+1. Split the data set into a training set and a test set (½ as training and ½ as testing by setting the seed as 1. Fit a linear model using least squares on the training set, and report the test error obtained.
+
+The test error is 1,135,758.
+
+```{r, message=FALSE}
+
+## method 1
+
+# data(College)
+# attach(College)
+# 
+# set.seed(1)
+# 
+# seq <- sample(1:nrow(College), nrow(College)/2)
+# 
+# train <- College[seq, ]
+# test <- College[-seq, ]
+# y.test <- College$Apps[-seq]
+# 
+# lmod <- lm(Apps ~ ., data = College, subset = seq)
+# 
+# lmodpred <- predict(lmod, College[-seq, ])
+# 
+# mean((lmodpred - y.test)^2)
+
+```
+
+```{r, message=FALSE}
+
+## method 2
+
+data(College)
+attach(College)
+
+set.seed(1)
+
+train <- sample(1:nrow(College), nrow(College)/2)
+test <- -train
+y.test <- Apps[test]
+
+lmod <- lm(Apps ~ ., data = College, subset = train)
+
+lmodpred <- predict(lmod, College[test, ])
+
+mean((lmodpred - y.test)^2)
+
+```
+
+2. Fit a ridge regression model on the training set, with λ chosen by cross-validation (Hint: the cross-validation process should be conducted on the training set). Report the test error obtained.
+
+The test error is 976,262, which is lower than the test error for the linear regression model.
+
+```{r}
+
+## method 2
+
+set.seed(1)
+
+x <- model.matrix(College$Apps ~ ., data = College)[, -1]
+x.train <- x[train, ]
+y <- College$Apps
+y.train <- y[train]
+
+
+ridge.mod <- glmnet(x.train, y.train, alpha = 0)
+
+cv.ridge.mod <- cv.glmnet(x.train, y.train, alpha = 0)
+
+lambda <- cv.ridge.mod$lambda.min
+
+r.pred <- predict(ridge.mod, s = lambda, newx = x[test, ])
+
+mean((r.pred - y.test)^2)
+
+```
+
+```{r}
+
+## method 1
+
+# set.seed(1)
+# 
+# x <- model.matrix(College$Apps ~ ., data = College)
+# x.train <- x[seq, ]
+# y <- College$Apps
+# y.train <- y[seq]
+# 
+# ridge.mod <- glmnet(x, y, alpha = 0)
+# 
+# cv.ridge.mod <- cv.glmnet(x.train, y.train, alpha = 0)
+# 
+# lambda <- cv.ridge.mod$lambda.min
+# 
+# r.pred <- predict(ridge.mod, s = lambda, newx = x[-seq, ])
+# 
+# mean((r.pred - y.test)^2)
+
+```
+
+3. Fit a lasso model on the training set, with λ chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
+
+The test error is 923,052, which is lower than the linear regression model, but higher than the ridge regression model.
+
+```{r}
+
+## method 2
+
+set.seed(1)
+
+lasso.mod <- glmnet(x.train, y.train, alpha = 1)
+
+cv.lasso.mod <- cv.glmnet(x.train, y.train, alpha = 1)
+
+lasso.lambda <- cv.lasso.mod$lambda.min
+
+l.pred <- predict(lasso.mod, s = lasso.lambda, newx = x[test, ])
+
+mean((l.pred - y.test)^2)
+
+l.coefs <- predict(lasso.mod, type = "coefficients", s = lasso.lambda)[1:17, ]
+
+length(l.coefs[l.coefs != 0])
+
+```
+
+4. Fit a K-nearest neighbors (KNN) model on the training set, with K chosen by cross-validation. Report the test error obtained, along with the value of K selected by cross-validation
+
+
+
+```{r}
+
+set.seed(1)
+
+knn.pred <- knn(x.train, y.train, College$Apps[seq])
+
+```
+
+5. By comparing the results from (1) - (4), what is your conclusion?
+
+#####################################################################
+
+Question 9.
+
+In this question, you will further analyze the Wage data set considered throughout this chapter. Please set the random seed as 1 for the analysis.
+
+1. Perform polynomial regression to predict wage using age. Use cross-validation to select the optimal degree d for the polynomial. What degree was chosen, and how does this compare to the results of hypothesis testing using ANOVA? Make a plot of the resulting polynomial fit to the data.
+
+```{r}
+
+data(Wage)
+set.seed(1)
+
+fit <- lm(wage ~ poly(age, 3), data = Wage)
+
+```
+
+2. Fit a step function to predict wage using age, and perform cross-validation to choose the optimal number of cuts. Make a plot of the fit obtained.
+
+```{r}
+
+
+
+```
+
+3. Fit a natural cubic spline to predict wage using age.
+
+```{r}
+
+
+
+```
+
+4. Use a GAM model to predict wage using age, education, and marital status.
+
+```{r}
+
+
+
+```
+
