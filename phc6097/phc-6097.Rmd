@@ -15,6 +15,85 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ISLR2)
 library(glmnet)
 library(class)
+library(tidyverse)
+library(boot)
+
+```
+
+Question 3.
+
+
+```{r}
+
+x.1 <- c(3, 2, 4, 1, 2, 4, 4)
+x.2 <- c(4, 2, 4, 4, 1, 3, 1)
+y <- c("Red", "Red", "Red", "Red", "Blue", "Blue", "Blue")
+
+plot(x.1, x.2, col = y, ylim = c(0, 6), type = "p", pch = 19)
+grid(col = "gray")
+abline(-0.5, 1)
+abline(-1, 1, lty = 4)
+abline(0, 1, lty = 4)
+
+## hyperplane that is not the optimally separating hyperplane:
+
+plot(x.1, x.2, col = y, ylim = c(0, 6), type = "p", pch = 19)
+grid(col = "gray")
+abline(-0.8, 1)
+abline(-1, 1, lty = 4)
+abline(-0, 1, lty = 4)
+
+## additional point added to plot
+
+plot(x.1, x.2, col = y, ylim = c(0, 6), type = "p", pch = 19)
+points(5, col = "Blue", pch = 19)
+grid(col = "gray")
+
+```
+
+Question 5.
+
+1. Fit a logistic regression model that uses income and balance to predict default, and use the validation set approach to estimate the test error of this model. Comment on the results obtained.
+
+Both income and balance are statistically significant in the logistic regression model. The test error found with the validation set approach is 0.021. 
+
+```{r}
+
+data(Default)
+set.seed(1)
+
+## adding a column with a numeric response
+Default$default.clean <- ifelse(Default$default == "Yes", 1, 0) 
+
+train <- sample(1:nrow(Default), nrow(Default)/2)
+test <- -train
+
+
+glm.mod <- glm(default.clean ~ income + balance, data = Default, family = "binomial", subset = train)
+
+summary(glm.mod)
+
+mean((Default$default.clean - predict(glm.mod, Default, type = "response"))[test]^2) 
+
+## checking test error
+glm.pred <- predict(glm.mod, Default[test, ], type = "response")
+mean((glm.pred - Default$default.clean[test])^2)
+
+```
+
+2. For the same model, please use the LOOCV approach to obtain the LOOCV estimate of the test error of this model. Comment on the results obtained.
+
+The test error with the LOOCV approach is 0.021, the same as the validation set approach.
+
+```{r}
+
+set.seed(1)
+
+glm.mod2 <- glm(default ~ income + balance, data = Default, family = "binomial")
+
+cv.err <- cv.glm(Default, glm.mod2, K = 10) ## need to use k-fold as my computer cannot run the LOOCV with a 10,000 obs dataset (I tried for several minutes)
+
+round(cv.err$delta, 3)
 
 ```
 
@@ -27,41 +106,18 @@ the other variables in the College data set.
 
 The test error is 1,135,758.
 
-```{r, message=FALSE}
-
-## method 1
-
-# data(College)
-# attach(College)
-# 
-# set.seed(1)
-# 
-# seq <- sample(1:nrow(College), nrow(College)/2)
-# 
-# train <- College[seq, ]
-# test <- College[-seq, ]
-# y.test <- College$Apps[-seq]
-# 
-# lmod <- lm(Apps ~ ., data = College, subset = seq)
-# 
-# lmodpred <- predict(lmod, College[-seq, ])
-# 
-# mean((lmodpred - y.test)^2)
-
-```
 
 ```{r, message=FALSE}
 
 ## method 2
 
 data(College)
-attach(College)
 
 set.seed(1)
 
 train <- sample(1:nrow(College), nrow(College)/2)
 test <- -train
-y.test <- Apps[test]
+y.test <- College$Apps[test]
 
 lmod <- lm(Apps ~ ., data = College, subset = train)
 
@@ -73,7 +129,7 @@ mean((lmodpred - y.test)^2)
 
 2. Fit a ridge regression model on the training set, with λ chosen by cross-validation (Hint: the cross-validation process should be conducted on the training set). Report the test error obtained.
 
-The test error is 976,262, which is lower than the test error for the linear regression model.
+The test error is 976,262, which is lower than the test error for the linear regression model. Lambda is determined to be 405.84
 
 ```{r}
 
@@ -93,38 +149,18 @@ cv.ridge.mod <- cv.glmnet(x.train, y.train, alpha = 0)
 
 lambda <- cv.ridge.mod$lambda.min
 
+lambda
+
 r.pred <- predict(ridge.mod, s = lambda, newx = x[test, ])
 
 mean((r.pred - y.test)^2)
 
 ```
 
-```{r}
-
-## method 1
-
-# set.seed(1)
-# 
-# x <- model.matrix(College$Apps ~ ., data = College)
-# x.train <- x[seq, ]
-# y <- College$Apps
-# y.train <- y[seq]
-# 
-# ridge.mod <- glmnet(x, y, alpha = 0)
-# 
-# cv.ridge.mod <- cv.glmnet(x.train, y.train, alpha = 0)
-# 
-# lambda <- cv.ridge.mod$lambda.min
-# 
-# r.pred <- predict(ridge.mod, s = lambda, newx = x[-seq, ])
-# 
-# mean((r.pred - y.test)^2)
-
-```
 
 3. Fit a lasso model on the training set, with λ chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
 
-The test error is 923,052, which is lower than the linear regression model, but higher than the ridge regression model.
+The test error is 1,115,901, which is lower than the linear regression model, but higher than the ridge regression model. There are 17 non-zero coefficients. Lambda is determined to be 1.973.
 
 ```{r}
 
@@ -138,6 +174,8 @@ cv.lasso.mod <- cv.glmnet(x.train, y.train, alpha = 1)
 
 lasso.lambda <- cv.lasso.mod$lambda.min
 
+lasso.lambda
+
 l.pred <- predict(lasso.mod, s = lasso.lambda, newx = x[test, ])
 
 mean((l.pred - y.test)^2)
@@ -147,6 +185,7 @@ l.coefs <- predict(lasso.mod, type = "coefficients", s = lasso.lambda)[1:17, ]
 length(l.coefs[l.coefs != 0])
 
 ```
+
 
 4. Fit a K-nearest neighbors (KNN) model on the training set, with K chosen by cross-validation. Report the test error obtained, along with the value of K selected by cross-validation
 
@@ -203,3 +242,53 @@ fit <- lm(wage ~ poly(age, 3), data = Wage)
 
 ```
 
+
+
+
+
+
+
+
+```{r, message=FALSE}
+
+# ## question 7 code drafts
+# 
+# ## method 1
+# 
+# data(College)
+# attach(College)
+# 
+# set.seed(1)
+# 
+# seq <- sample(1:nrow(College), nrow(College)/2)
+# 
+# train <- College[seq, ]
+# test <- College[-seq, ]
+# y.test <- College$Apps[-seq]
+# 
+# lmod <- lm(Apps ~ ., data = College, subset = seq)
+# 
+# lmodpred <- predict(lmod, College[-seq, ])
+# 
+# mean((lmodpred - y.test)^2)
+# 
+# ## method 1
+# 
+# set.seed(1)
+# 
+# x <- model.matrix(College$Apps ~ ., data = College)
+# x.train <- x[seq, ]
+# y <- College$Apps
+# y.train <- y[seq]
+# 
+# ridge.mod <- glmnet(x.train, y.train, alpha = 0)
+# 
+# cv.ridge.mod <- cv.glmnet(x.train, y.train, alpha = 0)
+# 
+# lambda <- cv.ridge.mod$lambda.min
+# 
+# r.pred <- predict(ridge.mod, s = lambda, newx = x[-seq, ])
+# 
+# mean((r.pred - y.test)^2)
+
+```
