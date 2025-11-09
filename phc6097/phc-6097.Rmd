@@ -17,6 +17,8 @@ library(glmnet)
 library(class)
 library(tidyverse)
 library(boot)
+library(splines)
+library(gam)
 
 ```
 
@@ -83,7 +85,7 @@ mean((glm.pred - Default$default.clean[test])^2)
 
 2. For the same model, please use the LOOCV approach to obtain the LOOCV estimate of the test error of this model. Comment on the results obtained.
 
-The test error with the LOOCV approach is 0.021, the same as the validation set approach.
+The test error with the LOOCV approach is 0.021, the same as the validation set approach. 
 
 ```{r}
 
@@ -91,9 +93,17 @@ set.seed(1)
 
 glm.mod2 <- glm(default ~ income + balance, data = Default, family = "binomial")
 
-cv.err <- cv.glm(Default, glm.mod2, K = 10) ## need to use k-fold as my computer cannot run the LOOCV with a 10,000 obs dataset (I tried for several minutes)
+cv.err <- cv.glm(Default, glm.mod2, K = 10) ## need to use K = 10 as my computer cannot run the LOOCV with a 10,000 obs dataset (I tried for several minutes)
 
 round(cv.err$delta, 3)
+
+```
+
+3. cross-validation etc.
+
+```{r}
+
+
 
 ```
 
@@ -108,8 +118,6 @@ The test error is 1,135,758.
 
 
 ```{r, message=FALSE}
-
-## method 2
 
 data(College)
 
@@ -209,28 +217,79 @@ In this question, you will further analyze the Wage data set considered througho
 
 1. Perform polynomial regression to predict wage using age. Use cross-validation to select the optimal degree d for the polynomial. What degree was chosen, and how does this compare to the results of hypothesis testing using ANOVA? Make a plot of the resulting polynomial fit to the data.
 
+After performing cross-validation, it appears a polynomial with degree = 4 is the optimal choice. Performing an ANOVA, we find similar results, with the degree 4 polynomial being the highest degree with statistical significance, though degree 4 is just barely significant with a p-value of 0.051, so it may be better to use degree 3 as it is easier to contextualize and to not overfit the data. We plot the degree 4 polynomial to further examine.
+
 ```{r}
 
 data(Wage)
 set.seed(1)
 
-fit <- lm(wage ~ poly(age, 3), data = Wage)
+cv.error <- rep(0, 10)
+for (i in 1:10) {
+  glm.fit <- glm(wage ~ poly(age, i), data = Wage)
+  cv.error[i] <- cv.glm(Wage, glm.fit, K = 10)$delta[1] # K = 10, computer hangs up otherwise
+}
+
+plot(cv.error, type = "l")
+points(cv.error, pch = 19)
+
+##ANOVA
+fit.1 <- lm(wage ~ age, data = Wage)
+fit.2 <- lm(wage ~ poly(age, 2), data = Wage)
+fit.3 <- lm(wage ~ poly(age, 3), data = Wage)
+fit.4 <- lm(wage ~ poly(age, 4), data = Wage)
+fit.5 <- lm(wage ~ poly(age, 5), data = Wage)
+anova(fit.1, fit.2, fit.3, fit.4, fit.5)
+
+## Plot
+plot(wage ~ age, data = Wage, col = "grey", main = "Wage vs. Age With Degree 4 Polynomial Fit")
+agelims <- range(Wage$age)
+age.grid <- seq(from = agelims[1], to  = agelims[2])
+poly.fit <- lm(wage ~ poly(age, 4), data = Wage)
+preds <- predict(poly.fit, newdata = list(age = age.grid))
+lines(age.grid, preds, col = "cyan", lwd = 3)
 
 ```
+
+
 
 2. Fit a step function to predict wage using age, and perform cross-validation to choose the optimal number of cuts. Make a plot of the fit obtained.
 
 ```{r}
 
+cv.error2 <- rep(NA, 10)
+
+for (i in 2:10){
+  Wage$age.cut <- cut(Wage$age, i)
+  step.fit <- glm(wage ~ age.cut, data = Wage)
+  cv.error2[i] <- cv.glm(Wage, step.fit, K = 10)$delta[1]
+}
+
+plot(cv.error2, ylab = "Test Error", xlab = "Cuts", type = "l")
+points(cv.error2, pch = 19)
+
+plot(wage ~ age, data = Wage, col = "grey", main = "Step-function fit")
+agelims <- range(Wage$age)
+age.grid2 <- seq(from = agelims[1], to = agelims[2])
+fit2 <- glm(wage ~ cut(age, 8), data = Wage)
+preds2 <- predict(fit2, data.frame(age = age.grid2))
+lines(age.grid2, preds2, col = "cyan", lwd = 3)
 
 
 ```
 
 3. Fit a natural cubic spline to predict wage using age.
 
+We fit a natural cubic spline and create a plot with the prediction. 
+
 ```{r}
 
+spline.fit <- lm(wage ~ ns(age, df = 4), data = Wage)
 
+spline.pred <- predict(spline.fit, newdata = list(age = age.grid), se = T)
+
+plot(wage ~ age, data = Wage, col = "grey", main = "Natural Cubic Spline Fit")
+lines(age.grid, spline.pred$fit, col = "cyan", lwd = 2)
 
 ```
 
@@ -238,57 +297,17 @@ fit <- lm(wage ~ poly(age, 3), data = Wage)
 
 ```{r}
 
+gam1 <- gam(wage ~ s(age, 5) + education + maritl, data = Wage)
+
+gam.preds <- predict(gam1, newdata = Wage)
+
+par(mfrow = c(1, 3))
+plot(gam1, se = TRUE, col = "green")
+
+plot(Wage$wage, gam.preds, ylab = "Predicted Wage", xlab = "Observed Wage", col = "darkgrey")
+abline(0, 1, col = "cyan", lwd = 3)
 
 
-```
-
-
-
-
-
-
-
-
-```{r, message=FALSE}
-
-# ## question 7 code drafts
-# 
-# ## method 1
-# 
-# data(College)
-# attach(College)
-# 
-# set.seed(1)
-# 
-# seq <- sample(1:nrow(College), nrow(College)/2)
-# 
-# train <- College[seq, ]
-# test <- College[-seq, ]
-# y.test <- College$Apps[-seq]
-# 
-# lmod <- lm(Apps ~ ., data = College, subset = seq)
-# 
-# lmodpred <- predict(lmod, College[-seq, ])
-# 
-# mean((lmodpred - y.test)^2)
-# 
-# ## method 1
-# 
-# set.seed(1)
-# 
-# x <- model.matrix(College$Apps ~ ., data = College)
-# x.train <- x[seq, ]
-# y <- College$Apps
-# y.train <- y[seq]
-# 
-# ridge.mod <- glmnet(x.train, y.train, alpha = 0)
-# 
-# cv.ridge.mod <- cv.glmnet(x.train, y.train, alpha = 0)
-# 
-# lambda <- cv.ridge.mod$lambda.min
-# 
-# r.pred <- predict(ridge.mod, s = lambda, newx = x[-seq, ])
-# 
-# mean((r.pred - y.test)^2)
 
 ```
+
