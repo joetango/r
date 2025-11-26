@@ -24,6 +24,14 @@ g2 <- data %>%
   geom_smooth(fill = NA) +
   theme_minimal() +
   theme(axis.title.y = element_blank())
+
+data %>% 
+  ggplot(aes(x = Gender, y = Avg_Daily_Usage_Hours)) +
+  geom_boxplot()
+
+data %>% 
+  ggplot(aes(x = Most_Used_Platform, y = Avg_Daily_Usage_Hours)) +
+  geom_boxplot()
   
 
 grid.arrange(g1, g2, nrow = 1)
@@ -35,10 +43,5 @@ glmod <- glm(Avg_Daily_Usage_Hours ~ Age + GenderNumeric +
                Mental_Health_Score +
                Addicted_Score,
                data = data)
-
-# glmod <- glm(Avg_Daily_Usage_Hours ~ Mental_Health_Score +
-#                Sleep_Hours_Per_Night + Addicted_Score + 
-#                Affects_Academic_Performance,
-#              data = data)
 
 summary(glmod)
