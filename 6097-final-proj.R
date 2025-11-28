@@ -45,11 +45,11 @@ grid.arrange(g1, g2, nrow = 1)
 
 ## Linear Model
 
-lmod <- glm(Avg_Daily_Usage_Hours ~ Age + GenderNumeric +
+lmod <- glm(Mental_Health_Score ~ Age + GenderNumeric +
                Avg_Daily_Usage_Hours + 
                Affects_Academic_Performance_Numeric +
                Sleep_Hours_Per_Night +
-               Mental_Health_Score +
+               Avg_Daily_Usage_Hours +
                Addicted_Score,
                data = data, family = "gaussian")
 
@@ -57,7 +57,7 @@ summary(lmod)
 
 ## Logistic Model
 
-glmod <- glm(Affects_Academic_Performance_Numeric ~ 
+glmod <- glm(Mental_Health_Score ~ 
                Avg_Daily_Usage_Hours +
                Sleep_Hours_Per_Night,
              data = data, family = "binomial")
@@ -66,10 +66,20 @@ summary(glmod)
 
 ## Random Forest
 
+set.seed(1)
+
+seq <- sample(1:nrow(data), (nrow(data)/2))
+train <- data[seq, ]
+test <- data[-seq, ]
+
 rf.model <- randomForest(Mental_Health_Score ~ Avg_Daily_Usage_Hours +
                         Age + GenderNumeric + 
                         Affects_Academic_Performance_Numeric +
                         Sleep_Hours_Per_Night + Addicted_Score, 
-                         data = data)
-rf.model
+                         data = train)
 
+yhat.rf <- predict(rf.model, newdata = test)
+mean((yhat.rf - test[,"Mental_Health_Score"])^2) ## test mse 0.0997
+
+plot(yhat.rf, test[,"Mental_Health_Score"])
+abline(0, 1)
