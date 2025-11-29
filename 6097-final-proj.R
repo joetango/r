@@ -3,14 +3,20 @@ library(ggplot2)
 library(gridExtra)
 library(randomForest)
 library(tree)
+library(e1071)
+
 
 data <- read.csv("social-media.csv")
 
 data <- data %>% 
   mutate(GenderNumeric = ifelse(Gender == "Male", 1, 0)) %>% 
   mutate(Affects_Academic_Performance_Numeric = ifelse(
-    Affects_Academic_Performance == "No", 0, 1
-  ))
+    Affects_Academic_Performance == "No", 0, 1)) %>% 
+    mutate(Mental_Health_Score_Class = ifelse(
+      Mental_Health_Score <= 5, 0, 1
+    ))
+
+data <- data[, -5]
 
 attach(data)
 
@@ -80,6 +86,31 @@ rf.model <- randomForest(Mental_Health_Score ~ Avg_Daily_Usage_Hours +
 
 yhat.rf <- predict(rf.model, newdata = test)
 mean((yhat.rf - test[,"Mental_Health_Score"])^2) ## test mse 0.0997
+                                                  ## similar to rf.model summary
 
 plot(yhat.rf, test[,"Mental_Health_Score"])
 abline(0, 1)
+
+## SVM
+
+svm.fit <- svm(Mental_Health_Score_Class ~ ., data = train, kernel = "linear",
+              cost = 0.01, scale = FALSE)
+
+summary(svm.fit)
+
+tune.out <- e1071::tune(svm, Mental_Health_Score_Class ~ .,
+                        data = train, kernel = "linear",
+                        ranges = list(cost = c(.01, 1, 2, 4, 6, 8, 10)))
+summary(tune.out)
+plot(tune.out)  ## cost = 1
+
+svm.fit <- svm(Mental_Health_Score_Class ~ ., data = train, kernel = "linear",
+               cost = 1, scale = FALSE)
+
+summary(svm.fit)
+
+yhat.svm <- predict(svm.fit, newdata = test, type = "class")
+table(yhat.svm, test$Mental_Health_Score_Class)
+
+
+
