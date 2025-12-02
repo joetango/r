@@ -107,7 +107,7 @@ yhat.svm <- predict(svm.fit, newdata = test, type = "class")
 mean(yhat.svm != test$Affects_Academic_Performance) ## 0.0540
 
 table(yhat.svm, test$Affects_Academic_Performance) ##checking test error
-(13) / (209 + 126 + 17) ## 0.0369 
+(19) / (208 + 125 + 19) ## 0.0369 
 
 
 ## SVM FIT FOR GRAPH (2 PREDS)
@@ -117,7 +117,12 @@ svm.test <- svm(Affects_Academic_Performance ~ Avg_Daily_Usage_Hours +
                 kernel = "linear",
                 cost = 1, scale = FALSE)
 
-data$pred.test <- predict(svm.test, data, type = "class")
+
+data2 <- data
+data2$pred.test <- predict(svm.test, data, type = "class")
+
+yhat.svm.test <- predict(svm.test, newdata = test, type = "class")
+mean(yhat.svm.test != test$Affects_Academic_Performance) ## test error 0.182
 
 w <- t(svm.test$coefs) %*% svm.test$SV
 w1 <- w[1]
