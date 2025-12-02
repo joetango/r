@@ -71,16 +71,19 @@ seq <- sample(1:nrow(data), (nrow(data)/2))
 train <- data[seq, ]
 test <- data[-seq, ]
 
-rf.model <- randomForest(Mental_Health_Score ~ ., data = train)
+rf.model <- randomForest(Affects_Academic_Performance ~ ., data = train)
 
-yhat.rf <- predict(rf.model, newdata = test)
-mean((yhat.rf - test[,"Mental_Health_Score"])^2) ## test mse 0.1022
-                                                  ## similar to rf.model summary
+yhat.rf.train <- predict(rf.model, newdata = train, type = "class")
+mean(yhat.rf.train != train$Affects_Academic_Performance)
 
-plot(yhat.rf, test[,"Mental_Health_Score"])
-abline(0, 1)
+yhat.rf.test <- predict(rf.model, newdata = test, type = "class")
+mean(yhat.rf.test != test$Affects_Academic_Performance)
+
+
 
 ## SVM Fit
+
+set.seed(1)
 
 tune.out <- e1071::tune(svm, Affects_Academic_Performance ~ .,
                         data = train, kernel = "linear",
@@ -96,12 +99,54 @@ summary(svm.fit)
 
 yhat.train.svm <- predict(svm.fit, newdata = train, type = "class")
 mean(yhat.train.svm != 
-       train$Affects_Academic_Performance) ## training error 0.0540
+       train$Affects_Academic_Performance) ## 0.0369
+
 
 
 yhat.svm <- predict(svm.fit, newdata = test, type = "class")
-mean(yhat.svm != test$Affects_Academic_Performance) ## test error 0.0369
+mean(yhat.svm != test$Affects_Academic_Performance) ## 0.0540
 
 table(yhat.svm, test$Affects_Academic_Performance) ##checking test error
 (13) / (209 + 126 + 17) ## 0.0369 
 
+
+## SVM FIT FOR GRAPH (2 PREDS)
+
+svm.test <- svm(Affects_Academic_Performance ~ Avg_Daily_Usage_Hours +
+                  Sleep_Hours_Per_Night, data = data,
+                kernel = "linear",
+                cost = 1, scale = FALSE)
+
+data$pred.test <- predict(svm.test, data, type = "class")
+
+w <- t(svm.test$coefs) %*% svm.test$SV
+w1 <- w[1]
+w2 <- w[2]
+
+b <- -svm.test$rho
+
+data %>% 
+  ggplot(aes(x = Avg_Daily_Usage_Hours, y = Sleep_Hours_Per_Night,
+             color = pred.test)) +
+  geom_point() +
+  geom_abline(slope = -w1 / w2,
+              intercept = -b / w2,
+              linetype = "dashed",
+              linewidth = .5) +
+  labs(title = "Two-Dimensional SVM Classification Plot",
+       x = "Average Daily Usage Hours",
+       y = "Sleep Hours Per Night",
+       color = "Affected 
+Academic
+Performance
+Due to
+Social Media Usage") +
+  theme_light() +
+  theme(
+    legend.background = element_rect(
+      fill = "white",
+      colour = "grey",  
+      linewidth = 0.5      
+    ))
+
+    
