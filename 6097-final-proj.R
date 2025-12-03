@@ -1,3 +1,5 @@
+## Load packages
+
 library(tidyverse)
 library(ggplot2)
 library(gridExtra)
@@ -5,24 +7,25 @@ library(randomForest)
 library(tree)
 library(e1071)
 
-
 ## Read data
 
 data <- read.csv("social-media.csv")
+
+## source: https://www.kaggle.com/datasets/adilshamim8/social-media-addiction-vs-relationships/data
 
 ## Data cleaning
 
 data <- data %>% 
   mutate(Gender = as.factor(Gender),
          Affects_Academic_Performance = 
-           as.factor(Affects_Academic_Performance)) %>%
+           as.factor(Affects_Academic_Performance),
+         Academic_Level = as.factor(Academic_Level)) %>%
   select(-Country,
          -Most_Used_Platform,
          -Relationship_Status,
          -Conflicts_Over_Social_Media,
          -Addicted_Score,
-         -Student_ID,
-         -Academic_Level) %>% 
+         -Student_ID) %>% 
   slice(-705) 
   
 AAP.numeric <- ifelse(data$Affects_Academic_Performance == "No", 0, 1)
@@ -57,7 +60,8 @@ summary(lmod)
 glmod <- glm(Affects_Academic_Performance ~ Age + 
                Gender + 
                Avg_Daily_Usage_Hours + 
-               Sleep_Hours_Per_Night,
+               Sleep_Hours_Per_Night +
+               Academic_Level,
              data = data, family = "binomial")
 
 summary(glmod)
@@ -119,7 +123,7 @@ svm.test <- svm(Affects_Academic_Performance ~ Avg_Daily_Usage_Hours +
 
 
 data2 <- data
-data2$pred.test <- predict(svm.test, data, type = "class")
+data2$pred.test <- predict(svm.test, data2, type = "class")
 
 yhat.svm.test <- predict(svm.test, newdata = test, type = "class")
 mean(yhat.svm.test != test$Affects_Academic_Performance) ## test error 0.182
@@ -130,7 +134,7 @@ w2 <- w[2]
 
 b <- -svm.test$rho
 
-data %>% 
+data2 %>% 
   ggplot(aes(x = Avg_Daily_Usage_Hours, y = Sleep_Hours_Per_Night,
              color = pred.test)) +
   geom_point() +
