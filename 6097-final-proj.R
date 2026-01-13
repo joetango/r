@@ -77,11 +77,14 @@ test <- data[-seq, ]
 
 rf.model <- randomForest(Affects_Academic_Performance ~ ., data = train)
 
-yhat.rf.train <- predict(rf.model, newdata = train, type = "class")
+yhat.rf.train <- predict(rf.model, data = train, type = "class")
 mean(yhat.rf.train != train$Affects_Academic_Performance)
 
 yhat.rf.test <- predict(rf.model, newdata = test, type = "class")
 mean(yhat.rf.test != test$Affects_Academic_Performance)
+
+mean(yhat.rf.train != train$Affects_Academic_Performance)
+
 
 
 
