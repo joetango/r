@@ -23,31 +23,44 @@ fnc <- function(n){
 ### UI ###
 ##########
 
-ui <- fluidPage(
+ui <- page_fillable(
 
-    # Application title
-    titlePanel("Central Limit Theorem Illustration"),
+  titlePanel("Central Limit Theorem Illustration"),
     
-
-    # Sidebar 
-    sidebarLayout(
-        sidebarPanel(
-            radioButtons("rolls",
-                        "Number of Rolls:",
-                        choices = c(
-                          10, 25, 100, 1000, 10000
-                        )
-            ),
-            actionButton(
-              "runplot", "Generate Plot"
-            )
+  layout_columns(
+    card(
+      radioButtons("rolls",
+                    "Number of Rolls:",
+                    choices = c(
+                      10, 25, 100, 500, 10000
+                    )
         ),
-
-        # Plot
-        mainPanel(
-           plotOutput("plot")
+        actionButton(
+          "runplot", "Generate Plot"
+        )
+      ),
+    
+      
+    card(
+        print(
+          "The Central Limit Theoremstates that an increase in sample 
+          size will result in a normal distribution of the sample mean. 
+          This app seeks to illustrate this theorem in play using six-sided 
+          dice. Select a number of rolls, and observe the distribution of 
+          values."
         ),
-    )
+        a("Central Limit Theorem",
+          href = "https://www.geeksforgeeks.org/maths/central-limit-theorem/"),
+      ),
+    col_widths = c(4, 8)
+    ),
+    
+  card(
+    plotOutput("plot")
+  ),
+  
+  padding = c("1vw", "10vw")
+  
 )
 
 
@@ -64,15 +77,19 @@ server <- function(input, output) {
 
     output$plot <- renderPlot({
       ggplot(data = data(), aes(x = vec)) +
-        geom_bar(fill = "lightblue", size = .5) +
-        stat_density(geom = "line", aes(y = after_stat(density) * n), 
+        # geom_histogram(aes(y = after_stat(density)),
+        #                fill = "lightblue", binwidth = 1,
+        #                outline.type = "both") +
+        # geom_density(alpha = .2, fill = "orange") +
+        geom_bar(fill = "lightblue", size = 0.8) +
+        stat_density(geom = "line", aes(y = after_stat(density) * n),
                      color = "orange", linewidth = .8) +
         scale_x_continuous(breaks = seq(min(data()$vec), max(data()$vec), by = 1)) +
         theme_minimal() +
         labs(title = paste("8d6 Roll Frequency With",
                            length(data()$vec), "Rolls"),
              x = "Roll Value",
-             y = "Number of Rolls") +
+             y = "Number of Rolls Per Sum") +
         theme(plot.title = element_text(hjust = .5))
     })
 }
