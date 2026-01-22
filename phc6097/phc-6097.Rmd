@@ -1,8 +1,8 @@
 ---
-title: "PHC6097"
+title: "PHC6097 Exam 1"
 author: "Joe Dickerson"
 date: "2025-11-09"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -25,7 +25,7 @@ library(gam)
 Question 3.
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 x.1 <- c(3, 2, 4, 1, 2, 4, 4)
 x.2 <- c(4, 2, 4, 4, 1, 3, 1)
@@ -59,7 +59,7 @@ Question 5.
 
 Both income and balance are statistically significant in the logistic regression model. The test error found with the validation set approach is 0.021. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 data(Default)
 set.seed(1)
@@ -87,23 +87,29 @@ mean((glm.pred - Default$default.clean[test])^2)
 
 The test error with the LOOCV approach is 0.021, the same as the validation set approach. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 set.seed(1)
 
 glm.mod2 <- glm(default ~ income + balance, data = Default, family = "binomial")
 
-cv.err <- cv.glm(Default, glm.mod2, K = 10) ## need to use K = 10 as my computer cannot run the LOOCV with a 10,000 obs dataset (I tried for several minutes)
+cv.err <- cv.glm(Default, glm.mod2) ## will process for a few minutes with many observations
 
 round(cv.err$delta, 3)
 
 ```
 
-3. cross-validation etc.
+3. The test error with the cross-validation approach is 0.021, the same as the previous parts.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
+set.seed(1)
 
+glm.mod3 <- glm(default ~ income + balance, data = Default, family = "binomial")
+
+cv.err3 <- cv.glm(Default, glm.mod3, K = 10)
+
+round(cv.err3$delta, 3)
 
 ```
 
@@ -117,7 +123,7 @@ the other variables in the College data set.
 The test error is 1,135,758.
 
 
-```{r, message=FALSE}
+```{r, warning=FALSE, message=FALSE}
 
 data(College)
 
@@ -139,9 +145,8 @@ mean((lmodpred - y.test)^2)
 
 The test error is 976,262, which is lower than the test error for the linear regression model. Lambda is determined to be 405.84
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
-## method 2
 
 set.seed(1)
 
@@ -170,9 +175,7 @@ mean((r.pred - y.test)^2)
 
 The test error is 1,115,901, which is lower than the linear regression model, but higher than the ridge regression model. There are 17 non-zero coefficients. Lambda is determined to be 1.973.
 
-```{r}
-
-## method 2
+```{r, warning=FALSE, message=FALSE}
 
 set.seed(1)
 
@@ -197,17 +200,29 @@ length(l.coefs[l.coefs != 0])
 
 4. Fit a K-nearest neighbors (KNN) model on the training set, with K chosen by cross-validation. Report the test error obtained, along with the value of K selected by cross-validation
 
+We use cross validation to determine the optimal K value, which in this case is 3. The test error is 18,238,830, which is remarkably higher than the previous methods used. 
 
-
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 set.seed(1)
 
-knn.pred <- knn(x.train, y.train, College$Apps[seq])
+k.vals <- 1:10
+knn.errs <- rep(0, length(k.vals))
+
+for (i in k.vals) {
+  knn.pred <- knn(train = x.train, test = x[test, ], cl = y.train, k = i)
+  knn.pred <- as.numeric(knn.pred)
+  knn.errs[i] <- mean((knn.pred - y.test)^2)
+}
+
+k.vals[which.min(knn.errs)]
+
+knn.pred <- knn(x.train, x.train[test,], y.train, k = 3)
+
+mean((as.numeric(knn.pred) - y.test)^2)
 
 ```
 
-5. By comparing the results from (1) - (4), what is your conclusion?
 
 #####################################################################
 
@@ -219,7 +234,7 @@ In this question, you will further analyze the Wage data set considered througho
 
 After performing cross-validation, it appears a polynomial with degree = 4 is the optimal choice. Performing an ANOVA, we find similar results, with the degree 4 polynomial being the highest degree with statistical significance, though degree 4 is just barely significant with a p-value of 0.051, so it may be better to use degree 3 as it is easier to contextualize and to not overfit the data. We plot the degree 4 polynomial to further examine.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 data(Wage)
 set.seed(1)
@@ -255,9 +270,11 @@ lines(age.grid, preds, col = "cyan", lwd = 3)
 
 2. Fit a step function to predict wage using age, and perform cross-validation to choose the optimal number of cuts. Make a plot of the fit obtained.
 
-```{r}
+It appears that 8 is the optimal number of cuts. We check this graphically. Then we plot the fit.
 
-cv.error2 <- rep(NA, 10)
+```{r, warning=FALSE, message=FALSE}
+
+cv.error2 <- rep(0, 10)
 
 for (i in 2:10){
   Wage$age.cut <- cut(Wage$age, i)
@@ -282,7 +299,7 @@ lines(age.grid2, preds2, col = "cyan", lwd = 3)
 
 We fit a natural cubic spline and create a plot with the prediction. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 spline.fit <- lm(wage ~ ns(age, df = 4), data = Wage)
 
@@ -307,7 +324,6 @@ plot(gam1, se = TRUE, col = "green")
 plot(Wage$wage, gam.preds, ylab = "Predicted Wage", xlab = "Observed Wage", col = "darkgrey")
 abline(0, 1, col = "cyan", lwd = 3)
 
-
-
 ```
+
 

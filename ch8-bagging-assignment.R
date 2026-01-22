@@ -63,3 +63,12 @@ mean((ytest - yhat.bart)^2) ## test set MSE: 1.438
 ord <- order(bartfit$varcount.mean, decreasing = T)
 bartfit$varcount.mean[ord] ## checking how many times each variable appeared
                            ## in the collection of trees
+
+### Linear Model for Comparison ###
+
+lmod <- lm(Sales ~ ., data = Carseats)
+summary(lmod)
+
+lm.preds <- predict(lmod)
+
+mean((Carseats$Sales - lm.preds)^2)

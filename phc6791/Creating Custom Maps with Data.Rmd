@@ -1,0 +1,111 @@
+---
+title: "Creating Custom Maps with Data"
+output: html_document
+date: "2023-04-20"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+```
+
+Perhaps the simplest approach to drawing maps is to use geom_polygon() to draw boundaries for different regions. For this example we take data from the maps package using ggplot2::map_data(). The maps package isn’t particularly accurate or up-to-date, but it’s built into R so it’s an easy place to start. Here’s a data set specifying the county boundaries for Michigan:
+
+```{r}
+mi_counties <- map_data("county", region = "michigan") %>% 
+  select(lon = long, lat, group, id = subregion)
+
+head(mi_counties)
+```
+
+In this data set we have four variables: lat and long specify the latitude and longitude of a vertex (i.e. a corner of the polygon), id specifies the name of a region, and group provides a unique identifier for contiguous areas within a region (e.g. if a region consisted of multiple islands). To get a better sense of what the data contains, we can plot mi_counties using geom_point(), as shown in the left panel below. In this plot, each row in the data frame is plotted as a single point, producing a scatterplot that shows the corners of every county. To turn this scatterplot into a map, we use geom_polygon() instead, which draws each county as a distinct polygon. This is illustrated in the right panel below.
+
+```{r}
+ggplot(mi_counties, aes(lon, lat)) + 
+  geom_point(size = .25, show.legend = FALSE) +
+  coord_quickmap()
+
+ggplot(mi_counties, aes(lon, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "grey50") + 
+  coord_quickmap()
+```
+
+It is much more common (and more flexible) to work with data called "Special Features." These files contain "geographic" information that is used to build map polygons using geom_sf(). You can find 
+
+```{r}
+library(sf)
+```
+
+A nice shapefile library is available from [Stanfords's EarthWorks Library](https://earthworks.stanford.edu/). Here, we find a shapefile for a boundary map of European countries [](https://earthworks.stanford.edu/catalog/stanford-yf665vp7551). Download the zip file and extract ALL files into your working directory.
+
+```{r}
+eu <- read_sf("Europe_SWAsia.shp") %>%
+  select(NAME, geometry) %>%
+  mutate(name = tolower(NAME))
+```
+
+The most important column is geometry, which specifies the spatial geometry for each of the states and territories. Each element in the geometry column is a multipolygon object which, as the name suggests, contains data specifying the vertices of one or more polygons that demark the border of a region. Given data in this format, we can use geom_sf() and coord_sf() to draw a serviceable map without specifying any parameters or even explicitly declaring any aesthetics:
+
+```{r}
+ggplot(eu)+
+  geom_sf()+
+  coord_sf()
+```
+
+```{r}
+covid <- read.csv("owid-covid-data.csv")
+covid <- covid %>% 
+  filter(continent == "Europe") %>%
+  select(location, date, total_cases_per_million) %>%
+  drop_na() %>%
+  group_by(location) %>%
+  mutate(location = tolower(location), 
+         date = as.Date(date,  format = "%m/%d/%Y")) %>%
+  filter(date == max(date))%>%
+  rename(name = location) %>%
+  select(name, total_cases_per_million)
+```
+
+Making the graph...
+
+```{r}
+# Inner join
+# An inner_join() only keeps observations from x that have a matching key in y.
+# 
+# The most important property of an inner join is that unmatched rows in either input are not included in the result. This means that generally inner joins are not appropriate in most analyses, because it is too easy to lose observations.
+# 
+# Outer joins
+# The three outer joins keep observations that appear in at least one of the data frames:
+# 
+# A left_join() keeps all observations in x.
+# 
+# A right_join() keeps all observations in y.
+# 
+# A full_join() keeps all observations in x and y.
+
+mapdata <- left_join(eu, covid, by = "name")
+
+ggplot(mapdata) + 
+  geom_sf(aes(fill = total_cases_per_million))+
+  coord_sf() +
+  scale_fill_viridis_c()
+```
+
+Another option...
+
+```{r}
+eu2 <- map_data("world", region = covid$name)
+
+colnames(eu2)[5] <- "name"
+
+eu2$name <- tolower(eu2$name)
+
+map_data <- left_join(eu2, covid, by = "name")
+
+ggplot(map_data) +
+  geom_polygon(aes(x=long, y=lat,group=group, fill = total_cases_per_million))+
+  coord_quickmap()+
+  scale_fill_viridis_c()
+```
+
