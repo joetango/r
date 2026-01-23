@@ -1,18 +1,17 @@
 library(shiny)
 library(bslib)
 
-
 ui <- page_fillable(
   
   layout_columns(
     card(
       fileInput(
         "file", "Upload a .csv file", accept = ".csv"
-      ),
+      )
+    ),
     card(
       varSelectInput("preds", "Select predictors",
                      data = NULL, multiple = TRUE)
-    )
     )
   ),
   
