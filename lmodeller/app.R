@@ -10,16 +10,27 @@ ui <- page_fillable(
       )
     ),
     card(
+      varSelectInput("resp", "Select a response",
+                     data = NULL, multiple = FALSE,
+                     selected = NULL),
       varSelectInput("preds", "Select predictors",
-                     data = NULL, multiple = TRUE)
+                     data = NULL, multiple = TRUE,
+                     selected = NULL),
+      actionButton("submit", "Submit")
     )
   ),
   
   card(
-    textOutput(outputId = "selectedPreds"),
-    card_header("Selected Predictors")
-  )
-) #close of page_fillable
+    verbatimTextOutput(outputId = "selectedResp"),
+    verbatimTextOutput(outputId = "selectedPreds")
+  ),
+  
+  card(
+    verbatimTextOutput(outputId = "lmodsum")
+  ),
+  
+  padding = c("1vw", "2vw")
+) #close page_fillable
 
 
 server <- function(input, output){
@@ -27,7 +38,7 @@ server <- function(input, output){
   filedata <- reactive({
     req(input$file)
     
-    data <- read.csv(input$file$datapath)
+    read.csv(input$file$datapath)
     
   })
   
@@ -40,10 +51,57 @@ server <- function(input, output){
     }
   )
   
-  output$selectedPreds <- renderPrint({
+  observeEvent(
+    filedata(), {
+      updateVarSelectInput(
+        inputId = "resp",
+        data = filedata()
+      )
+    }
+  )
+  
+  # output$selectedPreds <- renderPrint({
+  #   req(input$preds)
+  #   print(input$preds)
+  # })
+  
+  predictors <- reactive({
     req(input$preds)
-    print(input$preds)
+    input$preds
+
   })
+  
+  response <- reactive({
+    req(input$resp)
+    input$resp
+
+  })
+  
+  output$selectedResp <- renderPrint({
+    paste(response())
+  })
+  
+  output$selectedPreds <- renderPrint({
+    paste(predictors())
+  })
+  
+  lmod <- eventReactive(input$submit, {
+    req(response(), predictors())
+    lm(as.character(response()) ~ as.character(predictors()), 
+       data = filedata()
+    )
+  
+    
+  })
+  
+  output$lmodsum <- renderPrint({
+    print(summary(lmod()))
+  })
+  
+  
+    
+  
+  
 }
 
 shinyApp(ui = ui, server = server)
