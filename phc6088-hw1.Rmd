@@ -1,0 +1,18 @@
+---
+title: "PHC6088 Homework 1"
+author: "Joe Dickerson"
+date: "2026-01-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1.
+
+Answer: B, BbCc
+
+If the black agouti parent had BB, all of the offspring would be black coat as B (black agouti coat) is dominant to b (brown agouti coat), per the instructions. This rules out A and E. Because the albino mouse has genotype bbcc, there will be at least one c in the genotype of the black agouti parent, which rules out C and D. This leaves us with option B, BbCc.
+
+## 2.
