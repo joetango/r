@@ -9,10 +9,61 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, warning=FALSE, echo=FALSE}
+
+# packages
+library(tidyverse)
+
+```
+
 ## 1.
 
 Answer: B, BbCc
 
-If the black agouti parent had BB, all of the offspring would be black coat as B (black agouti coat) is dominant to b (brown agouti coat), per the instructions. This rules out A and E. Because the albino mouse has genotype bbcc, there will be at least one c in the genotype of the black agouti parent, which rules out C and D. This leaves us with option B, BbCc.
+Because the albino mouse has phenotype cc, we expect Cc in the non-albino parent as half of the children are albino, and half not. The albino mouse has bb at the B locus, and with one black and one brown offspring we expect Bb, accounting for half the non-albino offpsring to be brown, and the other half of the non-albino offspring to be black.
 
-## 2.
+## 2a.
+
+First, we simulate our genotypes over 100 generations with a population growth rate of 2.15 and run the simulations with sample size 500 and 5000. "n" represents the population size for each generation, while "p" represents the allele frequency. We expect to see the allele frequency closer to 1/2 as the population size increases. 
+
+```{r, warning=FALSE}
+
+gens <- 100
+
+simulatation <- function(n.0, offspring.rate = 2.15) {
+  n <- numeric(gens)
+  p <- numeric(gens)
+  
+  n[1] <- n.0
+  p[1] <- 0.5 
+  
+  for (i in 2:gens){
+    n[i] <- round(n[i - 1] * offspring.rate / 2) * 2
+    
+    totals <- 2 * n[i]
+    
+    a.count <- rbinom(1, totals, p[i - 1])
+    p[i] <- a.count / totals
+  }
+  
+  data.frame(generation = 1:gens, n= n, allele.freq = p) 
+}
+
+set.seed(5)
+
+sim.500  <- simulatation(500)
+sim.5000 <- simulatation(5000)
+
+```
+
+
+We plot the findings and examine the allele frequencies. The red line represents sample size 500, and the blue line represents sample size 5000. As expected, we see the allele frequency trend closer to 1/2 with the larger sample size:
+
+```{r}
+
+ggplot() +
+  geom_line(aes(x = 1:100, y = sim.500$allele.freq), color = "red") +
+  geom_line(aes(x = 1:100, y = sim.5000$allele.freq), color = "blue") +
+  labs(x = "Generation", y = "Frequency of one Allele at Locus") 
+
+```
