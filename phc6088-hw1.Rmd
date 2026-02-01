@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, warning=FALSE, echo=FALSE}
 
-# packages
+#packages
 library(tidyverse)
 
 ```
@@ -22,7 +22,7 @@ Answer: B, BbCc
 
 Because the albino mouse has phenotype cc, we expect Cc in the non-albino parent as half of the children are albino, and half not. The albino mouse has bb at the B locus, and with one black and one brown offspring we expect Bb, accounting for half the non-albino offpsring to be brown, and the other half of the non-albino offspring to be black.
 
-## 2a.
+## 2.
 
 First, we simulate our genotypes over 100 generations with a population growth rate of 2.15 and run the simulations with sample size 500 and 5000. "n" represents the population size for each generation, while "p" represents the allele frequency. We expect to see the allele frequency closer to 1/2 as the population size increases. 
 
@@ -30,34 +30,38 @@ First, we simulate our genotypes over 100 generations with a population growth r
 
 gens <- 100
 
-simulatation <- function(n.0, offspring.rate = 2.15) {
+simulation <- function(n.0, offspring.rate = 2.15) {
   n <- numeric(gens)
-  p <- numeric(gens)
+  a.freq <- numeric(gens)
   
+  #starting condition
   n[1] <- n.0
-  p[1] <- 0.5 
+  a.freq[1] <- 0.5 
   
   for (i in 2:gens){
-    n[i] <- round(n[i - 1] * offspring.rate / 2) * 2
+    #growing population
+    n[i] <- round(n[i - 1] * offspring.rate/2) * 2
     
     totals <- 2 * n[i]
     
-    a.count <- rbinom(1, totals, p[i - 1])
-    p[i] <- a.count / totals
+    #sampling
+    a.count <- rbinom(1, totals, a.freq[i - 1])
+    a.freq[i] <- a.count / totals
   }
   
-  data.frame(generation = 1:gens, n= n, allele.freq = p) 
+  #constructing data frame
+  data.frame(generation = 1:gens, n= n, allele.freq = a.freq) 
 }
 
 set.seed(5)
 
-sim.500  <- simulatation(500)
-sim.5000 <- simulatation(5000)
+sim.500  <- simulation(500)
+sim.5000 <- simulation(5000)
 
 ```
 
 
-We plot the findings and examine the allele frequencies. The red line represents sample size 500, and the blue line represents sample size 5000. As expected, we see the allele frequency trend closer to 1/2 with the larger sample size:
+We plot the findings and examine the allele frequencies. The red line represents sample size 500, and the blue line represents sample size 5000. As expected, we see the allele frequency trend closer to 1/2 with the larger sample size. We also see larger variation at the lower generation values with smaller sample size. This is what we expect based on the prompt. 
 
 ```{r}
 
@@ -65,5 +69,65 @@ ggplot() +
   geom_line(aes(x = 1:100, y = sim.500$allele.freq), color = "red") +
   geom_line(aes(x = 1:100, y = sim.5000$allele.freq), color = "blue") +
   labs(x = "Generation", y = "Frequency of one Allele at Locus") 
+
+```
+
+For part B, we are asked to 
+
+```{r}
+
+gens <- 100
+
+simulation2 <- function(n.0, mutation.rate, offspring.rate = 2.15) {
+  n <- numeric(gens)          
+  a.freq <- numeric(gens)           
+  
+  #starting condition
+  n[1] <- n.0
+  a.freq[1] <- 0                  
+  
+  #all start with same genotype
+  geno <- rep(0, n.0 * 2)      
+  
+  for (i in 2:gens) {
+    #growing population
+    n[i] <- round(n[i - 1] * offspring.rate / 2) * 2
+    totals <- 2 * n[i]
+    
+    transmitted <- sample(geno, size = totals, replace = TRUE)
+    
+    #splitting into maternal/paternal 
+    maternal <- transmitted[1:(totals/2)]
+    
+    paternal <- transmitted[(totals/2 + 1):totals]
+    
+    #mutation is below
+    #maternal
+    na.m <- length(maternal[maternal == 0])
+    if (na.m > 0) {
+      maternal <- replace(
+        maternal, maternal == 0, 
+        rbinom(na.m, 1, mutation.rate))
+    }
+  
+    #paternal 
+    na.p <- length(paternal[paternal == 0])
+    if (na.p > 0) {
+      paternal <- replace(paternal, paternal == 0,
+                          rbinom(na.p, 1, mutation.rate))
+    }
+    
+    #combine mutated maternal/paternal
+    transmitted <- c(maternal, paternal)
+    
+    #update genotype and frequency
+    geno <- transmitted
+    a.freq[i] <- mean(geno)
+  }
+  
+  data.frame(generation = 1:gens, n = n, allele.freq = a.freq)
+}
+
+
 
 ```
