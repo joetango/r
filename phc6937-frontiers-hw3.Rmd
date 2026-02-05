@@ -1,0 +1,60 @@
+---
+title: "PHC6937 HW3"
+author: "Joe Dickerson"
+date: "2026-02-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=FALSE, error=FALSE}
+
+## packages
+library(sparcl)
+library(MASS)
+
+## data preparation
+data(iris)
+
+n <- nrow(iris)
+p2 <- 10
+set.seed(32611)
+iris_noise <- matrix(rnorm(n*p2), ncol=p2)
+iris_label <- iris$Species
+iris2 <- cbind(iris[,1:4], iris_noise)
+iris2 <- scale(iris2)
+iris2 <- as.matrix(iris2)
+
+```
+
+## 1.
+
+```{r}
+
+km.out <- KMeansSparseCluster(iris2, 3, wbounds = 1.9)
+plot(km.out)
+
+iris2.dat <- iris2[,1:4]
+iris2.pca <- prcomp(iris2.dat, center = TRUE, scale = TRUE)
+PC1 <- iris2.pca$x[,"PC1"]
+PC2 <- iris2.pca$x[,"PC2"]
+variance <- iris2.pca$sdev^2 / sum(iris2.pca$sdev^2)
+v1 <- paste0("variance: ",signif(variance[1] * 100,3), "%")
+v2 <- paste0("variance: ",signif(variance[2] * 100,3), "%")
+plot(PC1, PC2, col = as.numeric(iris$Species), xlab = v1, ylab = v2)
+legend("topright", legend = levels(iris$Species), col = unique(iris$Species))
+
+```
+
+## 2.
+
+```{r}
+
+irisHC <- HierarchicalSparseCluster(x = iris2, wbound = 1.9, method = "complete")
+plot(irisHC)
+ColorDendrogram(irisHC$hc, y = iris$Species)
+
+```
+
