@@ -1,0 +1,151 @@
+---
+title: "Problem Set 2"
+author: "Joe Dickerson"
+date: "2026-02-14"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1.
+
+We use the provided code to make the LOD score plot with 100 marker map and then recreate the LOD score plots using 10 marker map as follows:
+
+```{r, warning=FALSE, error=FALSE}
+
+########################################
+## Original method, Dense Marker Map: ##
+########################################
+
+library(qtl)
+
+set.seed(899)
+
+## Simulated genetic map with  100 markers:
+
+map1 <- sim.map(100, n.mar = 100, include.x=FALSE, eq.spacing=FALSE)
+plot(map1)
+
+## Simulating phenotype and genotyping data
+## ONE QTL model: chr, cM position, a, d
+
+fake1 <- sim.cross(map1, type="f2", n.ind=100, model = rbind(c(1,50,4,0))) 
+
+## True QTL
+boxplot(fake1$pheno[,1]~fake1$qtlgeno[,1]) 
+## First Marker
+boxplot(fake1$pheno[,1]~fake1$geno$`1`$data[,1]) 
+
+## Step 1, pre-calculate probabilities.
+tt <- calc.genoprob(fake1, step=.1)
+
+# Step 2, run each method:
+temp.1 <- scanone(tt, chr=1, pheno.col=1, method="mr")
+temp.2 <- scanone(tt, chr=1, pheno.col=1, method="em")
+temp.3 <- scanone(tt, chr=1, pheno.col=1, method="hk")
+
+# Step 3, plot results:
+plot(temp.1, temp.2, temp.3, col=c("red","blue","black"))
+abline(v=50)
+
+#######################
+## Sparse Marker Map ##
+#######################
+
+## 10 markers
+map2 <- sim.map(100, n.mar = 10, include.x=FALSE, eq.spacing=FALSE) 
+plot(map2)
+
+## Phenotype and genotype simulation for 10 markers
+fake2 <- sim.cross(map2, type="f2", n.ind=100, model = rbind(c(1,50,4,0))) # ONE QTL model: chr, cM position, a, d 
+
+## True QTL
+boxplot(fake2$pheno[,1]~fake2$qtlgeno[,1]) 
+## First  Marker
+boxplot(fake2$pheno[,1]~fake2$geno$`1`$data[,1]) 
+
+## mapping step 1
+tt2 <- calc.genoprob(fake2, step=.1)
+
+# The three methods:
+temp2.1 <- scanone(tt2, chr=1, pheno.col=1, method="mr")
+temp2.2 <- scanone(tt2, chr=1, pheno.col=1, method="em")
+temp2.3 <- scanone(tt2, chr=1, pheno.col=1, method="hk")
+
+# Plot:
+plot(temp2.1, temp2.2, temp2.3, col=c("red","blue","black"))
+abline(v=50)
+
+```
+
+Both appear to peak around 50 cM, though the dense marker map peaks higher with a LOD of approximately 50 for each of the three methods, while the sparse marker map peaks closer to 40 with the EM algorithm, and around 35 for the other two methods. The dense marker map appears to be more consistent between the three methods, while there is a notable difference between the LOD scores of the three methods in the sparse marker map. 
+
+## 2.
+
+We perform the selective genotyping example and the example that includes individuals with only complete data. 
+
+```{r}
+
+## Keeping all Phenotypes but setting Genotypes to missing
+selective.geno <- which(abs(fake1$pheno$phenotype) < 2)
+fake1$geno$`1`$data[selective.geno,] <- NA
+
+## Mapping step 1
+tt3 <- calc.genoprob(fake1, step=.1)
+
+## Step 2:
+temp3.1 <- scanone(tt3, chr=1, pheno.col=1, method="mr")
+temp3.2 <- scanone(tt3, chr=1, pheno.col=1, method="em")
+temp3.3 <- scanone(tt3, chr=1, pheno.col=1, method="hk")
+
+plot(temp3.1, temp3.2, temp3.3, col=c("red","blue","black"))
+abline(v=50)
+
+
+## Individuals with complete data:
+fake1_sub <- subset(fake1, ind=(ntyped(fake1) > 0))
+
+## Step 1:
+tt4 <- calc.genoprob(fake1_sub, step=.1)
+
+## Step 2:
+temp4.1 <- scanone(tt4, chr=1, pheno.col=1, method="mr")
+temp4.2 <- scanone(tt4, chr=1, pheno.col=1, method="em")
+temp4.3 <- scanone(tt4, chr=1, pheno.col=1, method="hk")
+
+plot(temp4.1, temp4.2, temp4.3, col=c("red","blue","black"))
+abline(v=50)
+
+```
+
+We see much more variation in the LOD score plot with all individuals. The Haley-Knott method has the highest LOD score at 50 or so, while the other two methods peak around 35. In the LOD score plot of consisting only of individuals with complete data, we see more similar results between the three methods, though the EM algorithm has an interesting feature between 40 cM and 50 cM. 
+
+## 3.
+
+We download 
+
+```{r}
+
+data <- read.csv("Bailey2008_B6xC58J_B37_Data.csv")
+
+cross0 <- sim.cross(data, type="f2", n.ind=100, model = rbind(c(1,50,4,0))) 
+
+tt0 <- calc.genoprob(data, step=.1)
+
+
+data <- read.cross(
+  format = "csv",
+  file = "Bailey2008_B6xC58J_B37_Data.csv",
+  genotypes = c("A","H","B"),
+  na.strings = c("-", "NA"),
+  alleles = c("A","B"),
+  estimate.map = FALSE
+)
+
+scanone(mydata)
+out.chol <- scanone(mydata, pheno.col="Chol", method="hk")
+plot(out.chol)
+
+```
