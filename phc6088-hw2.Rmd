@@ -124,28 +124,21 @@ We see much more variation in the LOD score plot with all individuals. The Haley
 
 ## 3.
 
-We download 
+The "DiPetrillo3" dataset is downloaded from https://phenome.jax.org/projects/DiPetrillo3
+and a LOD score plot is made. It appears at map position of 50 cM Haley-Knott method has a LOD score of 0.6, while EM method peaks closer to 45 cM with a LOD score of 0.4. However, there is not nearly as clear of a high point as in the previous plots, so it is hard to say with certainty. The marker regression line has higher variation, with a spike at 45 and 70 cM with a LOD score of just over 1. 
 
-```{r}
+```{r, error=FALSE, warning=FALSE}
 
-data <- read.csv("Bailey2008_B6xC58J_B37_Data.csv")
+data <- read.cross(file="DiPetrillo2004_C3HxSWR_B37_Data.csv", format="csv")
 
-cross0 <- sim.cross(data, type="f2", n.ind=100, model = rbind(c(1,50,4,0))) 
+tt0 <- calc.genoprob(data, step=1)
 
-tt0 <- calc.genoprob(data, step=.1)
+temp0.1 <- scanone(tt0, chr=1, pheno.col=1, method="mr-imp")
+temp0.2 <- scanone(tt0, chr=1, pheno.col=1, method="em")
+temp0.3 <- scanone(tt0, chr=1, pheno.col=1, method="hk")
 
-
-data <- read.cross(
-  format = "csv",
-  file = "Bailey2008_B6xC58J_B37_Data.csv",
-  genotypes = c("A","H","B"),
-  na.strings = c("-", "NA"),
-  alleles = c("A","B"),
-  estimate.map = FALSE
-)
-
-scanone(mydata)
-out.chol <- scanone(mydata, pheno.col="Chol", method="hk")
-plot(out.chol)
+plot(temp0.1, temp0.2, temp0.3, col=c("red","blue","black"))
+abline(v=50)
 
 ```
+
