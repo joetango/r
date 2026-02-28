@@ -15,10 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ISLR)
 library(tidyverse)
 
-
-
 ```
 ## 1.
+
+We see volume trend upward as the years progress. Categorizing the point color by Direction variable does not seem to illustrate any information, though the correlation matrix does also indicate a relationship between Year and Volume with a value of 0.842.
 
 ```{r}
 
@@ -30,7 +30,7 @@ Weekly |>
   ggplot(aes(x = Year, y = Volume, color = Direction)) +
   geom_point()
 
-plot(Weekly$Volume)
+plot(Weekly$Year, Weekly$Volume)
 
 cor(Weekly[,-9])
 
@@ -61,7 +61,7 @@ glm.probs <- predict(glmod, type = "response")
 glm.probs [1:10]
 
 glm.pred <- rep("Down", 1089)
-glm.pred[glm.probs > .5] = "Up"
+glm.pred[glm.probs > .5] <- "Up"
 
 table(glm.pred, Weekly$Direction)
 
@@ -71,20 +71,23 @@ table(glm.pred, Weekly$Direction)
 
 ## 4.
 
-
+We create a training data set using the period 1990 to 2008 and refit the model using only Lag2 as a predictor on the training data. Then a test data set is made with the years 2009 and 2010. After computing the confusion matrix, we find the rate of correct predictions to be 0.63, which is 0.7 higher than the previous model including more predictors and all the years of data. 
 
 ```{r}
 
 train <- (Weekly$Year < 2009)
-Weekly.train <- Weekly[train, ]
+test <- Weekly[!train, ]
 
-Direction.1990.2008 <- Weekly$Direction[train]
+Direction.2009 <- Weekly$Direction[!train]
 
-glm.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly, family = binomial, subset = train)
-glm.probs =predict (glm.fit ,Smarket.2005 , type="response")
-glm.pred=rep ("Down" ,252)
-glm.pred[glm.probs >.5]="Up"
-table(glm.pred ,Direction.2005)
-mean(glm.pred== Direction.2005)
+glmod2 <- glm(Direction ~ Lag2, data = Weekly, family = binomial, subset = train)
+
+glm.probs2 <- predict(glmod2, test, type = "response")
+glm.pred2 <- rep("Down", 104)
+glm.pred2[glm.probs2 > .5] <- "Up"
+
+table(glm.pred2, Direction.2009)
+(9 + 56)/104
+mean(glm.pred2==Direction.2009)
 
 ```
