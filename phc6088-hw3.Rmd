@@ -1,0 +1,215 @@
+---
+title: "Assignment 3"
+author: "Joe Dickerson"
+date: "2026-02-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Below is the first part of code provided:
+
+```{r, warning=FALSE, error=FALSE}
+
+set.seed(67)
+n <- 1000
+ 
+sigma_A <- 25 # V_A
+sigma.env <- 0
+
+# Parent 1: Simulate effects of their two alleles
+p1 <- rnorm(n,0,sqrt(sigma_A)/2) ##parental 1 allelic 1 effect
+p2 <- rnorm(n,0,sqrt(sigma_A)/2) ##parental 2 allelic 2 effect
+
+# Parent 2: Simulate effects of their two alleles
+p3 <- rnorm(n,0,sqrt(sigma_A)/2) ##parental 1 allelic 1 effect
+p4 <- rnorm(n,0,sqrt(sigma_A)/2) ##parental 2 allelic 2 effect
+
+
+# Parent phenotypes:
+p1.pheno <- p1 + p2  ##Parent 1: additive genetic effect
+p2.pheno <- p3 + p4  ##Parent 1: additive genetic effect
+
+# Add environmental noise:
+p1.pheno <- p1.pheno + rnorm(n,0,sigma.env) 
+p2.pheno <- p2.pheno + rnorm(n,0,sigma.env) 
+
+
+# Start of offspring 1:
+# Transmit allele from parent to offspring
+which.allele.p1 <- rbinom(n, 1, 0.5) # transmitted
+which.allele.p2 <- rbinom(n, 1, 0.5) # transmitted
+
+# From parent 1 
+o1.1 <- rep(0, n) ## initialize
+o1.1[which.allele.p1 == 0] <- p1[which.allele.p1 == 0]
+o1.1[which.allele.p1 == 1] <- p2[which.allele.p1 == 1]
+
+# From parent 2
+o1.2 <- rep(0, n) ## initialize
+o1.2[which.allele.p2 == 0] <- p3[which.allele.p2 == 0]
+o1.2[which.allele.p2 == 1] <- p4[which.allele.p2 == 1]
+
+o1.pheno <- o1.1 + o1.2 + rnorm(n,0,sigma.env)
+
+# Parent-offspring covariance
+# From notes: V_A = 2*cov(x,z)
+
+# Parent-offspring regression for H:
+lm(o1.pheno ~ p1.pheno)
+
+
+```
+
+And now the code added for offspring 2:
+
+```{r, warning=FALSE, error=FALSE}
+
+which.allele.p1 <- rbinom(n, 1, 0.5)
+which.allele.p2 <- rbinom(n, 1, 0.5)
+
+o2.1 <- rep(0, n)
+o2.1[which.allele.p1 == 0] <- p1[which.allele.p1 == 0]
+o2.1[which.allele.p1 == 1] <- p2[which.allele.p1 == 1]
+
+o2.2 <- rep(0, n)
+o2.2[which.allele.p2 == 0] <- p3[which.allele.p2 == 0]
+o2.2[which.allele.p2 == 1] <- p4[which.allele.p2 == 1]
+
+o2.pheno <- o2.1 + o2.2 + rnorm(n,0,sigma.env)
+
+
+```
+
+And the code for the monozygotic twins, but with the object names updated to avoid confusion from the beginning of the code:
+
+```{r, warning=FALSE, error=FALSE}
+
+## Twins
+# Transmit allele from parent to offspring
+which.allele.p1 <- rbinom(n, 1, 0.5)
+which.allele.p2 <- rbinom(n, 1, 0.5)
+
+# From parent 1 
+o3.1 <- rep(0, n) ## initialize
+o3.1[which.allele.p1 == 0] <- p1[which.allele.p1 == 0]
+o3.1[which.allele.p1 == 1] <- p2[which.allele.p1 == 1]
+# From parent 2
+o3.2 <- rep(0, n) ## initialize
+o3.2[which.allele.p2 == 0] <- p3[which.allele.p2 == 0]
+o3.2[which.allele.p2 == 1] <- p4[which.allele.p2 == 1]
+
+o3.pheno <- o3.1 + o3.2 + rnorm(n,0,sigma.env)
+o4.pheno <- o3.1 + o3.2 + rnorm(n,0,sigma.env)
+
+```
+
+Now for our confidence intervals of VsubA and h^2 from 100 runs and sigma.env set to 1 and 15:
+
+Part 2:
+
+```{r, warning=FALSE, error=FALSE}
+
+runs <- 100
+VA.est <- rep(0,runs)
+h2.est <- rep(0,runs)
+
+sigma.env <- 1
+
+for(i in 1:runs){
+
+  p1 <- rnorm(n, 0, sqrt(sigma_A)/2)
+  p2 <- rnorm(n, 0, sqrt(sigma_A)/2)
+  p3 <- rnorm(n, 0, sqrt(sigma_A)/2)
+  p4 <- rnorm(n, 0, sqrt(sigma_A)/2)
+
+  p1.pheno <- p1 + p2 + rnorm(n, 0, sigma.env)
+  p2.pheno <- p3 + p4 + rnorm(n, 0, sigma.env)
+
+  which.allele.p1 <- rbinom(n, 1, 0.5)
+  which.allele.p2 <- rbinom(n, 1, 0.5)
+
+  o1.1 <- ifelse(which.allele.p1 == 0, p1, p2)
+  o1.2 <- ifelse(which.allele.p2 == 0, p3, p4)
+
+  o1.pheno <- o1.1+o1.2+rnorm(n, 0, sigma.env)
+
+  VA.est[i] <- 2*cov(o1.pheno,p1.pheno)
+  h2.est[i] <- 2*coef(lm(o1.pheno~p1.pheno))[2]
+}
+
+quantile(VA.est,c(0.025,0.975))
+quantile(h2.est,c(0.025,0.975))
+
+sigma.env <- 15
+
+for(i in 1:runs){
+
+  p1 <- rnorm(n,0,sqrt(sigma_A)/2)
+  p2 <- rnorm(n,0,sqrt(sigma_A)/2)
+  p3 <- rnorm(n,0,sqrt(sigma_A)/2)
+  p4 <- rnorm(n,0,sqrt(sigma_A)/2)
+
+  p1.pheno <- p1+p2+rnorm(n,0,sigma.env)
+  p2.pheno <- p3+p4+rnorm(n,0,sigma.env)
+
+  which.allele.p1 <- rbinom(n,1,0.5)
+  which.allele.p2 <- rbinom(n,1,0.5)
+
+  o1.1 <- ifelse(which.allele.p1==0,p1,p2)
+  o1.2 <- ifelse(which.allele.p2==0,p3,p4)
+
+  o1.pheno <- o1.1+o1.2+rnorm(n,0,sigma.env)
+
+  VA.est[i] <- 2*cov(o1.pheno,p1.pheno)
+  h2.est[i] <- 2*coef(lm(o1.pheno~p1.pheno))[2]
+}
+
+quantile(VA.est,c(0.025,0.975))
+quantile(h2.est,c(0.025,0.975))
+
+```
+
+With sigma.env set to 15, our confidence intervals pass through 0, which indicates a lack of significance. The results are more favorable with sigma.env set to 1. 
+
+Part 3:
+
+```{r}
+
+h2.twin <- rep(0,runs)
+sigma.env <- 1
+
+for(i in 1:runs){
+
+  p1 <- rnorm(n,0,sqrt(sigma_A)/2)
+  p2 <- rnorm(n,0,sqrt(sigma_A)/2)
+  p3 <- rnorm(n,0,sqrt(sigma_A)/2)
+  p4 <- rnorm(n,0,sqrt(sigma_A)/2)
+
+  # DZ twins
+  w1 <- rbinom(n,1,0.5)
+  w2 <- rbinom(n,1,0.5)
+  dz1 <- ifelse(w1==0,p1,p2)+ifelse(w2==0,p3,p4)+rnorm(n,0,sigma.env)
+
+  w1 <- rbinom(n,1,0.5)
+  w2 <- rbinom(n,1,0.5)
+  dz2 <- ifelse(w1==0,p1,p2)+ifelse(w2==0,p3,p4)+rnorm(n,0,sigma.env)
+
+  # MZ twins
+  w1 <- rbinom(n,1,0.5)
+  w2 <- rbinom(n,1,0.5)
+  base <- ifelse(w1==0,p1,p2)+ifelse(w2==0,p3,p4)
+  mz1 <- base+rnorm(n,0,sigma.env)
+  mz2 <- base+rnorm(n,0,sigma.env)
+
+  h2.twin[i] <- 2*(cor(mz1,mz2)-cor(dz1,dz2))
+}
+
+quantile(h2.twin,c(0.025,0.975))
+
+```
+
+interpret 
+
