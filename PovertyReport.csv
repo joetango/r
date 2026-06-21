@@ -1,0 +1,372 @@
+﻿PolygonLayer1_label,Value0
+,12.4
+,18.5
+,12.5
+,11.8
+,15.4
+,10.3
+,12.7
+,22.9
+,9.1
+,15.7
+,7.9
+,10.5
+,17.0
+,18.8
+,23.7
+,14.5
+,14.0
+,8.9
+,16.6
+,21.5
+,13.5
+,16.9
+,14.9
+,21.9
+,20.5
+,22.1
+,12.1
+,18.6
+,13.2
+,18.2
+,11.3
+,20.6
+,23.5
+,18.9
+,10.7
+,12.1
+,17.6
+,18.3
+,20.8
+,19.8
+,10.4
+,15.0
+,13.1
+,14.1
+,10.0
+,9.5
+,10.1
+,17.0
+,12.4
+,10.9
+,10.8
+,10.5
+,11.3
+,13.0
+,21.1
+,6.1
+,10.4
+,8.1
+,9.5
+,9.2
+,9.7
+,17.3
+,19.7
+,19.4
+,11.9
+,10.4
+,10.9
+,16.8
+
+PolygonLayer2_label,Value0
+,12.5
+,15.7
+,10.5
+,12.6
+,15.4
+,12.0
+,9.4
+,10.2
+,10.8
+,15.2
+,12.4
+,13.7
+,10.2
+,10.1
+,11.6
+,12.2
+,11.1
+,11.2
+,16.1
+,18.9
+,10.5
+,9.7
+,10.5
+,13.5
+,9.2
+,18.3
+,12.0
+,11.8
+,10.2
+,12.2
+,7.3
+,9.7
+,16.9
+,14.1
+,12.8
+,10.0
+,13.2
+,15.8
+,12.1
+,11.9
+,11.4
+,13.9
+,11.4
+,13.8
+,13.7
+,9.0
+,9.9
+,10.2
+,10.3
+,16.4
+,10.6
+,10.4
+
+Textbox105,Textbox106,fips2,county2,ruc_code2,total_est_pct3,total_est_pct_Bmin3,total_est_pct_Bmax3,under18_pct3,under18_pct_Bmin3,under18_pct_Bmax3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12000,Florida,,12.4,12.2,12.6,16.0,15.4,16.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12001,Alachua,2,18.5,16.3,20.7,17.5,12.9,22.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12003,Baker,1,12.5,9.4,15.6,19.3,13.2,25.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12005,Bay,3,11.8,9.9,13.7,15.6,11.2,20.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12007,Bradford,6,15.4,11.8,19.0,22.0,14.9,29.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12009,Brevard,2,10.3,8.9,11.7,15.0,11.6,18.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12011,Broward,1,12.7,11.7,13.7,15.9,13.5,18.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12013,Calhoun,8,22.9,18.5,27.3,26.7,18.4,35.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12015,Charlotte,3,9.1,7.6,10.6,13.5,9.3,17.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12017,Citrus,3,15.7,13.5,17.9,21.3,15.6,27.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12019,Clay,1,7.9,6.5,9.3,10.5,7.5,13.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12021,Collier,2,10.5,9.5,11.5,15.7,12.8,18.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12023,Columbia,4,17.0,13.6,20.4,21.8,15.2,28.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12027,DeSoto,6,18.8,14.4,23.2,26.2,17.7,34.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12029,Dixie,8,23.7,18.6,28.8,32.7,23.5,41.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12031,Duval,1,14.5,13.4,15.6,18.5,15.7,21.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12033,Escambia,2,14.0,11.5,16.5,21.0,15.8,26.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12035,Flagler,2,8.9,7.2,10.6,14.6,10.0,19.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12037,Franklin,8,16.6,12.6,20.6,27.4,18.3,36.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12039,Gadsden,2,21.5,17.8,25.2,30.2,21.4,39.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12041,Gilchrist,2,13.5,10.4,16.6,19.2,13.0,25.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12043,Glades,8,16.9,12.7,21.1,23.3,15.9,30.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12045,Gulf,8,14.9,11.3,18.5,22.1,14.9,29.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12047,Hamilton,8,21.9,16.6,27.2,32.2,21.8,42.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12049,Hardee,6,20.5,15.8,25.2,23.5,16.1,30.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12051,Hendry,4,22.1,18.5,25.7,25.8,18.6,33.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12053,Hernando,1,12.1,10.1,14.1,15.7,11.3,20.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12055,Highlands,3,18.6,16.0,21.2,27.4,20.9,33.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12057,Hillsborough,1,13.2,12.2,14.2,14.7,12.1,17.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12059,Holmes,8,18.2,13.6,22.8,27.3,18.5,36.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12061,Indian River,3,11.3,9.7,12.9,17.2,12.9,21.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12063,Jackson,6,20.6,17.1,24.1,26.7,19.9,33.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12065,Jefferson,2,23.5,20.4,26.6,43.3,37.7,48.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12067,Lafayette,9,18.9,14.5,23.3,25.9,17.7,34.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12069,Lake,1,10.7,9.4,12.0,12.9,9.3,16.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12071,Lee,2,12.1,11.0,13.2,17.3,14.4,20.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12073,Leon,2,17.6,15.8,19.4,18.8,14.3,23.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12075,Levy,2,18.3,15.1,21.5,24.8,17.2,32.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12077,Liberty,8,20.8,15.9,25.7,26.0,18.0,34.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12079,Madison,8,19.8,15.2,24.4,27.5,18.6,36.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12081,Manatee,2,10.4,9.3,11.5,13.1,10.0,16.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12083,Marion,2,15.0,13.5,16.5,24.6,20.9,28.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12085,Martin,2,13.1,11.7,14.5,17.0,13.8,20.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12086,Miami-Dade,1,14.1,13.3,14.9,17.1,15.0,19.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12087,Monroe,4,10.0,7.9,12.1,14.3,9.8,18.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12089,Nassau,1,9.5,8.1,10.9,13.1,10.3,15.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12091,Okaloosa,2,10.1,8.5,11.7,13.6,10.4,16.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12093,Okeechobee,4,17.0,13.4,20.6,24.4,17.2,31.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12095,Orange,1,12.4,11.4,13.4,15.2,12.6,17.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12097,Osceola,1,10.9,9.2,12.6,14.2,10.3,18.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12099,Palm Beach,1,10.8,9.8,11.8,14.6,12.0,17.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12101,Pasco,1,10.5,9.2,11.8,12.3,9.3,15.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12103,Pinellas,1,11.3,10.2,12.4,15.3,12.1,18.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12105,Polk,2,13.0,11.5,14.5,18.1,14.6,21.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12107,Putnam,4,21.1,17.7,24.5,28.0,20.7,35.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12109,St. Johns,1,6.1,5.2,7.0,5.8,4.0,7.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12111,St. Lucie,2,10.4,8.6,12.2,12.2,7.9,16.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12113,Santa Rosa,2,8.1,6.4,9.8,8.6,5.5,11.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12115,Sarasota,2,9.5,8.3,10.7,13.4,10.0,16.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12117,Seminole,1,9.2,7.9,10.5,10.6,8.1,13.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12119,Sumter,3,9.7,8.1,11.3,25.2,19.3,31.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12121,Suwannee,6,17.3,13.5,21.1,24.7,16.8,32.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12123,Taylor,6,19.7,15.5,23.9,25.3,17.2,33.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12125,Union,8,19.4,15.0,23.8,20.5,14.5,26.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12127,Volusia,2,11.9,10.6,13.2,19.3,16.0,22.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12129,Wakulla,2,10.4,7.9,12.9,14.2,9.7,18.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12131,Walton,2,10.9,9.1,12.7,13.9,10.0,17.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12133,Washington,3,16.8,13.0,20.6,24.7,17.2,32.2
+
+Textbox93,Textbox96,fips,county,ruc_code,total_est,total_Bmin,total_Bmax,under18,under18_Bmin,under18_Bmax
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12000,Florida,,"2,741,486","2,696,849","2,786,123","689,967","663,989","715,945"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12001,Alachua,2,"49,524","43,744","55,304","8,747","6,475","11,019"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12003,Baker,1,"3,328","2,495","4,161","1,337",914,"1,760"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12005,Bay,3,"22,023","18,498","25,548","6,157","4,413","7,901"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12007,Bradford,6,"3,871","2,970","4,772","1,273",862,"1,684"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12009,Brevard,2,"65,640","56,754","74,526","16,998","13,152","20,844"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12011,Broward,1,"247,799","229,020","266,578","63,080","53,585","72,575"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12013,Calhoun,8,"2,713","2,193","3,233",711,490,932
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12015,Charlotte,3,"18,491","15,528","21,454","3,197","2,193","4,201"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12017,Citrus,3,"25,675","22,128","29,222","5,092","3,725","6,459"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12019,Clay,1,"18,198","14,977","21,419","5,453","3,895","7,011"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12021,Collier,2,"41,998","37,998","45,998","10,001","8,160","11,842"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12023,Columbia,4,"11,715","9,398","14,032","3,428","2,391","4,465"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12027,DeSoto,6,"6,254","4,792","7,716","1,657","1,123","2,191"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12029,Dixie,8,"3,748","2,941","4,555","1,021",733,"1,309"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12031,Duval,1,"146,043","134,857","157,229","41,811","35,553","48,069"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12033,Escambia,2,"43,284","35,588","50,980","14,058","10,576","17,540"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12035,Flagler,2,"11,598","9,360","13,836","3,006","2,064","3,948"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12037,Franklin,8,"1,890","1,430","2,350",505,337,673
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12039,Gadsden,2,"9,149","7,556","10,742","2,867","2,028","3,706"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12041,Gilchrist,2,"2,503","1,937","3,069",788,534,"1,042"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12043,Glades,8,"1,879","1,412","2,346",378,258,498
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12045,Gulf,8,"2,065","1,563","2,567",555,375,735
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12047,Hamilton,8,"2,603","1,972","3,234",883,597,"1,169"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12049,Hardee,6,"4,902","3,770","6,034","1,491","1,019","1,963"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12051,Hendry,4,"9,445","7,904","10,986","2,754","1,983","3,525"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12053,Hernando,1,"25,371","21,194","29,548","6,085","4,373","7,797"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12055,Highlands,3,"19,796","17,049","22,543","4,801","3,667","5,935"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12057,Hillsborough,1,"198,734","184,134","213,334","47,513","39,243","55,783"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12059,Holmes,8,"3,324","2,491","4,157","1,093",739,"1,447"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12061,Indian River,3,"19,049","16,321","21,777","4,266","3,192","5,340"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12063,Jackson,6,"8,618","7,144","10,092","2,426","1,804","3,048"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12065,Jefferson,2,"3,333","2,888","3,778","1,125",980,"1,270"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12067,Lafayette,9,"1,344","1,032","1,656",402,275,529
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12069,Lake,1,"44,765","39,517","50,013","10,227","7,364","13,090"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12071,Lee,2,"99,505","90,370","108,640","24,123","20,074","28,172"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12073,Leon,2,"49,251","44,086","54,416","10,078","7,678","12,478"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12075,Levy,2,"8,441","6,981","9,901","2,191","1,515","2,867"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12077,Liberty,8,"1,292",987,"1,597",343,237,449
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12079,Madison,8,"3,371","2,586","4,156",930,629,"1,231"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12081,Manatee,2,"45,410","40,489","50,331","9,768","7,476","12,060"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12083,Marion,2,"60,125","54,028","66,222","18,507","15,742","21,272"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12085,Martin,2,"20,806","18,549","23,063","4,338","3,514","5,162"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12086,Miami-Dade,1,"372,520","350,036","395,004","89,687","78,524","100,850"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12087,Monroe,4,"7,992","6,315","9,669","1,753","1,196","2,310"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12089,Nassau,1,"9,524","8,098","10,950","2,518","1,989","3,047"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12091,Okaloosa,2,"21,517","18,108","24,926","6,545","5,006","8,084"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12093,Okeechobee,4,"6,649","5,255","8,043","2,106","1,486","2,726"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12095,Orange,1,"177,726","163,512","191,940","46,398","38,378","54,418"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12097,Osceola,1,"47,450","39,893","55,007","14,481","10,498","18,464"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12099,Palm Beach,1,"163,357","148,066","178,648","41,011","33,637","48,385"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12101,Pasco,1,"65,506","57,561","73,451","15,527","11,697","19,357"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12103,Pinellas,1,"106,728","96,046","117,410","21,886","17,273","26,499"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12105,Polk,2,"103,623","91,735","115,511","31,906","25,636","38,176"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12107,Putnam,4,"15,749","13,223","18,275","4,383","3,238","5,528"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12109,St. Johns,1,"19,245","16,378","22,112","3,952","2,769","5,135"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12111,St. Lucie,2,"38,539","31,906","45,172","8,795","5,698","11,892"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12113,Santa Rosa,2,"15,981","12,636","19,326","3,763","2,425","5,101"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12115,Sarasota,2,"43,818","38,109","49,527","8,569","6,402","10,736"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12117,Seminole,1,"44,094","38,041","50,147","10,299","7,834","12,764"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12119,Sumter,3,"13,827","11,532","16,122","2,686","2,056","3,316"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12121,Suwannee,6,"7,501","5,842","9,160","2,304","1,564","3,044"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12123,Taylor,6,"3,934","3,091","4,777","1,129",766,"1,492"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12125,Union,8,"2,251","1,739","2,763",691,487,895
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12127,Volusia,2,"68,507","61,309","75,705","19,366","16,099","22,633"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12129,Wakulla,2,"3,501","2,654","4,348","1,059",721,"1,397"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12131,Walton,2,"9,126","7,649","10,603","2,437","1,746","3,128"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),12133,Washington,3,"3,946","3,056","4,836","1,252",871,"1,633"
+
+Textbox98,Textbox99,state_National,total_est_pct2,total_est_pct_Bmin2,total_est_pct_Bmax2,under18_pct2,under18_pct_Bmin2,under18_pct_Bmax2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Alabama,15.7,15.3,16.1,21.3,20.5,22.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Alaska,10.5,9.9,11.1,12.5,11.4,13.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Arizona,12.6,12.3,12.9,15.8,15.1,16.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Arkansas,15.4,15.0,15.8,20.2,19.1,21.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),California,12.0,11.9,12.1,15.0,14.6,15.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Colorado,9.4,9.1,9.7,10.9,10.1,11.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Connecticut,10.2,9.8,10.6,13.0,12.1,13.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Delaware,10.8,10.3,11.3,15.4,14.1,16.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),District of Columbia,15.2,14.1,16.3,20.7,17.4,24.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Florida,12.4,12.2,12.6,16.0,15.4,16.6
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Georgia,13.7,13.4,14.0,18.8,18.1,19.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Hawaii,10.2,9.7,10.7,11.8,10.7,12.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Idaho,10.1,9.7,10.5,11.3,10.3,12.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Illinois,11.6,11.4,11.8,14.7,14.1,15.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Indiana,12.2,11.9,12.5,15.1,14.4,15.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Iowa,11.1,10.8,11.4,13.0,12.2,13.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Kansas,11.2,10.8,11.6,13.1,12.3,13.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Kentucky,16.1,15.8,16.4,20.2,19.3,21.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Louisiana,18.9,18.5,19.3,25.2,24.2,26.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Maine,10.5,10.0,11.0,12.6,11.5,13.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Maryland,9.7,9.4,10.0,11.3,10.6,12.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Massachusetts,10.5,10.2,10.8,12.7,12.0,13.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Michigan,13.5,13.3,13.7,17.5,16.9,18.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Minnesota,9.2,9.0,9.4,10.2,9.6,10.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Mississippi,18.3,17.8,18.8,24.3,23.1,25.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Missouri,12.0,11.7,12.3,14.7,14.0,15.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Montana,11.8,11.3,12.3,12.8,11.8,13.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),National,12.5,12.4,12.6,16.0,15.8,16.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Nebraska,10.2,9.8,10.6,11.1,10.2,12.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Nevada,12.2,11.8,12.6,16.4,15.4,17.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New Hampshire,7.3,6.9,7.7,8.2,7.1,9.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New Jersey,9.7,9.5,9.9,12.8,12.2,13.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New Mexico,16.9,16.3,17.5,22.6,21.2,24.0
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New York,14.1,13.9,14.3,18.6,18.1,19.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),North Carolina,12.8,12.6,13.0,17.5,16.9,18.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),North Dakota,10.0,9.5,10.5,10.1,8.9,11.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Ohio,13.2,13.0,13.4,17.5,16.9,18.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Oklahoma,15.8,15.5,16.1,20.5,19.8,21.2
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Oregon,12.1,11.8,12.4,13.6,12.8,14.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Pennsylvania,11.9,11.7,12.1,15.5,14.9,16.1
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Rhode Island,11.4,10.8,12.0,15.1,13.7,16.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),South Carolina,13.9,13.6,14.2,18.8,17.9,19.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),South Dakota,11.4,10.8,12.0,13.5,12.2,14.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Tennessee,13.8,13.5,14.1,18.9,18.0,19.8
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Texas,13.7,13.5,13.9,18.4,17.9,18.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Utah,9.0,8.6,9.4,9.2,8.5,9.9
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Vermont,9.9,9.4,10.4,10.2,9.0,11.4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Virginia,10.2,10.0,10.4,12.7,12.1,13.3
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Washington,10.3,10.0,10.6,12.1,11.5,12.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),West Virginia,16.4,15.9,16.9,19.6,18.5,20.7
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Wisconsin,10.6,10.4,10.8,12.8,12.1,13.5
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Wyoming,10.4,9.7,11.1,12.0,10.6,13.4
+
+Textbox100,Textbox119,state_National2,total_est_pct4,total_est_pct_Bmin4,total_est_pct_Bmax4,under18_pct4,under18_pct_Bmin4,under18_pct_Bmax4
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Alabama,"780,043","762,230","797,856","236,320","226,963","245,677"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Alaska,"75,594","71,582","79,606","21,568","19,587","23,549"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Arizona,"917,925","893,776","942,074","246,285","234,756","257,814"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Arkansas,"459,700","446,622","472,778","140,145","132,654","147,636"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),California,"4,597,732","4,546,196","4,649,268","1,242,302","1,210,490","1,274,114"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Colorado,"538,673","522,400","554,946","129,751","120,315","139,187"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Connecticut,"359,550","346,716","372,384","92,619","86,487","98,751"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Delaware,"109,203","103,844","114,562","32,159","29,469","34,849"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),District of Columbia,"98,811","91,948","105,674","25,956","21,852","30,060"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Florida,"2,741,486","2,696,849","2,786,123","689,967","663,989","715,945"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Georgia,"1,477,354","1,447,988","1,506,720","469,680","452,784","486,576"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Hawaii,"143,193","136,530","149,856","33,698","30,498","36,898"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Idaho,"193,938","185,796","202,080","52,105","47,643","56,567"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Illinois,"1,424,894","1,399,249","1,450,539","390,309","374,473","406,145"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Indiana,"815,808","798,319","833,297","234,986","223,654","246,318"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Iowa,"344,877","333,999","355,755","93,466","87,620","99,312"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Kansas,"319,815","309,809","329,821","89,475","83,828","95,122"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Kentucky,"709,405","694,249","724,561","201,537","192,985","210,089"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Louisiana,"839,489","820,715","858,263","264,541","254,093","274,989"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Maine,"141,996","135,779","148,213","30,775","28,088","33,462"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Maryland,"585,097","567,972","602,222","149,906","140,708","159,104"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Massachusetts,"710,123","690,897","729,349","167,647","158,086","177,208"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Michigan,"1,322,242","1,300,052","1,344,432","362,488","350,169","374,807"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Minnesota,"519,464","505,940","532,988","130,152","122,644","137,660"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Mississippi,"519,394","504,744","534,044","162,144","154,104","170,184"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Missouri,"723,813","706,471","741,155","197,439","187,567","207,311"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Montana,"130,301","124,943","135,659","29,566","27,228","31,904"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),National,"40,763,043","40,485,829","41,040,257","11,445,264","11,310,265","11,580,263"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Nebraska,"197,626","189,186","206,066","52,447","48,243","56,651"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Nevada,"383,742","370,444","397,040","110,536","103,625","117,447"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New Hampshire,"99,969","94,253","105,685","20,374","17,733","23,015"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New Jersey,"885,529","864,431","906,627","252,962","240,126","265,798"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New Mexico,"349,872","338,041","361,703","100,608","94,409","106,807"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),New York,"2,697,685","2,660,117","2,735,253","718,306","697,430","739,182"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),North Carolina,"1,351,818","1,325,459","1,378,177","403,041","388,602","417,480"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),North Dakota,"75,483","71,409","79,557","18,256","16,126","20,386"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Ohio,"1,518,116","1,492,381","1,543,851","441,934","425,613","458,255"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Oklahoma,"621,050","609,199","632,901","194,200","187,244","201,156"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Oregon,"503,758","490,856","516,660","111,495","104,717","118,273"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Pennsylvania,"1,497,696","1,471,263","1,524,129","400,534","384,307","416,761"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Rhode Island,"120,087","113,989","126,185","30,274","27,551","32,997"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),South Carolina,"724,634","706,516","742,752","211,225","201,409","221,041"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),South Dakota,"101,184","96,133","106,235","29,314","26,559","32,069"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Tennessee,"963,479","942,879","984,079","290,918","277,427","304,409"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Texas,"4,091,368","4,036,213","4,146,523","1,373,461","1,338,184","1,408,738"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Utah,"302,676","290,726","314,626","85,097","78,817","91,377"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Vermont,"61,591","58,383","64,799","11,515","10,202","12,828"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Virginia,"867,052","847,246","886,858","235,215","223,684","246,746"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Washington,"793,263","773,166","813,360","196,142","186,017","206,267"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),West Virginia,"281,922","273,889","289,955","67,559","63,767","71,351"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Wisconsin,"614,069","599,659","628,479","157,510","149,367","165,653"
+All people in poverty (2023),Children ages 0-17 in poverty (2023),Wyoming,"59,458","55,651","63,265","15,355","13,577","17,133"
+
