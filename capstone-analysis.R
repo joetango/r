@@ -3,12 +3,15 @@ library(ggplot2)
 library(sf)
 library(randomForest)
 library(tigris)
+library(gridExtra)
 library(spatialRF) ## https://cloud.r-project.org/web/packages/spatialRF/index.html
 ## https://blasbenito.github.io/spatialRF/
 
 
 data <- read.csv("Rates_and_Trends_in_Heart_Disease_and_Stroke_Mortality_Among_US_Adults_(35+)_by_County,_Age_Group,_Race_Ethnicity,_and_Sex_–_2000-2019_20260621.csv")
 ses <- read.csv("poverty_pct_fl.csv")
+
+
 
 ################################
 ### Geographic Random Forest ###
@@ -37,13 +40,35 @@ data.fl <- data.planar |>
   group_by(NAME, x, y) |> 
   summarise(cvd.rate.per.100k = mean(Data_Value, na.rm = TRUE)) 
 
-set.seed(1)
-smoking.pct <- round((sample(15:85, 67)/0.99), 2)
-drinking.pct <- round((sample(15:85, 67)/0.99), 2)
+### Generating some variables ###
 
+set.seed(1)
+
+data.fl$smoking.pct <-
+  scale(data.fl$cvd.rate.per.100k) * 5 +
+  rnorm(nrow(data.fl), 25, 3)
+
+data.fl$drinking.pct <-
+  -scale(data.fl$cvd.rate.per.100k) * 2 +
+  rnorm(nrow(data.fl), 30, 4)
+
+### spacially correlated predicotrs
+# center.x <- mean(data.fl$x)
+# center.y <- mean(data.fl$y)
+# 
+# dist.center <- sqrt(
+#   (data.fl$x - center.x)^2 +
+#     (data.fl$y - center.y)^2
+# )
+# 
+# data.fl$smoking.pct <- scale(-dist.center) * 10 +
+#   rnorm(nrow(data.fl), 25, 3)
+# 
+# data.fl$drinking.pct <- scale(data.fl$y) * 8 +
+#   rnorm(nrow(data.fl), 30, 3)
+
+## from poverty data
 data.fl$poverty.pct <- ses$Percent
-data.fl$smoking.pct <- smoking.pct
-data.fl$drinking.pct <- drinking.pct
 
 data.fl.rf <- st_drop_geometry(data.fl)
 
@@ -91,7 +116,7 @@ ggplot(data.fl.model) +
 
 data.fl.model$residual <- data.fl.model$cvd.rate.per.100k - data.fl.model$predicted
 
-ggplot(data.fl.model) +
+p1 <- ggplot(data.fl.model) +
   geom_sf(aes(fill = residual)) +
   scale_fill_gradient2(
     low = "blue",
@@ -104,9 +129,40 @@ ggplot(data.fl.model) +
 ## Random Forest ##
 ###################
 
-rf <- randomForest(
+rf2 <- randomForest(
   cvd.rate.per.100k ~ poverty.pct + smoking.pct + drinking.pct,
   data = data.fl.rf
 )
- rf
+data.fl.model$rf2.preds <- rf2$predicted
+ 
+ 
+ ggplot(data.fl.model) +
+   geom_sf(aes(fill = rf2.preds)) +
+   scale_fill_viridis_c() +
+   labs(title = "Predicted CVD Mortality")
+ 
+ data.fl.model$residual2 <- data.fl.model$cvd.rate.per.100k - data.fl.model$rf2.preds
+ 
+ p2 <- ggplot(data.fl.model) +
+   geom_sf(aes(fill = residual2)) +
+   scale_fill_gradient2(
+     low = "blue",
+     mid = "white",
+     high = "red"
+   ) +
+   labs(title = "Spatial Residuals")
+ 
+grid.arrange(p1, p2) ## very similar, which probably means the spacial element 
+## does not explain outcome as much as predictors alone do (because small area?)
+ 
+ ##RSME
+ 
+ rmse <- function(obs, pred) sqrt(mean((obs - pred)^2))
+ 
+ rmse_rf  <- rmse(data.fl.model$cvd.rate.per.100k, data.fl.model$rf2.preds)
+ rmse_srf <- rmse(data.fl.model$cvd.rate.per.100k, data.fl.model$predicted)
+ data.frame(
+   model = c("RF", "Spatial RF"),
+   RMSE = c(rmse_rf, rmse_srf)
+ ) 
  
