@@ -4,18 +4,19 @@ library(sf)
 library(randomForest)
 library(tigris)
 library(gridExtra)
-library(spatialRF) ## https://cloud.r-project.org/web/packages/spatialRF/index.html
+library(spatialRF) 
+## https://cloud.r-project.org/web/packages/spatialRF/index.html
 ## https://blasbenito.github.io/spatialRF/
 
 
+## Data ##
 data <- read.csv("Rates_and_Trends_in_Heart_Disease_and_Stroke_Mortality_Among_US_Adults_(35+)_by_County,_Age_Group,_Race_Ethnicity,_and_Sex_–_2000-2019_20260621.csv")
 ses <- read.csv("poverty_pct_fl.csv")
 
 
-
-################
-### Location ###
-################
+#################
+## Coordinates ##
+#################
 
 counties.sf <- counties(cb = TRUE, year = 2019)
 
@@ -26,7 +27,7 @@ data.geo <- counties.sf %>%
 
 data.planar <- st_transform(data.geo, 5070)
 
-## point per county
+## point per county ##
 points <- st_point_on_surface(data.planar)
 
 coordinates <- st_coordinates(points)
@@ -34,13 +35,13 @@ coordinates <- st_coordinates(points)
 data.planar$x <- coordinates[,1]
 data.planar$y <- coordinates[,2]
 
-## filter only FL
+## filter only FL (could do this earlier) ##
 data.fl <- data.planar |> 
   filter(STATEFP == "12") |> 
   group_by(NAME, x, y) |> 
   summarise(cvd.rate.per.100k = mean(Data_Value, na.rm = TRUE)) 
 
-### Generating some variables ###
+## Generating additional variables ##
 
 set.seed(1)
 
@@ -54,7 +55,7 @@ data.fl$education.pct <- rnorm(nrow(data.fl), mean = 50, sd = 10)
 
 data.fl$noise.pct <- abs(rnorm(nrow(data.fl), mean = 0, sd = 1))
 
-## from poverty data
+## from poverty data ##
 data.fl$poverty.pct <- ses$Percent
 
 data.fl.rf <- st_drop_geometry(data.fl)
@@ -75,7 +76,7 @@ distance.matrix <- as.matrix(dist(xy))
 data.fl.rf <- st_drop_geometry(data.fl.model)
 
 
-## model
+## GRF model ##
 rf <- spatialRF::rf(
   data = data.fl.rf,
   dependent.variable.name = "cvd.rate.per.100k",
@@ -84,7 +85,7 @@ rf <- spatialRF::rf(
   distance.matrix = distance.matrix
 )
 
-## predictions
+## predictions ##
 data.fl.model$predicted <- rf$predictions
 data.fl.model$predicted <- unlist(rf$predictions)
 
@@ -102,10 +103,10 @@ p2 <- ggplot(data.fl.model) +
   labs(title = "GRF Predicted Cardiovascular Disease Mortality",
        fill = "Deaths per 100,000")
 
-## residuals
+## residuals ##
 data.fl.model$residual <- data.fl.model$cvd.rate.per.100k - data.fl.model$predicted
 
-## for plotting range
+## for plotting range ##
 all.residuals <- c(data.fl.model$residual,
                    data.fl.model$residual2)
 
@@ -132,30 +133,30 @@ rf2 <- randomForest(
 )
 data.fl.model$rf2.preds <- rf2$predicted
  
+
  
- ggplot(data.fl.model) +
-   geom_sf(aes(fill = rf2.preds)) +
-   scale_fill_gradient(low = "#56B1F7",
+ggplot(data.fl.model) +
+  geom_sf(aes(fill = rf2.preds)) +
+  scale_fill_gradient(low = "#56B1F7",
                        high = "#132B43") +
-   labs(title = "RF Predicted Cardiovascular Disease Mortality")
+  labs(title = "RF Predicted Cardiovascular Disease Mortality")
  
- data.fl.model$residual2 <- data.fl.model$cvd.rate.per.100k - data.fl.model$rf2.preds
+data.fl.model$residual2 <- data.fl.model$cvd.rate.per.100k - data.fl.model$rf2.preds
  
- p5 <- ggplot(data.fl.model) +
-   geom_sf(aes(fill = residual2)) +
-   scale_fill_gradient2(
-     low = "blue",
-     mid = "white",
-     high = "yellow",
-     limits = c(-max.abs, max.abs)) +
-   labs(title = "RF Spatial Residuals",
-        fill = "")
+p5 <- ggplot(data.fl.model) +
+  geom_sf(aes(fill = residual2)) +
+  scale_fill_gradient2(
+    low = "blue",
+    mid = "white",
+    high = "yellow",
+    limits = c(-max.abs, max.abs)) +
+  labs(title = "RF Spatial Residuals", fill = "")
  
 grid.arrange(p3, p5, nrow = 1) 
 ## very similar, which probably means the spacial element 
 ## does not explain outcome as much as predictors alone do (because small area?)
  
- ##RSME
+##RSME
  
 rmse <- function(obs, pred){
   sqrt(mean((obs - pred)^2))
