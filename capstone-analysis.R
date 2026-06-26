@@ -22,7 +22,7 @@ counties.sf <- counties(cb = TRUE, year = 2019)
 
 data$LocationID <- as.character(data$LocationID)
 
-data.geo <- counties.sf %>%
+data.geo <- counties.sf |> 
   left_join(data, by = c("GEOID" = "LocationID"))
 
 data.planar <- st_transform(data.geo, 5070)
@@ -143,7 +143,7 @@ p3 <- ggplot(data.fl.model) +
 # )
 # data.fl.model$rf2.preds <- rf2$predicted
 
-
+## non-spatial rf for comparison
 rf2 <- spatialRF::rf(
   data = data.fl.rf,
   dependent.variable.name = "cvd.rate.per.100k",
@@ -178,7 +178,7 @@ p5 <- ggplot(data.fl.model) +
 grid.arrange(p3, p5, nrow = 1) 
 
  
-##RSME
+## RSME for readability 
  
 rmse <- function(obs, pred){
   sqrt(mean((obs - pred)^2))
