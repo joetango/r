@@ -77,7 +77,7 @@ data.fl.rf <- st_drop_geometry(data.fl.model)
 
 
 ## GRF model ##
-rf <- spatialRF::rf(
+rf <- spatialRF::rf_spatial(
   data = data.fl.rf,
   dependent.variable.name = "cvd.rate.per.100k",
   predictor.variable.names = c("poverty.pct", "smoking.pct", "drinking.pct",
@@ -89,26 +89,35 @@ rf <- spatialRF::rf(
 data.fl.model$predicted <- rf$predictions
 data.fl.model$predicted <- unlist(rf$predictions)
 
+## for limits ##
+
+preds.and.actual <- c(data.fl.model$cvd.rate.per.100k, data.fl.model$predicted,
+                      rf2$predicted2) ## need to run RF model below before this line
+max.rates <- max(abs(preds.and.actual))
+
 p1 <- ggplot(data.fl.model) +
   geom_sf(aes(fill = cvd.rate.per.100k)) +
-  scale_fill_gradient(low = "#56B1F7",
-                      high = "#132B43") +
-  labs(title = "GRF Observed Cardiovascular Disease Mortality",
+  scale_fill_gradient(low = "pink",
+                      high = "blue",
+                      limit = c(0, max.rates)) +
+  labs(title = "Observed CVD Mortality",
        fill = "Deaths per 100,000")
 
 p2 <- ggplot(data.fl.model) +
   geom_sf(aes(fill = predicted)) +
-  scale_fill_gradient(low = "#56B1F7",
-                      high = "#132B43") +
-  labs(title = "GRF Predicted Cardiovascular Disease Mortality",
+  scale_fill_gradient(low = "pink",
+                      high = "blue",
+                      limit = c(0, max.rates)) +
+  labs(title = "GRF Predicted CVD Mortality",
        fill = "Deaths per 100,000")
+
+grid.arrange(p1, p2, ncol = 1)
 
 ## residuals ##
 data.fl.model$residual <- data.fl.model$cvd.rate.per.100k - data.fl.model$predicted
 
 ## for plotting range ##
-all.residuals <- c(data.fl.model$residual,
-                   data.fl.model$residual2)
+all.residuals <- c(data.fl.model$residual, data.fl.model$residual2)
 
 max.abs <- max(abs(all.residuals))
 
@@ -126,20 +135,34 @@ p3 <- ggplot(data.fl.model) +
 ## Random Forest ##
 ###################
 
-rf2 <- randomForest(
-  cvd.rate.per.100k ~ poverty.pct + smoking.pct + drinking.pct + education.pct +
-    noise.pct,
-  data = data.fl.rf
-)
-data.fl.model$rf2.preds <- rf2$predicted
- 
+# # old RF
+# rf2 <- randomForest(
+#   cvd.rate.per.100k ~ poverty.pct + smoking.pct + drinking.pct + education.pct +
+#     noise.pct,
+#   data = data.fl.rf
+# )
+# data.fl.model$rf2.preds <- rf2$predicted
 
+
+rf2 <- spatialRF::rf(
+  data = data.fl.rf,
+  dependent.variable.name = "cvd.rate.per.100k",
+  predictor.variable.names = c("poverty.pct", "smoking.pct", "drinking.pct",
+                               "education.pct", "noise.pct")
+) 
+
+xy2 <- xy[,2:3]
+model.comparison <- rf_compare(models = list(a=rf, b=rf2), xy = xy2)
  
-ggplot(data.fl.model) +
+p4 <- ggplot(data.fl.model) +
   geom_sf(aes(fill = rf2.preds)) +
-  scale_fill_gradient(low = "#56B1F7",
-                       high = "#132B43") +
-  labs(title = "RF Predicted Cardiovascular Disease Mortality")
+  scale_fill_gradient(low = "pink",
+                      high = "blue",
+                      limit = c(0, max.rates)) +
+  labs(title = "RF Predicted CVD Mortality",
+       fill = "Deaths per 100,000")
+
+grid.arrange(p1, p4, ncol = 1)
  
 data.fl.model$residual2 <- data.fl.model$cvd.rate.per.100k - data.fl.model$rf2.preds
  
@@ -153,8 +176,7 @@ p5 <- ggplot(data.fl.model) +
   labs(title = "RF Spatial Residuals", fill = "")
  
 grid.arrange(p3, p5, nrow = 1) 
-## very similar, which probably means the spacial element 
-## does not explain outcome as much as predictors alone do (because small area?)
+
  
 ##RSME
  
